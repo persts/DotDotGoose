@@ -59,7 +59,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
             self.ctrl = True
         elif event.key() == QtCore.Qt.Key_Shift:
             self.shift = True
-        elif event.key() == QtCore.Qt.Key_Delete:
+        elif event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
             self.delete_selection.emit()
         elif event.key() == QtCore.Qt.Key_R:
             self.relabel_selection.emit()
