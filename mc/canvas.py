@@ -49,7 +49,6 @@ class Canvas(QtWidgets.QGraphicsScene):
 
         self.base_image = None
         self.qt_image = None
-        self.classified_image = None
 
         self.display_point_radius = 25
         self.opacity = 0.30
@@ -126,17 +125,8 @@ class Canvas(QtWidgets.QGraphicsScene):
         imageArray[:, :, 0] = np.interp(imageArray[:, :, 0], (imageArray[:, :, 0].min(), imageArray[:, :, 0].max()), (0, 255))
         imageArray[:, :, 1] = np.interp(imageArray[:, :, 1], (imageArray[:, :, 1].min(), imageArray[:, :, 1].max()), (0, 255))
         imageArray[:, :, 2] = np.interp(imageArray[:, :, 2], (imageArray[:, :, 2].min(), imageArray[:, :, 2].max()), (0, 255))
-        pad = np.zeros((imageArray.shape[0], imageArray.shape[1]), dtype='uint8')
-        split = np.split(imageArray, imageArray.shape[2], axis=2)
-        qData = np.dstack((split[2], split[1], split[0], pad))
-        self.qt_image = QtGui.QImage(qData.data, imageArray.shape[1], imageArray.shape[0], 4)
+        self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGB888)
         self.addPixmap(QtGui.QPixmap.fromImage(self.qt_image))
-
-        self.classified_image = QtGui.QPixmap(self.qt_image.width(), self.qt_image.height())
-        self.classified_image.fill(QtCore.Qt.black)
-        self.classified_image = self.addPixmap(self.classified_image)
-        self.classified_image.setOpacity(self.opacity)
-        self.classified_image.hide()
 
         self.image_loaded.emit(self.directory, self.current_image_name)
         self.display_points()
@@ -257,21 +247,9 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.current_class_name = self.classes[class_index]
         self.display_points()
 
-    def set_opacity(self, value):
-        self.opacity = value / 100
-        if self.classified_image is not None:
-            self.classified_image.setOpacity(self.opacity)
-
     def set_point_radius(self, radius):
         self.display_point_radius = radius
         self.display_points()
-
-    def toggle_classification(self, display):
-        if self.classified_image is not None:
-            if display:
-                self.classified_image.show()
-            else:
-                self.classified_image.hide()
 
     def toggle_points(self, display):
         if display:
@@ -279,8 +257,3 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
         else:
             self.clear_points()
-
-    def update_classified_image(self, pixmap):
-        if self.classified_image is not None:
-            self.pixmap = pixmap.detach()
-            self.classified_image.setPixmap(pixmap)
