@@ -110,29 +110,35 @@ class Canvas(QtWidgets.QGraphicsScene):
                     file.write("{},{},{}\n".format(point.x(), point.y(), class_name))
             file.close()
 
-    def load_image(self, file_name):
-        self.selection = []
-        self.clear()
-        url = file_name
-        if type(file_name) == str:
-            url = QtCore.QUrl()
-            url.setPath(os.path.join(self.directory, file_name))
-        self.directory = os.path.split(url.path())[0]
-        self.current_image_name = os.path.split(url.path())[1]
-        self.base_image = Image.open(url.path())
-        imageArray = np.array(self.base_image)
-        # Apply basic min max stretch to the image
-        imageArray[:, :, 0] = np.interp(imageArray[:, :, 0], (imageArray[:, :, 0].min(), imageArray[:, :, 0].max()), (0, 255))
-        imageArray[:, :, 1] = np.interp(imageArray[:, :, 1], (imageArray[:, :, 1].min(), imageArray[:, :, 1].max()), (0, 255))
-        imageArray[:, :, 2] = np.interp(imageArray[:, :, 2], (imageArray[:, :, 2].min(), imageArray[:, :, 2].max()), (0, 255))
-        self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGB888)
-        self.addPixmap(QtGui.QPixmap.fromImage(self.qt_image))
+    def load_image(self, in_file_name):
+        file_name = in_file_name
+        if type(file_name) == QtCore.QUrl:
+            file_name = in_file_name.toLocalFile()
 
-        self.image_loaded.emit(self.directory, self.current_image_name)
-        self.display_points()
+        if self.directory == '':
+            self.directory = os.path.split(file_name)[0]
+
+        if self.directory == os.path.split(file_name)[0]:
+            self.selection = []
+            self.clear()
+            self.current_image_name = os.path.split(file_name)[1]
+            self.base_image = Image.open(file_name)
+            imageArray = np.array(self.base_image)
+            # Apply basic min max stretch to the image
+            imageArray[:, :, 0] = np.interp(imageArray[:, :, 0], (imageArray[:, :, 0].min(), imageArray[:, :, 0].max()), (0, 255))
+            imageArray[:, :, 1] = np.interp(imageArray[:, :, 1], (imageArray[:, :, 1].min(), imageArray[:, :, 1].max()), (0, 255))
+            imageArray[:, :, 2] = np.interp(imageArray[:, :, 2], (imageArray[:, :, 2].min(), imageArray[:, :, 2].max()), (0, 255))
+            self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGB888)
+            self.addPixmap(QtGui.QPixmap.fromImage(self.qt_image))
+
+            self.image_loaded.emit(self.directory, self.current_image_name)
+            self.display_points()
+        else:
+            QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Load aborted.', QtWidgets.QMessageBox.Ok)
 
     def load_points(self, file_name):
         file = open(file_name, 'r')
+        self.directory = os.path.split(file_name)[0]
         data = json.load(file)
         file.close()
         self.colors = data['colors']
@@ -140,9 +146,6 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points = {}
         if 'points' in data:
             self.points = data['points']
-        else:
-            # backward compatibility
-            self.points = data['images']
 
         for image in self.points:
             for class_name in self.points[image]:
@@ -154,9 +157,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points_loaded.emit()
         path = os.path.split(file_name)[0]
         path = os.path.join(path, list(self.points.keys())[0])
-        url = QtCore.QUrl()
-        url.setPath(path)
-        self.load_image(url)
+        self.load_image(path)
 
     def package_points(self):
         count = 0

@@ -78,7 +78,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def double_click(self, model_index):
         item = self.model.itemFromIndex(model_index)
         if item.isSelectable():
-            self.canvas.load_image(item.text())
+            path = os.path.join(self.canvas.directory, item.text())
+            self.canvas.load_image(path)
 
     def cell_changed(self, row, column):
         if column == 0:
