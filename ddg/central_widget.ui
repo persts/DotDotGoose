@@ -29,7 +29,7 @@
       </size>
      </property>
      <property name="title">
-      <string>Training Data Collection</string>
+      <string>Point Data</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
@@ -59,7 +59,7 @@
   <customwidget>
    <class>CentralGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>mc/central_graphics_view</header>
+   <header>ddg/central_graphics_view</header>
   </customwidget>
  </customwidgets>
  <resources/>

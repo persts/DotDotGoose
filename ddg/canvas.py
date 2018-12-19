@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 #
-# Mark Count
+# Dot-Dot-Goose
 # Copyright (C) 2018 Peter Ersts
 # ersts@amnh.org
 #
 # --------------------------------------------------------------------------
 #
-# This file is part of the Mark Count application.
-# Mark Count was forked from the Neural Network Image Classifier (Nenetic).
+# This file is part of the Dot-Dot-Goose application.
+# Dot-Dot-Goose was forked from the Neural Network Image Classifier (Nenetic).
 #
-# Andenet is free software: you can redistribute it and/or modify
+# Dot-Dot-Goose is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Andenet is distributed in the hope that it will be useful,
+# Dot-Dot-Goose is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -33,7 +33,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
-    points_loaded = QtCore.pyqtSignal()
+    points_loaded = QtCore.pyqtSignal(str)
     update_point_count = QtCore.pyqtSignal(str, str, int)
 
     def __init__(self):
@@ -100,15 +100,23 @@ class Canvas(QtWidgets.QGraphicsScene):
                     else:
                         self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), pen, brush)
 
-    def export_points(self, directory):
+    def export_points(self, file_name, survey_id):
+        file = open(file_name, 'w')
+        output = 'survey_id,image'
+        for class_name in self.classes:
+            output += ',' + class_name
+        output += "\n"
+        file.write(output)
         for image in self.points:
-            file = open(os.path.join(directory, image + '.csv'), 'w')
-            file.write("x,y,label\n")
-            for class_name in self.points[image]:
-                points = self.points[image][class_name]
-                for point in points:
-                    file.write("{},{},{}\n".format(point.x(), point.y(), class_name))
-            file.close()
+            output = survey_id + ',' + image
+            for class_name in self.classes:
+                if class_name in self.points[image]:
+                    output += ',' + str(len(self.points[image][class_name]))
+                else: 
+                    output += ',0'
+            output += "\n"
+            file.write(output)
+        file.close()
 
     def load_image(self, in_file_name):
         file_name = in_file_name
@@ -154,14 +162,14 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.points[image][class_name][p] = QtCore.QPointF(point['x'], point['y'])
         for class_name in data['colors']:
             self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
-        self.points_loaded.emit()
+        self.points_loaded.emit(data['metadata']['survey_id'])
         path = os.path.split(file_name)[0]
         path = os.path.join(path, list(self.points.keys())[0])
         self.load_image(path)
 
-    def package_points(self):
+    def package_points(self, survey_id):
         count = 0
-        package = {'classes': [], 'points': {}, 'colors': {}}
+        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id}}
         package['classes'] = self.classes
         for class_name in self.colors:
             r = self.colors[class_name].red()
@@ -224,8 +232,8 @@ class Canvas(QtWidgets.QGraphicsScene):
                 del self.points[image][class_name]
         self.display_points()
 
-    def save_points(self, file_name):
-        output, _ = self.package_points()
+    def save_points(self, file_name, survey_id):
+        output, _ = self.package_points(survey_id)
         file = open(file_name, 'w')
         json.dump(output, file)
         file.close()

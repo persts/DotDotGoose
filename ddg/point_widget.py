@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 #
-# Mark Count
+# Dot-Dot-Goose
 # Copyright (C) 2018 Peter Ersts
 # ersts@amnh.org
 #
 # --------------------------------------------------------------------------
 #
-# This file is part of the Mark Count application.
-# Mark Count was forked from the Neural Network Image Classifier (Nenetic).
+# This file is part of the Dot-Dot-Goose application.
+# Dot-Dot-Goose was forked from the Neural Network Image Classifier (Nenetic).
 #
-# Andenet is free software: you can redistribute it and/or modify
+# Dot-Dot-Goose is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Andenet is distributed in the hope that it will be useful,
+# Dot-Dot-Goose is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -56,7 +56,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.checkBoxDisplayPoints.toggled.connect(self.display_points)
         self.canvas.image_loaded.connect(self.image_loaded)
         self.canvas.update_point_count.connect(self.update_point_count)
-        self.canvas.points_loaded.connect(self.display_classes)
+        self.canvas.points_loaded.connect(self.points_loaded)
 
         self.model = QtGui.QStandardItemModel()
         self.treeView.setModel(self.model)
@@ -141,23 +141,27 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 image_item.appendRow([class_item, class_count])
 
     def export(self):
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Export Points To Directory', self.canvas.directory)
-        if directory != '':
-            self.canvas.export_points(directory)
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Points', os.path.join(self.canvas.directory, 'untitled.csv'), 'Text CSV (*.csv)')
+        if file_name[0] is not '':
+            self.canvas.export_points(file_name[0], self.lineEditSurveyId.text())
 
     def image_loaded(self, directory, file_name):
         self.tableWidgetClasses.selectionModel().clear()
         self.display_count_tree()
 
     def load(self):
-        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Select Training Points', self.canvas.directory, 'Point Files (*.pnt)')
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Select Points File', self.canvas.directory, 'Point Files (*.pnt)')
         if file_name[0] is not '':
             self.canvas.load_points(file_name[0])
+
+    def points_loaded(self, survey_id):
+        self.lineEditSurveyId.setText(survey_id)
+        self.display_classes()
 
     def reset(self):
         msgBox = QtWidgets.QMessageBox()
         msgBox.setWindowTitle('Warning')
-        msgBox.setText('You are about to clear all training data')
+        msgBox.setText('You are about to clear all point data')
         msgBox.setInformativeText('Do you want to continue?')
         msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
         msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
@@ -193,9 +197,9 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 self.display_count_tree()
 
     def save(self):
-        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Training Points', os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Points', os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
         if file_name[0] is not '':
-            self.canvas.save_points(file_name[0])
+            self.canvas.save_points(file_name[0], self.lineEditSurveyId.text())
 
     def selection_changed(self, selected, deselected):
         if len(selected.indexes()) > 0:
