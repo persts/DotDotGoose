@@ -33,7 +33,7 @@ if __name__ == '__main__':
         app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
     screen = app.desktop().availableGeometry()
     main = QtWidgets.QMainWindow()
-    main.setWindowTitle('Dot-Dot-Goose -- beta 3 -- Do not redistribute')
+    main.setWindowTitle('Dot-Dot-Goose -- beta 4 -- Do not redistribute')
     main.setCentralWidget(CentralWidget())
     main.show()
     main.resize(int(screen.width() * .95), screen.height())

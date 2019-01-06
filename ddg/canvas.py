@@ -34,12 +34,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
     points_loaded = QtCore.pyqtSignal(str)
+    fields_updated = QtCore.pyqtSignal(list)
     update_point_count = QtCore.pyqtSignal(str, str, int)
 
     def __init__(self):
         QtWidgets.QGraphicsScene.__init__(self)
         self.points = {}
         self.colors = {}
+        self.coordinates = {}
+        self.custom_fields = {'fields': [], 'data': {}}
         self.classes = []
         self.selection = []
 
@@ -63,6 +66,11 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.classes.sort()
             self.colors[class_name] = QtGui.QColor(QtCore.Qt.black)
 
+    def add_custom_field(self, field_def):
+        self.custom_fields['fields'].append(field_def)
+        self.custom_fields['data'][field_def[0]] = {}
+        self.fields_updated.emit(self.custom_fields['fields'])
+
     def add_point(self, point):
         if self.current_image_name is not None and self.current_class_name is not None:
             if self.current_image_name not in self.points:
@@ -73,9 +81,14 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), self.active_pen, self.active_brush)
             self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
 
+    def clear_coordinates(self):
+        for graphic in self.items():
+            if type(graphic) == QtWidgets.QGraphicsTextItem:
+                self.removeItem(graphic)
+
     def clear_points(self):
         for graphic in self.items():
-            if type(graphic) is not QtWidgets.QGraphicsPixmapItem:
+            if type(graphic) == QtWidgets.QGraphicsEllipseItem:
                 self.removeItem(graphic)
 
     def delete_selected_points(self):
@@ -86,6 +99,25 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
             self.selection = []
             self.display_points()
+    
+    def display_coordinates(self):
+        if self.current_image_name in self.coordinates:
+            x = self.coordinates[self.current_image_name]['x']
+            y = self.coordinates[self.current_image_name]['y']
+            font = QtGui.QFont()
+            font.setPointSize(40)
+            item = self.addText("[ x: {} ] [ y: {} ]".format(x, y), font)
+            item.setDefaultTextColor(QtCore.Qt.yellow)
+
+    def delete_custom_field(self, field):
+        self.custom_fields['data'].pop(field)
+        index = -1
+        for i, (field_name, _) in enumerate(self.custom_fields['fields']):
+            if field_name == field:
+                index = i
+        if index >= 0:
+            self.custom_fields['fields'].pop(index)
+        self.fields_updated.emit(self.custom_fields['fields'])
 
     def display_points(self):
         self.clear_points()
@@ -105,7 +137,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         output = 'survey_id,image'
         for class_name in self.classes:
             output += ',' + class_name
-        output += "\n"
+        output += ",x,y"
+        for field_name, _ in self.custom_fields['fields']:
+            output += ',{}'.format(field_name)
+        output += '\n'
         file.write(output)
         for image in self.points:
             output = survey_id + ',' + image
@@ -114,9 +149,29 @@ class Canvas(QtWidgets.QGraphicsScene):
                     output += ',' + str(len(self.points[image][class_name]))
                 else: 
                     output += ',0'
+            if image in self.coordinates:
+                output += ',' + self.coordinates[image]['x']
+                output += ',' + self.coordinates[image]['y']
+            else:
+                output += ',,'
+            for field_name, _ in self.custom_fields['fields']:
+                if image in self.custom_fields['data'][field_name]:
+                    output += ',{}'.format(self.custom_fields['data'][field_name][image])
+                else:
+                    output == ','
             output += "\n"
             file.write(output)
         file.close()
+
+    def get_custom_field_data(self):
+        data = {}
+        if self.current_image_name is not None:
+            for field_def in self.custom_fields['fields']:
+                if self.current_image_name in self.custom_fields['data'][field_def[0]]:
+                    data[field_def[0]] = self.custom_fields['data'][field_def[0]][self.current_image_name]
+                else:
+                    data[field_def[0]] = ''
+        return data
 
     def load_image(self, in_file_name):
         file_name = in_file_name
@@ -136,10 +191,14 @@ class Canvas(QtWidgets.QGraphicsScene):
             imageArray[:, :, 0] = np.interp(imageArray[:, :, 0], (imageArray[:, :, 0].min(), imageArray[:, :, 0].max()), (0, 255))
             imageArray[:, :, 1] = np.interp(imageArray[:, :, 1], (imageArray[:, :, 1].min(), imageArray[:, :, 1].max()), (0, 255))
             imageArray[:, :, 2] = np.interp(imageArray[:, :, 2], (imageArray[:, :, 2].min(), imageArray[:, :, 2].max()), (0, 255))
-            self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGB888)
+            if imageArray.shape[2] == 4:
+                self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGBA8888)
+            else:
+                self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGB888)
             self.addPixmap(QtGui.QPixmap.fromImage(self.qt_image))
 
             self.image_loaded.emit(self.directory, self.current_image_name)
+            self.display_coordinates()
             self.display_points()
         else:
             QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Load aborted.', QtWidgets.QMessageBox.Ok)
@@ -149,8 +208,15 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.directory = os.path.split(file_name)[0]
         data = json.load(file)
         file.close()
+        survey_id = data['metadata']['survey_id']
+        # Backward compat
+        if 'custom_fields' in data:
+            self.custom_fields = data['custom_fields']
+        else:
+            self.custom_fields = {'fields': [], 'data': {}}
         self.colors = data['colors']
         self.classes = data['classes']
+        self.coordinates = data['metadata']['coordinates']
         self.points = {}
         if 'points' in data:
             self.points = data['points']
@@ -162,14 +228,15 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.points[image][class_name][p] = QtCore.QPointF(point['x'], point['y'])
         for class_name in data['colors']:
             self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
-        self.points_loaded.emit(data['metadata']['survey_id'])
+        self.points_loaded.emit(survey_id)
+        self.fields_updated.emit(self.custom_fields['fields'])
         path = os.path.split(file_name)[0]
         path = os.path.join(path, list(self.points.keys())[0])
         self.load_image(path)
 
     def package_points(self, survey_id):
         count = 0
-        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id}}
+        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id, 'coordinates': self.coordinates}, 'custom_fields': self.custom_fields}
         package['classes'] = self.classes
         for class_name in self.colors:
             r = self.colors[class_name].red()
@@ -231,6 +298,21 @@ class Canvas(QtWidgets.QGraphicsScene):
             if class_name in self.points[image]:
                 del self.points[image][class_name]
         self.display_points()
+    
+    def save_coordinates(self, x, y):
+        if self.current_image_name is not None:
+            if self.current_image_name not in self.coordinates:
+                self.coordinates[self.current_image_name] = {'x': '', 'y': ''}
+            self.coordinates[self.current_image_name]['x'] = x
+            self.coordinates[self.current_image_name]['y'] = y
+            self.clear_coordinates()
+            self.display_coordinates()
+
+    def save_custom_field_data(self, field, data):
+        if self.current_image_name is not None:
+            if self.current_image_name not in self.custom_fields['data'][field]:
+                self.custom_fields['data'][field][self.current_image_name] = ''
+            self.custom_fields['data'][field][self.current_image_name] = data
 
     def save_points(self, file_name, survey_id):
         output, _ = self.package_points(survey_id)
