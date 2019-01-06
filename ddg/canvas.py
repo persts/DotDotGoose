@@ -173,6 +173,23 @@ class Canvas(QtWidgets.QGraphicsScene):
                     data[field_def[0]] = ''
         return data
 
+    def import_metadata(self, file_name):
+        file = open(file_name, 'r')
+        self.directory = os.path.split(file_name)[0]
+        data = json.load(file)
+        file.close()
+        # Backward compat
+        if 'custom_fields' in data:
+            self.custom_fields = data['custom_fields']
+        else:
+            self.custom_fields = {'fields': [], 'data': {}}
+        self.colors = data['colors']
+        for class_name in data['colors']:
+            self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
+        self.classes = data['classes']
+        self.fields_updated.emit(self.custom_fields['fields'])
+        self.points_loaded.emit('')
+
     def load_image(self, in_file_name):
         file_name = in_file_name
         if type(file_name) == QtCore.QUrl:
@@ -283,12 +300,17 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points = {}
         self.colors = {}
         self.classes = []
-        if clear_image:
-            self.clear()
-            self.current_image_name = ''
-            self.current_class_name = None
-        else:
-            self.clear_points()
+        self.classes = []
+        self.selection = []
+        self.coordinates = {}
+        self.custom_fields = {'fields': [], 'data': {}}
+
+        self.clear()
+        self.current_image_name = ''
+        self.current_class_name = None
+        self.fields_updated.emit([])
+        self.points_loaded.emit('')
+        self.image_loaded.emit('', '')
 
     def remove_class(self, class_name):
         index = self.classes.index(class_name)

@@ -73,8 +73,9 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
     # Image data field functions
     def add_field(self):
         field_def = (self.field_name.text(), self.field_type.currentText())
-        if field_def in self.canvas.custom_fields['fields']:
-            print('exists')
+        field_names = [x[0] for x in self.canvas.custom_fields['fields']]
+        if field_def[0] in field_names:
+            QtWidgets.QMessageBox.warning(self, 'Warning', 'Field name already exists')
         else:
             self.canvas.add_custom_field(field_def)
             self.add_dialog.close()

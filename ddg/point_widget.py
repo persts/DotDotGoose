@@ -39,6 +39,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
         self.pushButtonAddClass.clicked.connect(self.add_class)
         self.pushButtonRemoveClass.clicked.connect(self.remove_class)
+        self.pushButtonImport.clicked.connect(self.import_metadata)
         self.pushButtonSave.clicked.connect(self.save)
         self.pushButtonLoadPoints.clicked.connect(self.load)
         self.pushButtonReset.clicked.connect(self.reset)
@@ -148,6 +149,11 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def image_loaded(self, directory, file_name):
         self.tableWidgetClasses.selectionModel().clear()
         self.display_count_tree()
+    
+    def import_metadata(self):
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Select Points File', self.canvas.directory, 'Point Files (*.pnt)')
+        if file_name[0] is not '':
+            self.canvas.import_metadata(file_name[0])
 
     def load(self):
         file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Select Points File', self.canvas.directory, 'Point Files (*.pnt)')
@@ -161,7 +167,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def reset(self):
         msgBox = QtWidgets.QMessageBox()
         msgBox.setWindowTitle('Warning')
-        msgBox.setText('You are about to clear all point data')
+        msgBox.setText('You are about to clear all data')
         msgBox.setInformativeText('Do you want to continue?')
         msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
         msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
