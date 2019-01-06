@@ -24,10 +24,15 @@
 #
 # --------------------------------------------------------------------------
 import os
+import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 # from .ui_point_widget import Ui_Pointwidget as WIDGET
-WIDGET, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'point_widget.ui'))
+if getattr(sys, 'frozen', False):
+    bundle_dir = sys._MEIPASS
+else:
+    bundle_dir = os.path.dirname(__file__)
+WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'point_widget.ui'))
 
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
