@@ -25,6 +25,7 @@
 import sys
 from PyQt5 import QtWidgets
 from ddg import CentralWidget
+from ddg import __version__
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
@@ -32,7 +33,7 @@ if __name__ == '__main__':
         app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
     screen = app.desktop().availableGeometry()
     main = QtWidgets.QMainWindow()
-    main.setWindowTitle('Dot-Dot-Goose -- beta 4 -- Do not redistribute')
+    main.setWindowTitle('DotDotGoose [v {}]'.format(__version__))
     main.setCentralWidget(CentralWidget())
     main.show()
     main.resize(int(screen.width() * .95), screen.height())

@@ -108,7 +108,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.delete_button = QtWidgets.QPushButton('Delete')
         self.delete_button.clicked.connect(self.delete_field)
         self.delete_dialog = QtWidgets.QDialog(self)
-        self.delete_dialog.setWindowTitle('Add Custom Field')
+        self.delete_dialog.setWindowTitle('Delete Custom Field')
         self.delete_dialog.setLayout(QtWidgets.QVBoxLayout())
         self.delete_dialog.layout().addWidget(self.field_list)
         self.delete_dialog.layout().addWidget(self.delete_button)
