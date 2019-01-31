@@ -80,11 +80,6 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), self.active_pen, self.active_brush)
             self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
 
-    def clear_coordinates(self):
-        for graphic in self.items():
-            if type(graphic) == QtWidgets.QGraphicsTextItem:
-                self.removeItem(graphic)
-
     def clear_points(self):
         for graphic in self.items():
             if type(graphic) == QtWidgets.QGraphicsEllipseItem:
@@ -98,15 +93,6 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
             self.selection = []
             self.display_points()
-    
-    def display_coordinates(self):
-        if self.current_image_name in self.coordinates:
-            x = self.coordinates[self.current_image_name]['x']
-            y = self.coordinates[self.current_image_name]['y']
-            font = QtGui.QFont()
-            font.setPointSize(40)
-            item = self.addText("[ x: {} ] [ y: {} ]".format(x, y), font)
-            item.setDefaultTextColor(QtCore.Qt.yellow)
 
     def delete_custom_field(self, field):
         self.custom_fields['data'].pop(field)
@@ -214,7 +200,6 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.addPixmap(QtGui.QPixmap.fromImage(self.qt_image))
 
             self.image_loaded.emit(self.directory, self.current_image_name)
-            self.display_coordinates()
             self.display_points()
         else:
             QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Load aborted.', QtWidgets.QMessageBox.Ok)
@@ -327,7 +312,6 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.coordinates[self.current_image_name]['x'] = x
             self.coordinates[self.current_image_name]['y'] = y
             self.clear_coordinates()
-            self.display_coordinates()
 
     def save_custom_field_data(self, field, data):
         if self.current_image_name is not None:

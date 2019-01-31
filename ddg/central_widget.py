@@ -96,6 +96,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.add_dialog.layout().addWidget(self.field_name)
         self.add_dialog.layout().addWidget(self.field_type)
         self.add_dialog.layout().addWidget(self.add_button)
+        self.add_dialog.resize(250, self.add_dialog.height())
         self.add_dialog.show()
 
     def delete_field(self):
@@ -112,6 +113,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.delete_dialog.setLayout(QtWidgets.QVBoxLayout())
         self.delete_dialog.layout().addWidget(self.field_list)
         self.delete_dialog.layout().addWidget(self.delete_button)
+        self.delete_dialog.resize(250, self.delete_dialog.height())
         self.delete_dialog.show()
 
     def display_coordinates(self, directory, image):
