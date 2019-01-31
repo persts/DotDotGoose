@@ -1,4 +1,4 @@
-#Schema
+# Schema
 
 The pnt file is a JSON object with an array and four dictionaries. 
 ``` json
@@ -37,3 +37,4 @@ point: {
 }
 
 field_def: [ str, str]
+```
