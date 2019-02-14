@@ -49,7 +49,6 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.current_image_name = None
         self.current_class_name = None
 
-        self.base_image = None
         self.qt_image = None
 
         self.display_point_radius = 25
@@ -176,6 +175,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points_loaded.emit('')
 
     def load_image(self, in_file_name):
+        Image.MAX_IMAGE_PIXELS = 1000000000
         file_name = in_file_name
         if type(file_name) == QtCore.QUrl:
             file_name = in_file_name.toLocalFile()
@@ -184,23 +184,36 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.directory = os.path.split(file_name)[0]
 
         if self.directory == os.path.split(file_name)[0]:
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
             self.selection = []
             self.clear()
             self.current_image_name = os.path.split(file_name)[1]
-            self.base_image = Image.open(file_name)
-            imageArray = np.array(self.base_image)
-            # Apply basic min max stretch to the image
-            imageArray[:, :, 0] = np.interp(imageArray[:, :, 0], (imageArray[:, :, 0].min(), imageArray[:, :, 0].max()), (0, 255))
-            imageArray[:, :, 1] = np.interp(imageArray[:, :, 1], (imageArray[:, :, 1].min(), imageArray[:, :, 1].max()), (0, 255))
-            imageArray[:, :, 2] = np.interp(imageArray[:, :, 2], (imageArray[:, :, 2].min(), imageArray[:, :, 2].max()), (0, 255))
-            if imageArray.shape[2] == 4:
-                self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGBA8888)
+            img = Image.open(file_name)
+            array = np.array(img)
+            img.close
+            if array.shape[0] > 10000 or array.shape[1] > 10000:
+                stride = 10
+                for s in range(0, array.shape[1], stride):
+                    sub = array[:,s:s+stride].copy()
+                    qt_image = QtGui.QImage(sub.data, sub.shape[1], sub.shape[0], QtGui.QImage.Format_RGB888)
+                    pixmap = QtGui.QPixmap.fromImage(qt_image)
+                    item = self.addPixmap(pixmap)
+                    item.moveBy(s, 0)
+                
             else:
-                self.qt_image = QtGui.QImage(imageArray.data, imageArray.shape[1], imageArray.shape[0], QtGui.QImage.Format_RGB888)
-            self.addPixmap(QtGui.QPixmap.fromImage(self.qt_image))
-
+                # Apply basic min max stretch to the image
+                array[:, :, 0] = np.interp(array[:, :, 0], (array[:, :, 0].min(), array[:, :, 0].max()), (0, 255))
+                array[:, :, 1] = np.interp(array[:, :, 1], (array[:, :, 1].min(), array[:, :, 1].max()), (0, 255))
+                array[:, :, 2] = np.interp(array[:, :, 2], (array[:, :, 2].min(), array[:, :, 2].max()), (0, 255))
+                if array.shape[2] == 4:
+                    self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_RGBA8888)
+                else:
+                    self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_RGB888)
+                self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
+                self.addPixmap(self.pixmap)
             self.image_loaded.emit(self.directory, self.current_image_name)
             self.display_points()
+            QtWidgets.QApplication.restoreOverrideCursor()
         else:
             QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Load aborted.', QtWidgets.QMessageBox.Ok)
 
