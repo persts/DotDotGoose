@@ -192,7 +192,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             array = np.array(img)
             img.close
             if array.shape[0] > 10000 or array.shape[1] > 10000:
-                stride = 10
+                stride = 200
                 for s in range(0, array.shape[1], stride):
                     sub = array[:,s:s+stride].copy()
                     qt_image = QtGui.QImage(sub.data, sub.shape[1], sub.shape[0], QtGui.QImage.Format_RGB888)
