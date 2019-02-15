@@ -189,8 +189,9 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.clear()
             self.current_image_name = os.path.split(file_name)[1]
             img = Image.open(file_name)
+            channels = len(img.getbands())
             array = np.array(img)
-            img.close
+            img.close()
             if array.shape[0] > 10000 or array.shape[1] > 10000:
                 stride = 200
                 for s in range(0, array.shape[1], stride):
@@ -199,16 +200,18 @@ class Canvas(QtWidgets.QGraphicsScene):
                     pixmap = QtGui.QPixmap.fromImage(qt_image)
                     item = self.addPixmap(pixmap)
                     item.moveBy(s, 0)
-                
             else:
-                # Apply basic min max stretch to the image
-                array[:, :, 0] = np.interp(array[:, :, 0], (array[:, :, 0].min(), array[:, :, 0].max()), (0, 255))
-                array[:, :, 1] = np.interp(array[:, :, 1], (array[:, :, 1].min(), array[:, :, 1].max()), (0, 255))
-                array[:, :, 2] = np.interp(array[:, :, 2], (array[:, :, 2].min(), array[:, :, 2].max()), (0, 255))
-                if array.shape[2] == 4:
-                    self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_RGBA8888)
+                if channels == 1:
+                    self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_Grayscale8)
                 else:
-                    self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_RGB888)
+                    # Apply basic min max stretch to the image
+                    for chan in range(channels):
+                        array[:, :, chan] = np.interp(array[:, :, chan], (array[:, :, chan].min(), array[:, :, chan].max()), (0, 255))
+                    bpl = int(array.nbytes / array.shape[0])
+                    if array.shape[2] == 4:
+                        self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_RGBA8888)
+                    else:
+                        self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], bpl, QtGui.QImage.Format_RGB888)
                 self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
                 self.addPixmap(self.pixmap)
             self.image_loaded.emit(self.directory, self.current_image_name)
