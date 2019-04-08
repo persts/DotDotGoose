@@ -33,7 +33,7 @@ if __name__ == '__main__':
         app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
     screen = app.desktop().availableGeometry()
     main = QtWidgets.QMainWindow()
-    main.setWindowTitle('DotDotGoose [v {}]'.format(__version__))
+    main.setWindowTitle('DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://cbc.amnh.org )'.format(__version__))
     main.setCentralWidget(CentralWidget())
     main.show()
     main.resize(int(screen.width() * .95), screen.height() * 0.95)
