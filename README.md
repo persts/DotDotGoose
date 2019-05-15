@@ -47,3 +47,7 @@ git clone https://github.com/persts/DotDotGoose
 cd DotDotGoose
 python3 main.py
 ```
+
+## Executables
+
+Don't want to install from scratch? [Download DotDotGoose and start counting!](https://biodiversityinformatics.amnh.org/open_source/dotdotgoose/)
