@@ -248,8 +248,9 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points_loaded.emit(survey_id)
         self.fields_updated.emit(self.custom_fields['fields'])
         path = os.path.split(file_name)[0]
-        path = os.path.join(path, list(self.points.keys())[0])
-        self.load_image(path)
+        if self.points.keys():
+            path = os.path.join(path, list(self.points.keys())[0])
+            self.load_image(path)
 
     def package_points(self, survey_id):
         count = 0
@@ -327,7 +328,6 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.coordinates[self.current_image_name] = {'x': '', 'y': ''}
             self.coordinates[self.current_image_name]['x'] = x
             self.coordinates[self.current_image_name]['y'] = y
-            self.clear_coordinates()
 
     def save_custom_field_data(self, field, data):
         if self.current_image_name is not None:
