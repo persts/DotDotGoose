@@ -188,32 +188,36 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
             self.clear()
             self.current_image_name = os.path.split(file_name)[1]
-            img = Image.open(file_name)
-            channels = len(img.getbands())
-            array = np.array(img)
-            img.close()
-            if array.shape[0] > 10000 or array.shape[1] > 10000:
-                stride = 200
-                for s in range(0, array.shape[1], stride):
-                    sub = array[:,s:s+stride].copy()
-                    qt_image = QtGui.QImage(sub.data, sub.shape[1], sub.shape[0], QtGui.QImage.Format_RGB888)
-                    pixmap = QtGui.QPixmap.fromImage(qt_image)
-                    item = self.addPixmap(pixmap)
-                    item.moveBy(s, 0)
-            else:
-                if channels == 1:
-                    self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_Grayscale8)
+            try:
+                img = Image.open(file_name)
+                channels = len(img.getbands())
+                array = np.array(img)
+                img.close()
+                if array.shape[0] > 10000 or array.shape[1] > 10000:
+                    stride = 200
+                    for s in range(0, array.shape[1], stride):
+                        sub = array[:,s:s+stride].copy()
+                        qt_image = QtGui.QImage(sub.data, sub.shape[1], sub.shape[0], QtGui.QImage.Format_RGB888)
+                        pixmap = QtGui.QPixmap.fromImage(qt_image)
+                        item = self.addPixmap(pixmap)
+                        item.moveBy(s, 0)
                 else:
-                    # Apply basic min max stretch to the image
-                    for chan in range(channels):
-                        array[:, :, chan] = np.interp(array[:, :, chan], (array[:, :, chan].min(), array[:, :, chan].max()), (0, 255))
-                    bpl = int(array.nbytes / array.shape[0])
-                    if array.shape[2] == 4:
-                        self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_RGBA8888)
+                    if channels == 1:
+                        self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_Grayscale8)
                     else:
-                        self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], bpl, QtGui.QImage.Format_RGB888)
-                self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
-                self.addPixmap(self.pixmap)
+                        # Apply basic min max stretch to the image
+                        for chan in range(channels):
+                            array[:, :, chan] = np.interp(array[:, :, chan], (array[:, :, chan].min(), array[:, :, chan].max()), (0, 255))
+                        bpl = int(array.nbytes / array.shape[0])
+                        if array.shape[2] == 4:
+                            self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format_RGBA8888)
+                        else:
+                            self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], bpl, QtGui.QImage.Format_RGB888)
+                    self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
+                    self.addPixmap(self.pixmap)
+            except FileNotFoundError:
+                QtWidgets.QMessageBox.critical(None, 'File Not Found', '{} is not in the same folder as the point file.'.format(self.current_image_name))
+                self.image_loaded.emit(self.directory, self.current_image_name)
             self.image_loaded.emit(self.directory, self.current_image_name)
             self.display_points()
             QtWidgets.QApplication.restoreOverrideCursor()
