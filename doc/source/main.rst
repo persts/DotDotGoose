@@ -1,6 +1,6 @@
 If you use this application on data that results in a publication, report, or online analysis, we ask that you include the following reference:
 
-Ersts,P.J.[Internet] DotDotGoose (version 1.0.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
+Ersts,P.J.[Internet] DotDotGoose (version 1.1.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
 
 .. raw:: latex
 
@@ -167,6 +167,20 @@ Deleting Custom Fields
     1. Click the [Delete Field] button to open the Delete Custom Field dialog.
     2. Select the field you would like to remove from the pull down menu.
     3. Click the [Delete] button. *Note: This will remove the custom field and existing data in it for the active project*
+
+Saving and Loading Point Data
+=============================
+You can save your point data to a file and reload them as needed. If you want to share the raw point data with another colleagues simply package / copy the directory containing the pnt file and images. Save frequently!
+
+Saving Point Data
+-----------------
+    1. Click the [Save] button to open the file dialog.
+    2. Enter a new file name or select and existing file to overwrite. *Note: You must save your pnt file in the same directory as your images*
+
+Loading Point Data
+------------------
+    1. Click the [Load] button to open the file dialog.
+    2. Select a pnt file to load.
 
 Exporting Count Data
 ====================

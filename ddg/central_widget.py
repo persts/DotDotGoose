@@ -59,6 +59,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
         self.graphicsView.add_point.connect(self.canvas.add_point)
         self.canvas.image_loaded.connect(self.graphicsView.image_loaded)
+        self.canvas.directory_set.connect(self.display_working_directory)
 
         # Image data fields
         self.canvas.image_loaded.connect(self.display_coordinates)
@@ -155,6 +156,9 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         v = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         custom_fields.layout().addItem(v)
         self.get_custom_field_data()
+
+    def display_working_directory(self, directory):
+        self.labelWorkingDirectory.setText(directory)
 
     def get_custom_field_data(self):
         self.load_custom_data.emit(self.canvas.get_custom_field_data())

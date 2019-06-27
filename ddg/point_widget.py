@@ -209,7 +209,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Points', os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
         if file_name[0] is not '':
-            self.canvas.save_points(file_name[0], self.lineEditSurveyId.text())
+            if self.canvas.directory != os.path.split(file_name[0])[0]:
+                QtWidgets.QMessageBox.warning(self.parent(), 'ERROR', 'You are attempting to save the pnt outside of the working directory. Operation canceled. POINT DATA NOT SAVED.', QtWidgets.QMessageBox.Ok)
+            else:
+                self.canvas.save_points(file_name[0], self.lineEditSurveyId.text())
 
     def selection_changed(self, selected, deselected):
         if len(selected.indexes()) > 0:

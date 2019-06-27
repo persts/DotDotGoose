@@ -33,6 +33,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
     points_loaded = QtCore.pyqtSignal(str)
+    directory_set = QtCore.pyqtSignal(str)
     fields_updated = QtCore.pyqtSignal(list)
     update_point_count = QtCore.pyqtSignal(str, str, int)
 
@@ -94,14 +95,15 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.display_points()
 
     def delete_custom_field(self, field):
-        self.custom_fields['data'].pop(field)
-        index = -1
-        for i, (field_name, _) in enumerate(self.custom_fields['fields']):
-            if field_name == field:
-                index = i
-        if index >= 0:
-            self.custom_fields['fields'].pop(index)
-        self.fields_updated.emit(self.custom_fields['fields'])
+        if field in self.custom_fields['data']:
+            self.custom_fields['data'].pop(field)
+            index = -1
+            for i, (field_name, _) in enumerate(self.custom_fields['fields']):
+                if field_name == field:
+                    index = i
+            if index >= 0:
+                self.custom_fields['fields'].pop(index)
+            self.fields_updated.emit(self.custom_fields['fields'])
 
     def display_points(self):
         self.clear_points()
@@ -182,6 +184,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
         if self.directory == '':
             self.directory = os.path.split(file_name)[0]
+            self.directory_set.emit(self.directory)
 
         if self.directory == os.path.split(file_name)[0]:
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
@@ -222,11 +225,12 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.display_points()
             QtWidgets.QApplication.restoreOverrideCursor()
         else:
-            QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Load aborted.', QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Operation canceled.', QtWidgets.QMessageBox.Ok)
 
     def load_points(self, file_name):
         file = open(file_name, 'r')
         self.directory = os.path.split(file_name)[0]
+        self.directory_set.emit(self.directory)
         data = json.load(file)
         file.close()
         survey_id = data['metadata']['survey_id']
@@ -311,11 +315,13 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.custom_fields = {'fields': [], 'data': {}}
 
         self.clear()
+        self.directory = ''
         self.current_image_name = ''
         self.current_class_name = None
         self.fields_updated.emit([])
         self.points_loaded.emit('')
         self.image_loaded.emit('', '')
+        self.directory_set.emit('')
 
     def remove_class(self, class_name):
         index = self.classes.index(class_name)
