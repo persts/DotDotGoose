@@ -161,7 +161,6 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def import_metadata(self, file_name):
         file = open(file_name, 'r')
-        self.directory = os.path.split(file_name)[0]
         data = json.load(file)
         file.close()
         # Backward compat
