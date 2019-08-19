@@ -26,6 +26,8 @@ import os
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
+from .chip_dialog import ChipDialog
+
 # from .ui_point_widget import Ui_Pointwidget as WIDGET
 if getattr(sys, 'frozen', False):
     bundle_dir = sys._MEIPASS
@@ -59,6 +61,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.tableWidgetClasses.selectionModel().selectionChanged.connect(self.selection_changed)
 
         self.checkBoxDisplayPoints.toggled.connect(self.display_points)
+        self.checkBoxDisplayGrid.toggled.connect(self.display_grid)
         self.canvas.image_loaded.connect(self.image_loaded)
         self.canvas.update_point_count.connect(self.update_point_count)
         self.canvas.points_loaded.connect(self.points_loaded)
@@ -69,6 +72,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.treeView.doubleClicked.connect(self.double_click)
 
         self.spinBoxPointRadius.valueChanged.connect(self.canvas.set_point_radius)
+        self.spinBoxGrid.valueChanged.connect(self.canvas.set_grid_size)
 
     def add_class(self):
         class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Class', 'Class Name')
@@ -76,6 +80,9 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.canvas.add_class(class_name)
             self.display_classes()
             self.display_count_tree()
+
+    def display_grid(self, display):
+        self.canvas.toggle_grid(display=display)
 
     def display_points(self, display):
         self.canvas.toggle_points(display=display)
@@ -146,9 +153,17 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 image_item.appendRow([class_item, class_count])
 
     def export(self):
-        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Points', os.path.join(self.canvas.directory, 'untitled.csv'), 'Text CSV (*.csv)')
-        if file_name[0] is not '':
-            self.canvas.export_points(file_name[0], self.lineEditSurveyId.text())
+        if(self.radioButtonCounts.isChecked()):
+            file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Count Summary', os.path.join(self.canvas.directory, 'counts.csv'), 'Text CSV (*.csv)')
+            if file_name[0] is not '':
+                self.canvas.export_counts(file_name[0], self.lineEditSurveyId.text())
+        elif(self.radioButtonPoints.isChecked()):
+            file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Points', os.path.join(self.canvas.directory, 'points.csv'), 'Text CSV (*.csv)')
+            if file_name[0] is not '':
+                self.canvas.export_points(file_name[0])
+        else:
+            self.chip_dialog = ChipDialog(self.canvas.classes, self.canvas.points, self.canvas.directory)
+            self.chip_dialog.show()
 
     def image_loaded(self, directory, file_name):
         self.tableWidgetClasses.selectionModel().clear()

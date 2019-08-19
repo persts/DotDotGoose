@@ -3,7 +3,7 @@ build/
 dist/
 package/ 
 data/
-icon/
+icons/
 doc/source/_build/
 .vscode/
 __pycache__/

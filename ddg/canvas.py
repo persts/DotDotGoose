@@ -53,6 +53,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.qt_image = None
 
         self.display_point_radius = 25
+        self.display_grid_size = 200
         self.opacity = 0.30
 
         self.active_brush = QtGui.QBrush(QtCore.Qt.yellow, QtCore.Qt.SolidPattern)
@@ -80,6 +81,11 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), self.active_pen, self.active_brush)
             self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
 
+    def clear_grid(self):
+        for graphic in self.items():
+            if type(graphic) == QtWidgets.QGraphicsLineItem:
+                self.removeItem(graphic)
+
     def clear_points(self):
         for graphic in self.items():
             if type(graphic) == QtWidgets.QGraphicsEllipseItem:
@@ -105,6 +111,19 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.custom_fields['fields'].pop(index)
             self.fields_updated.emit(self.custom_fields['fields'])
 
+    def display_grid(self):
+        self.clear_grid()
+        if self.current_image_name:
+            rect = self.itemsBoundingRect()
+            brush = QtGui.QBrush(QtCore.Qt.white, QtCore.Qt.SolidPattern)
+            pen = QtGui.QPen(brush, 1)
+            for x in range(self.display_grid_size, int(rect.width()), self.display_grid_size):
+                line = QtCore.QLineF(x, 0.0, x, rect.height())
+                self.addLine(line, pen)
+            for y in range(self.display_grid_size, int(rect.height()), self.display_grid_size):
+                line = QtCore.QLineF(0.0, y, rect.width(), y)
+                self.addLine(line, pen)
+
     def display_points(self):
         self.clear_points()
         if self.current_image_name in self.points:
@@ -118,36 +137,50 @@ class Canvas(QtWidgets.QGraphicsScene):
                     else:
                         self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), pen, brush)
 
-    def export_points(self, file_name, survey_id):
-        file = open(file_name, 'w')
-        output = 'survey_id,image'
-        for class_name in self.classes:
-            output += ',' + class_name
-        output += ",x,y"
-        for field_name, _ in self.custom_fields['fields']:
-            output += ',{}'.format(field_name)
-        output += '\n'
-        file.write(output)
-        for image in self.points:
-            output = survey_id + ',' + image
+    def export_counts(self, file_name, survey_id):
+        if self.current_image_name is not None:
+            file = open(file_name, 'w')
+            output = 'survey_id,image'
             for class_name in self.classes:
-                if class_name in self.points[image]:
-                    output += ',' + str(len(self.points[image][class_name]))
-                else: 
-                    output += ',0'
-            if image in self.coordinates:
-                output += ',' + self.coordinates[image]['x']
-                output += ',' + self.coordinates[image]['y']
-            else:
-                output += ',,'
+                output += ',' + class_name
+            output += ",x,y"
             for field_name, _ in self.custom_fields['fields']:
-                if image in self.custom_fields['data'][field_name]:
-                    output += ',{}'.format(self.custom_fields['data'][field_name][image])
-                else:
-                    output == ','
-            output += "\n"
+                output += ',{}'.format(field_name)
+            output += '\n'
             file.write(output)
-        file.close()
+            for image in self.points:
+                output = survey_id + ',' + image
+                for class_name in self.classes:
+                    if class_name in self.points[image]:
+                        output += ',' + str(len(self.points[image][class_name]))
+                    else: 
+                        output += ',0'
+                if image in self.coordinates:
+                    output += ',' + self.coordinates[image]['x']
+                    output += ',' + self.coordinates[image]['y']
+                else:
+                    output += ',,'
+                for field_name, _ in self.custom_fields['fields']:
+                    if image in self.custom_fields['data'][field_name]:
+                        output += ',{}'.format(self.custom_fields['data'][field_name][image])
+                    else:
+                        output == ','
+                output += "\n"
+                file.write(output)
+            file.close()
+
+    def export_points(self, file_name):
+        if self.current_image_name is not None:
+            file = open(file_name, 'w')
+            output = 'image,class,x,y'
+            file.write(output)
+            for image in self.points:
+                for class_name in self.classes:
+                    if class_name in self.points[image]:
+                        for point in self.points[image][class_name]:
+                            output= '\n{},{},{},{}'.format(image, class_name, point.x(), point.y())
+                            file.write(output)
+            file.close()
 
     def get_custom_field_data(self):
         data = {}
@@ -234,6 +267,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.image_loaded.emit(self.directory, self.current_image_name)
             self.image_loaded.emit(self.directory, self.current_image_name)
             self.display_points()
+            self.display_grid()
             QtWidgets.QApplication.restoreOverrideCursor()
         else:
             QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Operation canceled.', QtWidgets.QMessageBox.Ok)
@@ -380,9 +414,19 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.current_class_name = self.classes[class_index]
         self.display_points()
 
+    def set_grid_size(self, size):
+        self.display_grid_size = size
+        self.display_grid()
+
     def set_point_radius(self, radius):
         self.display_point_radius = radius
         self.display_points()
+    
+    def toggle_grid(self, display):
+        if display:
+            self.display_grid()
+        else:
+            self.clear_grid()
 
     def toggle_points(self, display):
         if display:

@@ -32,6 +32,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     delete_selection = QtCore.pyqtSignal()
     relabel_selection = QtCore.pyqtSignal()
     toggle_points = QtCore.pyqtSignal()
+    toggle_grid = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         QtWidgets.QGraphicsView.__init__(self, parent)
@@ -64,6 +65,8 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
             self.relabel_selection.emit()
         elif event.key() == QtCore.Qt.Key_D:
             self.toggle_points.emit()
+        elif event.key() == QtCore.Qt.Key_G:
+            self.toggle_grid.emit()
 
     def keyReleaseEvent(self, event):
         if event.key() == QtCore.Qt.Key_Alt:

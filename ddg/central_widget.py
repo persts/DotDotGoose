@@ -48,7 +48,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.canvas = Canvas()
 
         self.point_widget = PointWidget(self.canvas, self)
-        self.findChild(QtWidgets.QGroupBox, 'groupBoxPointWidget').layout().addWidget(self.point_widget)
+        self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
 
         self.graphicsView.setScene(self.canvas)
         self.graphicsView.load_image.connect(self.canvas.load_image)
@@ -56,6 +56,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.graphicsView.delete_selection.connect(self.canvas.delete_selected_points)
         self.graphicsView.relabel_selection.connect(self.canvas.relabel_selected_points)
         self.graphicsView.toggle_points.connect(self.point_widget.checkBoxDisplayPoints.toggle)
+        self.graphicsView.toggle_grid.connect(self.point_widget.checkBoxDisplayGrid.toggle)
 
         self.graphicsView.add_point.connect(self.canvas.add_point)
         self.canvas.image_loaded.connect(self.graphicsView.image_loaded)

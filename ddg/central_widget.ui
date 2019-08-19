@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>central</class>
- <widget class="QWidget" name="central">
+ <class>CentralWidget</class>
+ <widget class="QWidget" name="CentralWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,6 +14,63 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>9</number>
+   </property>
+   <property name="rightMargin">
+    <number>9</number>
+   </property>
+   <property name="bottomMargin">
+    <number>9</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="0" rowspan="2">
+    <widget class="QFrame" name="framePointWidget">
+     <property name="minimumSize">
+      <size>
+       <width>425</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>425</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="CentralGraphicsView" name="graphicsView"/>
    </item>
@@ -122,9 +179,22 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QPushButton" name="pushButtonAddField">
+            <widget class="QPushButton" name="pushButtonDeleteField">
+             <property name="toolTip">
+              <string>Delete custom field.</string>
+             </property>
              <property name="text">
-              <string>Add Field</string>
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../icons/ddg.qrc">
+               <normaloff>:/icons/delete.svg</normaloff>:/icons/delete.svg</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -142,9 +212,22 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButtonDeleteField">
+            <widget class="QPushButton" name="pushButtonAddField">
+             <property name="toolTip">
+              <string>Add custom field.</string>
+             </property>
              <property name="text">
-              <string>Delete Field</string>
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../icons/ddg.qrc">
+               <normaloff>:/icons/add.svg</normaloff>:/icons/add.svg</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -179,42 +262,6 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" rowspan="2">
-    <widget class="QGroupBox" name="groupBoxPointWidget">
-     <property name="minimumSize">
-      <size>
-       <width>350</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>350</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Point Data</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>5</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -224,6 +271,8 @@
    <header>ddg/central_graphics_view</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../icons/ddg.qrc"/>
+ </resources>
  <connections/>
 </ui>
