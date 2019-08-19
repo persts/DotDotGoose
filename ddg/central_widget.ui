@@ -31,6 +31,12 @@
    </property>
    <item row="0" column="0" rowspan="2">
     <widget class="QFrame" name="framePointWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>350</width>
@@ -39,7 +45,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>350</width>
+       <width>16777215</width>
        <height>16777215</height>
       </size>
      </property>
