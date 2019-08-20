@@ -74,6 +74,15 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.spinBoxPointRadius.valueChanged.connect(self.canvas.set_point_radius)
         self.spinBoxGrid.valueChanged.connect(self.canvas.set_grid_size)
 
+        icon = QtGui.QPixmap(20, 20)
+        icon.fill(QtCore.Qt.yellow)
+        self.labelPointColor.setPixmap(icon)
+        self.labelPointColor.mousePressEvent = self.change_active_point_color
+        icon = QtGui.QPixmap(20, 20)
+        icon.fill(QtCore.Qt.white)
+        self.labelGridColor.setPixmap(icon)
+        self.labelGridColor.mousePressEvent = self.change_grid_color
+
     def add_class(self):
         class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Class', 'Class Name')
         if ok:
@@ -113,6 +122,16 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 icon.fill(color)
                 item.setData(QtCore.Qt.DecorationRole, icon)
                 self.tableWidgetClasses.setItem(row, 1, item)
+
+    def change_active_point_color(self, event):
+        color = QtWidgets.QColorDialog.getColor()
+        if color.isValid():
+            self.set_active_point_color(color)
+
+    def change_grid_color(self, event):
+        color = QtWidgets.QColorDialog.getColor()
+        if color.isValid():
+            self.set_grid_color(color)
 
     def display_classes(self):
         self.tableWidgetClasses.setRowCount(len(self.canvas.classes))
@@ -160,9 +179,9 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         elif(self.radioButtonPoints.isChecked()):
             file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Points', os.path.join(self.canvas.directory, 'points.csv'), 'Text CSV (*.csv)')
             if file_name[0] is not '':
-                self.canvas.export_points(file_name[0])
+                self.canvas.export_points(file_name[0], self.lineEditSurveyId.text())
         else:
-            self.chip_dialog = ChipDialog(self.canvas.classes, self.canvas.points, self.canvas.directory)
+            self.chip_dialog = ChipDialog(self.canvas.classes, self.canvas.points, self.canvas.directory, self.lineEditSurveyId.text())
             self.chip_dialog.show()
 
     def image_loaded(self, directory, file_name):
@@ -182,6 +201,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def points_loaded(self, survey_id):
         self.lineEditSurveyId.setText(survey_id)
         self.display_classes()
+        self.update_ui_settings()
 
     def reset(self):
         msgBox = QtWidgets.QMessageBox()
@@ -235,9 +255,30 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         else:
             self.canvas.set_current_class(None)
 
+    def set_active_point_color(self, color):
+        icon = QtGui.QPixmap(20, 20)
+        icon.fill(color)
+        self.labelPointColor.setPixmap(icon)
+        self.canvas.set_point_color(color)
+
+    def set_grid_color(self, color):
+        icon = QtGui.QPixmap(20, 20)
+        icon.fill(color)
+        self.labelGridColor.setPixmap(icon)
+        self.canvas.set_grid_color(color)
+
     def update_point_count(self, image_name, class_name, class_count):
         items = self.model.findItems(image_name)
         if len(items) == 0:
             self.display_count_tree()
         else:
             items[0].child(self.canvas.classes.index(class_name), 1).setText(str(class_count))
+
+    def update_ui_settings(self):
+        ui = self.canvas.ui
+        color = QtGui.QColor(ui['point']['color'][0], ui['point']['color'][1], ui['point']['color'][2])
+        self.set_active_point_color(color)
+        self.spinBoxPointRadius.setValue(ui['point']['radius'])
+        color = QtGui.QColor(ui['grid']['color'][0], ui['grid']['color'][1], ui['grid']['color'][2])
+        self.set_grid_color(color)
+        self.spinBoxGrid.setValue(ui['grid']['size'])

@@ -51,7 +51,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
 
         self.graphicsView.setScene(self.canvas)
-        self.graphicsView.load_image.connect(self.canvas.load_image)
+        self.graphicsView.load_images.connect(self.canvas.load_images)
         self.graphicsView.region_selected.connect(self.canvas.select_points)
         self.graphicsView.delete_selection.connect(self.canvas.delete_selected_points)
         self.graphicsView.relabel_selection.connect(self.canvas.relabel_selected_points)

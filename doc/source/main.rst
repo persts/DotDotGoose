@@ -1,12 +1,12 @@
 If you use this application on data that results in a publication, report, or online analysis, we ask that you include the following reference:
 
-Ersts,P.J.[Internet] DotDotGoose (version 1.1.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
+Ersts,P.J.[Internet] DotDotGoose (version 1.2.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
 
 .. raw:: latex
 
     \newpage
 
-.. image:: amnh-cbc-template_small.png
+.. image:: amnh-cbc-template.png
 
 DotDotGoose is a free, open source tool to assist with manually counting objects in images. DotDotGoose was purpose-built since 
 most conservation researchers and practitioners working on counting objects in images were using software such as Adobe Photoshop and ImageJ 
@@ -16,7 +16,7 @@ The DotDotGoose interface makes it easy to create and edit classes of objects
 to be counted and you can pan and zoom to accurately place points to identify individual objects. Information about objects can be stored in 
 custom fields and this metadata can be exported for use in spreadsheet or statistics software.
 
-Point data collected with DotDotGoose will be very valuable validation data for any future efforts with computer assisted counting.
+Point data collected with DotDotGoose will be very valuable training and validation data for any future efforts with computer assisted counting.
 
 | Website: https://biodiversityinformatics.amnh.org/open_source/dotdotgoose
 |
@@ -48,7 +48,7 @@ User Interface
 The user interface has four main components.
 
 Class Editor [1]
-    This component allows you to add and delete "classes" for your survey and also import classes and custom fields from existing point files.
+    This component allows you to add and delete "classes" for your survey.
 
 Point Summary [2]
     This component will display the images you have annotated and a summary of points counts by class. Double clicking on an image name in the summary window will automatically load that image and display the associated points and image data.
@@ -57,7 +57,7 @@ Image Display [3]
     This component will display your current image and the points associated with that image.
 
 Image Data [4]
-    This component allows you to store x and y coordinates (e.g. UTM coordinates or Latitude Longitude coordinates)and add custom fields for storing additional information (e.g., comments) that are specific to each image in your survey.
+    This component allows you to store x and y coordinates (e.g. UTM coordinates or Latitude Longitude coordinates) and add custom fields for storing additional information (e.g., comments) that are specific to each image in your survey.
 
 |
 |
@@ -79,14 +79,14 @@ DotDotGoose was designed to work on a single directory of images at a time, whic
     Simple folder structure expected by DotDotGoose.
 
 
-DotDotGoose does not save the full image path in the pnt file enabling you to easily move data around on your hard drive. 
-As a result, you must save the pnt file in the same directory as your images.
+DotDotGoose does not save the full image path in the project (pnt) file enabling you to easily move data around on your hard drive. 
+As a result, you must save the project file in the same directory as your images.
 Furthermore, DotDotGoose will display an error message if you attempt to load images that are outside of the current working directory.
 
 The working directory is automatically set when you,
 
-    1. Load an existing point file, or
-    2. Drag the first image file into the Image Display component.
+    1. Load an existing project file, or
+    2. Drag the first image(s) into the Image Display component.
 
 For example, if you start a new counting project by dragging in IMG_0007.JPG (Fig 2) **Survey 1** will become the working directory. 
 Attempting use an image from any other location other than **Survey 1** will result in an error message until your restart DotDotGoose or press the reset button.
@@ -102,13 +102,13 @@ Collecting Points
 =================
 To begin collecting points,
 
-    1. Drag an image from your file browser into the Image Display area.
+    1. Drag one or more images from your file browser into the Image Display area.
     2. Click the [Add] button in the Class Editor to add a new class.
     3. Click the black box next to the new class name and assign a display color for that particular class.
     4. Click the class name to make it the 'active' class.
     5. Zoom into your targets using the mouse wheel.
     6. Pan around the image with a typical left-click drag motion.
-    7. When you have centered your unmarked targets, press and hold the Ctrl (Linux & Windows) or Command (OSX) key then left-click to place a point over your target.
+    7. When you have centered your unmarked targets, press and hold the Ctrl (Linux & Windows) or Command (OSX) key then left-click to place a point on your target.
 
 .. figure:: example.png
 
@@ -118,10 +118,14 @@ To begin collecting points,
 
     \section*{Tips and Notes}
 
-* Points belonging to the active class will always display as yellow in the image display area, so it is best practice to not use yellow as a color for a class
+* While panning or zooming you can press the 'd' key to toggle the points on and off.
+* You can change the size of the points being displayed by adjusting the "Point Radius" value. To change this value, use the up and down arrows on the input field.
+* You can change the default "active" class color from yellow to a color of your choice by click on the box next to the "Point Radius" input field.
+* A grid is overlaid on the image to help focus your attention while counting. You can change the size of the grid and color of the grid.
+* While panning or zooming you can press the 'g' key to toggle the grid on and off.
 * While you can use a track pad with DotDotGoose, it is highly recommended that you use a two button mouse with a scroll wheel.
-* Point placement can be important for future uses of these count data so it is recommended that you carefully place your point so it represents the 'centroid' of the target you are counting.
-* If you have several surveys that will have the same classes and custom fields, before you start collecting points you can click the [Import] button and select an existing point file as a template to load the classes and any custom fields.
+* Point placement can be important for future uses of these count data so it is recommended that you carefully and consistently place your points.
+* If you have several surveys that will have the same classes and custom fields, before you start collecting points you can click the [Import] button and select an existing project file as a template to load the classes and any custom fields.
 
 Editing Points and Classes
 ==========================
@@ -147,6 +151,10 @@ Merging Classes
 ---------------
 If you originally create two classes and later decide that the two classes should really have been one class, you can simply rename the second class to that of the first and they two classes will be merged.
 
+.. raw:: latex
+
+    \newpage
+
 Adding Custom Fields
 ====================
 Adding custom fields allow you to store additional image specific data (e.g., quality or comments) for each image in your survey. Custom fields allow you to completely work within DotDotGoose rather than having to have a separate file for database for storing information and then later merging the count data with the this extra information. 
@@ -170,25 +178,46 @@ Deleting Custom Fields
 
 Saving and Loading Point Data
 =============================
-You can save your point data to a file and reload them as needed. If you want to share the raw point data with another colleagues simply package / copy the directory containing the pnt file and images. Save frequently!
+You can save your point data to a file and reload them as needed. If you want to share the raw point data with another colleagues simply package / copy the directory containing the project (pnt) file and images. Save frequently!
 
 Saving Point Data
 -----------------
     1. Click the [Save] button to open the file dialog.
-    2. Enter a new file name or select and existing file to overwrite. *Note: You must save your pnt file in the same directory as your images*
+    2. Enter a new file name or select and existing file to overwrite. *Note: You must save your project file in the same directory as your images*
 
 Loading Point Data
 ------------------
     1. Click the [Load] button to open the file dialog.
-    2. Select a pnt file to load.
+    2. Select a project file to load.
+
+.. raw:: latex
+
+    \newpage
 
 Exporting Count Data
 ====================
-Clicking the [Export] button will open a file dialog where you will select an existing or define a new CSV file to holed the exported data. The export format will be:
+Clicking the [Export] button will open a file dialog where you will select an existing or define a new CSV file to hold the exported data. 
+
+There are three export options.
+
+Counts
+------
+This option will export a summary of the counts and all custom fields in your project. There will be one line per image in your project.
 
     *survey_id, image_name, class_1_counts, class_2_counts, ... class_n_counts, x, y, custom_field_1, custom_field_2, ... custom_field_n*
 
 This CSV file can then be read by your favorite spreadsheet or statistics software.
+
+Points
+------
+This option will export a line for each point in your project file.
+
+    *survey_id, image_name, class_name, x, y*
+
+Chips
+-----
+This option will export a chip or subimage centered on each point with a width and height of your choosing. 
+A directory will be created for each class in your project file. The directory selected for exporting image chips must be empty.
 
 .. raw:: latex
 
@@ -197,7 +226,7 @@ This CSV file can then be read by your favorite spreadsheet or statistics softwa
 Schema
 ======
 
-The pnt file is a JSON object with an array and four dictionaries. 
+The project (pnt) file is a JSON object with an array and five dictionaries. 
 
 .. code-block:: python
 
@@ -226,6 +255,16 @@ The pnt file is a JSON object with an array and four dictionaries.
                 "filed_name": {
                     "image_name": str
                 }
+            }
+        },
+        "ui": {
+            "grid": {
+                "size": int,
+                "color": [int, int, int]
+            },
+            "point": {
+                "radius": int,
+                "color": [int, int, int]
             }
         }
     }

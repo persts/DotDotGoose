@@ -45,6 +45,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.custom_fields = {'fields': [], 'data': {}}
         self.classes = []
         self.selection = []
+        self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
 
         self.directory = ''
         self.current_image_name = None
@@ -52,12 +53,6 @@ class Canvas(QtWidgets.QGraphicsScene):
 
         self.qt_image = None
 
-        self.display_point_radius = 25
-        self.display_grid_size = 200
-        self.opacity = 0.30
-
-        self.active_brush = QtGui.QBrush(QtCore.Qt.yellow, QtCore.Qt.SolidPattern)
-        self.active_pen = QtGui.QPen(self.active_brush, 2)
         self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.red, QtCore.Qt.SolidPattern), 1)
 
     def add_class(self, class_name):
@@ -73,12 +68,14 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def add_point(self, point):
         if self.current_image_name is not None and self.current_class_name is not None:
-            if self.current_image_name not in self.points:
-                self.points[self.current_image_name] = {}
             if self.current_class_name not in self.points[self.current_image_name]:
                 self.points[self.current_image_name][self.current_class_name] = []
+            display_radius = self.ui['point']['radius']
+            active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
+            active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
+            active_pen = QtGui.QPen(active_brush, 2)
             self.points[self.current_image_name][self.current_class_name].append(point)
-            self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), self.active_pen, self.active_brush)
+            self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
             self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
 
     def clear_grid(self):
@@ -114,33 +111,39 @@ class Canvas(QtWidgets.QGraphicsScene):
     def display_grid(self):
         self.clear_grid()
         if self.current_image_name:
+            grid_color = QtGui.QColor(self.ui['grid']['color'][0], self.ui['grid']['color'][1], self.ui['grid']['color'][2])
+            grid_size = self.ui['grid']['size']
             rect = self.itemsBoundingRect()
-            brush = QtGui.QBrush(QtCore.Qt.white, QtCore.Qt.SolidPattern)
+            brush = QtGui.QBrush(grid_color, QtCore.Qt.SolidPattern)
             pen = QtGui.QPen(brush, 1)
-            for x in range(self.display_grid_size, int(rect.width()), self.display_grid_size):
+            for x in range(grid_size, int(rect.width()), grid_size):
                 line = QtCore.QLineF(x, 0.0, x, rect.height())
                 self.addLine(line, pen)
-            for y in range(self.display_grid_size, int(rect.height()), self.display_grid_size):
+            for y in range(grid_size, int(rect.height()), grid_size):
                 line = QtCore.QLineF(0.0, y, rect.width(), y)
                 self.addLine(line, pen)
 
     def display_points(self):
         self.clear_points()
         if self.current_image_name in self.points:
+            display_radius = self.ui['point']['radius']
+            active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
+            active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
+            active_pen = QtGui.QPen(active_brush, 2)
             for class_name in self.points[self.current_image_name]:
                 points = self.points[self.current_image_name][class_name]
                 brush = QtGui.QBrush(self.colors[class_name], QtCore.Qt.SolidPattern)
                 pen = QtGui.QPen(brush, 2)
                 for point in points:
                     if class_name == self.current_class_name:
-                        self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), self.active_pen, self.active_brush)
+                        self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
                     else:
-                        self.addEllipse(QtCore.QRectF(point.x() - ((self.display_point_radius - 1) / 2), point.y() - ((self.display_point_radius - 1) / 2), self.display_point_radius, self.display_point_radius), pen, brush)
+                        self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), pen, brush)
 
     def export_counts(self, file_name, survey_id):
         if self.current_image_name is not None:
             file = open(file_name, 'w')
-            output = 'survey_id,image'
+            output = 'survey id,image'
             for class_name in self.classes:
                 output += ',' + class_name
             output += ",x,y"
@@ -169,16 +172,16 @@ class Canvas(QtWidgets.QGraphicsScene):
                 file.write(output)
             file.close()
 
-    def export_points(self, file_name):
+    def export_points(self, file_name, survey_id):
         if self.current_image_name is not None:
             file = open(file_name, 'w')
-            output = 'image,class,x,y'
+            output = 'survey id,image,class,x,y'
             file.write(output)
             for image in self.points:
                 for class_name in self.classes:
                     if class_name in self.points[image]:
                         for point in self.points[image][class_name]:
-                            output= '\n{},{},{},{}'.format(image, class_name, point.x(), point.y())
+                            output= '\n{},{},{},{},{}'.format(survey_id, image, class_name, point.x(), point.y())
                             file.write(output)
             file.close()
 
@@ -196,11 +199,18 @@ class Canvas(QtWidgets.QGraphicsScene):
         file = open(file_name, 'r')
         data = json.load(file)
         file.close()
+
         # Backward compat
         if 'custom_fields' in data:
             self.custom_fields = data['custom_fields']
         else:
             self.custom_fields = {'fields': [], 'data': {}}
+        if 'ui' in data:
+            self.ui = data['ui']
+        else:
+            self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
+        # End Backward compat
+
         self.colors = data['colors']
         for class_name in data['colors']:
             self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
@@ -223,6 +233,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
             self.clear()
             self.current_image_name = os.path.split(file_name)[1]
+            if self.current_image_name not in self.points:
+                self.points[self.current_image_name] = {}
             try:
                 img = Image.open(file_name)
                 channels = len(img.getbands())
@@ -272,6 +284,22 @@ class Canvas(QtWidgets.QGraphicsScene):
         else:
             QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Operation canceled.', QtWidgets.QMessageBox.Ok)
 
+    def load_images(self, images):
+        for file in images:
+            file_name = file
+            if type(file) == QtCore.QUrl:
+                file_name = file.toLocalFile()
+
+            if self.directory == '':
+                self.directory = os.path.split(file_name)[0]
+                self.directory_set.emit(self.directory)
+            
+            image_name = os.path.split(file_name)[1]
+            if image_name not in self.points:
+                self.points[image_name] = {}
+
+        self.load_image(images[0])
+
     def load_points(self, file_name):
         file = open(file_name, 'r')
         self.directory = os.path.split(file_name)[0]
@@ -279,11 +307,18 @@ class Canvas(QtWidgets.QGraphicsScene):
         data = json.load(file)
         file.close()
         survey_id = data['metadata']['survey_id']
+
         # Backward compat
         if 'custom_fields' in data:
             self.custom_fields = data['custom_fields']
         else:
             self.custom_fields = {'fields': [], 'data': {}}
+        if 'ui' in data:
+            self.ui = data['ui']
+        else:
+            self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
+        # End Backward compat
+
         self.colors = data['colors']
         self.classes = data['classes']
         self.coordinates = data['metadata']['coordinates']
@@ -307,7 +342,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def package_points(self, survey_id):
         count = 0
-        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id, 'coordinates': self.coordinates}, 'custom_fields': self.custom_fields}
+        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id, 'coordinates': self.coordinates}, 'custom_fields': self.custom_fields, 'ui': self.ui}
         package['classes'] = self.classes
         for class_name in self.colors:
             r = self.colors[class_name].red()
@@ -400,11 +435,12 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.selection = []
         self.display_points()
         current = self.points[self.current_image_name]
+        display_radius = self.ui['point']['radius']
         for class_name in current:
             for point in current[class_name]:
                 if rect.contains(point):
-                    offset = ((self.display_point_radius + 6) // 2)
-                    self.addEllipse(QtCore.QRectF(point.x() - offset, point.y() - offset, self.display_point_radius + 6, self.display_point_radius + 6), self.selected_pen)
+                    offset = ((display_radius + 6) // 2)
+                    self.addEllipse(QtCore.QRectF(point.x() - offset, point.y() - offset, display_radius + 6, display_radius + 6), self.selected_pen)
                     self.selection.append((class_name, point))
 
     def set_current_class(self, class_index):
@@ -414,12 +450,20 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.current_class_name = self.classes[class_index]
         self.display_points()
 
-    def set_grid_size(self, size):
-        self.display_grid_size = size
+    def set_grid_color(self, color):
+        self.ui['grid']['color'] = [color.red(), color.green(), color.blue()]
         self.display_grid()
 
+    def set_grid_size(self, size):
+        self.ui['grid']['size'] = size
+        self.display_grid()
+
+    def set_point_color(self, color):
+        self.ui['point']['color'] = [color.red(), color.green(), color.blue()]
+        self.display_points()
+
     def set_point_radius(self, radius):
-        self.display_point_radius = radius
+        self.ui['point']['radius'] = radius
         self.display_points()
     
     def toggle_grid(self, display):

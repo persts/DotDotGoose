@@ -32,8 +32,9 @@ from PyQt5 import QtCore
 class Exporter(QtCore.QThread):
     progress = QtCore.pyqtSignal(int)
 
-    def __init__(self, classes, points, working_directory, output_directory, width, height, file_type):
+    def __init__(self, survey_id, classes, points, working_directory, output_directory, width, height, file_type):
         QtCore.QThread.__init__(self)
+        self.survey_id = survey_id
         self.classes = classes
         self.points = points
         self.working_directory = working_directory
@@ -51,7 +52,7 @@ class Exporter(QtCore.QThread):
             os.makedirs('{}{}{}'.format(self.output_directory, os.path.sep, class_name))
         summary_file_name = '{}{}summary.csv'.format(self.output_directory, os.path.sep)
         summary_file = open(summary_file_name, 'w')
-        output = 'image,class,x,y,chip name'
+        output = 'survey id,image,class,x,y,chip name'
         summary_file.write(output)
         progress = 2
         for image in self.points:
@@ -67,7 +68,7 @@ class Exporter(QtCore.QThread):
                         self.totals[class_name] += 1
                         file_name = '{:010d}{}'.format(self.totals[class_name], self.file_type)
                         chip_name = '{}{}'.format(directory, file_name)
-                        output= '\n{},{},{},{},{}'.format(image, class_name, point.x(), point.y(), chip_name)
+                        output= '\n{},{},{},{},{},{}'.format(self.survey_id, image, class_name, point.x(), point.y(), chip_name)
                         summary_file.write(output)
                         # caculate the clip window
                         x = max(0, int(point.x()) - self.x_offset)

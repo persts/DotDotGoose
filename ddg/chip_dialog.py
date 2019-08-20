@@ -37,7 +37,7 @@ CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'chip_dialog.ui'))
 
 class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
 
-    def __init__(self, classes, points, directory):
+    def __init__(self, classes, points, directory, survey_id):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.setWindowTitle('Export Image Chips')
@@ -46,6 +46,7 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
         self.classes = classes
         self.points = points
         self.directory = directory
+        self.survey_id = survey_id
         self.width = 0
         self.height = 0
 
@@ -79,7 +80,8 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
                 file_type = '.png'
                 if(self.radioButtonJpeg.isChecked()):
                     file_type = '.jpg'
-                self.exporter = Exporter(self.classes, self.points, self.directory, directory, self.spinBoxWidth.value(), self.spinBoxHeight.value(),file_type)
+                # TODO: make this constructor parameters cleaner
+                self.exporter = Exporter(self.survey_id, self.classes, self.points, self.directory, directory, self.spinBoxWidth.value(), self.spinBoxHeight.value(),file_type)
                 self.exporter.finished.connect(self.finished)
                 self.exporter.progress.connect(self.progressBar.setValue)
                 self.exporter.start()
