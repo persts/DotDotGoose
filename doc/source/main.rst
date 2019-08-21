@@ -120,7 +120,7 @@ To begin collecting points,
 
 * While panning or zooming you can press the 'd' key to toggle the points on and off.
 * You can change the size of the points being displayed by adjusting the "Point Radius" value. To change this value, use the up and down arrows on the input field.
-* You can change the default "active" class color from yellow to a color of your choice by click on the box next to the "Point Radius" input field.
+* You can change the default "active" class color from yellow to a color of your choice by clicking on the box next to the "Point Radius" input field.
 * A grid is overlaid on the image to help focus your attention while counting. You can change the size of the grid and color of the grid.
 * While panning or zooming you can press the 'g' key to toggle the grid on and off.
 * While you can use a track pad with DotDotGoose, it is highly recommended that you use a two button mouse with a scroll wheel.
@@ -196,7 +196,7 @@ Loading Point Data
 
 Exporting Count Data
 ====================
-Clicking the [Export] button will open a file dialog where you will select an existing or define a new CSV file to hold the exported data. 
+Clicking the [Export] button will open a file dialog where you will select an existing or define a new CSV file to hold the exported data. Selecting an exiting file will overwrite any data already in that file.
 
 There are three export options.
 
