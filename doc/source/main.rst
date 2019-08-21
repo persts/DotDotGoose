@@ -196,7 +196,7 @@ Loading Point Data
 
 Exporting Count Data
 ====================
-Clicking the [Export] button will open a file dialog where you will select an existing or define a new CSV file to hold the exported data. Selecting an exiting file will overwrite any data already in that file.
+Clicking the [Export] button will open a file dialog where you will enter a new file name or select and existing file to overwrite.
 
 There are three export options.
 
@@ -210,14 +210,14 @@ This CSV file can then be read by your favorite spreadsheet or statistics softwa
 
 Points
 ------
-This option will export a line for each point in your project file.
+This option will export a line for each point in your project.
 
     *survey_id, image_name, class_name, x, y*
 
 Chips
 -----
 This option will export a chip or subimage centered on each point with a width and height of your choosing. 
-A directory will be created for each class in your project file. The directory selected for exporting image chips must be empty.
+A directory will be created for each class in your project. The directory selected for exporting image chips must be empty.
 
 .. raw:: latex
 
