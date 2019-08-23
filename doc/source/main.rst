@@ -289,7 +289,7 @@ I would like to thank the following people for beta testing and the feedback the
     * Ned Horning, `Center for Biodiversity and Conservation <https://www.amnh.org/research/center-for-biodiversity-conservation>`_, American Museum of Natural History
     * Felicity Arengo, `Center for Biodiversity and Conservation <https://www.amnh.org/research/center-for-biodiversity-conservation>`_, American Museum of Natural History
     * Heather Lynch, `Lynch Lab for Quantitative Ecology <https://lynchlab.com/>`_, Stony Brook University
-    * Jarrod Hadgdon, University of Adelaide
+    * `Jarrod Hodgson <http://www.jarrodhodgson.com.au/>`_ , University of Adelaide
     * Emily Kelsey, `Western Ecological Research Center <https://www.usgs.gov/centers/werc>`_, U.S. Geological Survey
 
 
