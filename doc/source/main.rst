@@ -6,7 +6,8 @@ Ersts,P.J.[Internet] DotDotGoose (version 1.2.0). American Museum of Natural His
 
     \newpage
 
-.. image:: amnh-cbc-template.png
+.. image:: CBC-AMNH-Logo.jpg
+    :align: center
 
 DotDotGoose is a free, open source tool to assist with manually counting objects in images. DotDotGoose was purpose-built since 
 most conservation researchers and practitioners working on counting objects in images were using software such as Adobe Photoshop and ImageJ 
