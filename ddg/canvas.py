@@ -24,6 +24,7 @@
 # --------------------------------------------------------------------------
 import os
 import json
+import glob
 import numpy as np
 
 from PIL import Image
@@ -218,6 +219,43 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.fields_updated.emit(self.custom_fields['fields'])
         self.points_loaded.emit('')
 
+    def load(self, drop_list):
+        peek = drop_list[0].toLocalFile()
+        if os.path.isdir(peek):
+            if self.directory == '':
+                self.directory = peek
+                self.directory_set.emit(self.directory)
+                files = glob.glob(os.path.join(self.directory, '*'))
+                image_format = [".jpg", ".jpeg", ".png", ".tif"]
+                f = (lambda x: os.path.splitext(x)[1].lower() in image_format)
+                image_list = list(filter(f, files))
+                image_list = sorted(image_list)
+                self.load_images(image_list)
+            else:
+                QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Working directory already set. Load canceled.', QtWidgets.QMessageBox.Ok)
+        else:
+            base_path = os.path.split(peek)[0]
+            for entry in drop_list:
+                file_name = entry.toLocalFile()
+                path = os.path.split(file_name)[0]
+                error = False
+                message = ''
+                if os.path.isdir(file_name):
+                    error = True
+                    message = 'Mix of files and directories detected. Load canceled.'
+                if base_path != path:
+                    error = True
+                    message = 'Files from multiple directories detected. Load canceled.'
+                if self.directory != '' and self.directory != path:
+                    error = True
+                    message = 'Image originated outside current working directory. Load canceled.'
+                if error:
+                    QtWidgets.QMessageBox.warning(self.parent(), 'Warning', message, QtWidgets.QMessageBox.Ok)
+                    return None
+            self.directory = base_path
+            self.directory_set.emit(self.directory)
+            self.load_images(drop_list)
+
     def load_image(self, in_file_name):
         Image.MAX_IMAGE_PIXELS = 1000000000
         file_name = in_file_name
@@ -281,18 +319,12 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.display_points()
             self.display_grid()
             QtWidgets.QApplication.restoreOverrideCursor()
-        else:
-            QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Image was from outside current working directory. Operation canceled.', QtWidgets.QMessageBox.Ok)
 
     def load_images(self, images):
         for file in images:
             file_name = file
             if type(file) == QtCore.QUrl:
                 file_name = file.toLocalFile()
-
-            if self.directory == '':
-                self.directory = os.path.split(file_name)[0]
-                self.directory_set.emit(self.directory)
             
             image_name = os.path.split(file_name)[1]
             if image_name not in self.points:

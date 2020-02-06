@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 import os
 import sys
-from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5 import QtCore, QtWidgets, QtGui, uic
 
 from ddg import Canvas
 from ddg import PointWidget
@@ -49,9 +49,16 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
         self.point_widget = PointWidget(self.canvas, self)
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
+        self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
+        self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.up_arrow.activated.connect(self.point_widget.previous)
+
+        self.down_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down), self)
+        self.down_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.down_arrow.activated.connect(self.point_widget.next)
 
         self.graphicsView.setScene(self.canvas)
-        self.graphicsView.load_images.connect(self.canvas.load_images)
+        self.graphicsView.drop_complete.connect(self.canvas.load)
         self.graphicsView.region_selected.connect(self.canvas.select_points)
         self.graphicsView.delete_selection.connect(self.canvas.delete_selected_points)
         self.graphicsView.relabel_selection.connect(self.canvas.relabel_selected_points)

@@ -27,7 +27,7 @@ from PyQt5 import QtWidgets, QtCore
 
 class CentralGraphicsView(QtWidgets.QGraphicsView):
     add_point = QtCore.pyqtSignal(QtCore.QPointF)
-    load_images = QtCore.pyqtSignal(list)
+    drop_complete = QtCore.pyqtSignal(list)
     region_selected = QtCore.pyqtSignal(QtCore.QRectF)
     delete_selection = QtCore.pyqtSignal()
     relabel_selection = QtCore.pyqtSignal()
@@ -104,7 +104,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
 
     def dropEvent(self, event):
         if len(event.mimeData().urls()) > 0:
-            self.load_images.emit(event.mimeData().urls())
+            self.drop_complete.emit(event.mimeData().urls())
 
     def wheelEvent(self, event):
         if len(self.scene().items()) > 0:

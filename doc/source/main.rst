@@ -86,10 +86,12 @@ Furthermore, DotDotGoose will display an error message if you attempt to load im
 The working directory is automatically set when you,
 
     1. Load an existing project file, or
-    2. Drag the first image(s) into the Image Display component.
+    2. Drag the first image(s) into the Image Display component, or
+    3. Drag a folder of images into the Image Display component.
 
-For example, if you start a new counting project by dragging in IMG_0007.JPG (Fig 2) **Survey 1** will become the working directory. 
-Attempting use an image from any other location other than **Survey 1** will result in an error message until your restart DotDotGoose or press the reset button.
+For example, if you start a new counting project by dragging in IMG_0007.JPG (Fig 2) **Survey 1** will become the working directory. You can also 
+start a new counting project by dragging in the folder **Survey 1**. Attempting use an image from any other location other than **Survey 1** 
+will result in an error message until your restart DotDotGoose or press the reset button.
 
 Image Formats
 =============
@@ -102,7 +104,7 @@ Collecting Points
 =================
 To begin collecting points,
 
-    1. Drag one or more images from your file browser into the Image Display area.
+    1. Drag one or more images or a folder of images from your file browser into the Image Display area.
     2. Click the [Add] button in the Class Editor to add a new class.
     3. Click the black box next to the new class name and assign a display color for that particular class.
     4. Click the class name to make it the 'active' class.
@@ -118,6 +120,7 @@ To begin collecting points,
 
     \section*{Tips and Notes}
 
+* You can use the up and down arrow keys on your keyboard to cycles through the images loaded in a project.
 * While panning or zooming you can press the 'd' key to toggle the points on and off.
 * You can change the size of the points being displayed by adjusting the "Point Radius" value. To change this value, use the up and down arrows on the input field.
 * You can change the default "active" class color from yellow to a color of your choice by clicking on the box next to the "Point Radius" input field.
@@ -291,6 +294,7 @@ I would like to thank the following people for beta testing and the feedback the
     * Heather Lynch, `Lynch Lab for Quantitative Ecology <https://lynchlab.com/>`_, Stony Brook University
     * `Jarrod Hodgson <http://www.jarrodhodgson.com.au/>`_ , University of Adelaide
     * Emily Kelsey, `Western Ecological Research Center <https://www.usgs.gov/centers/werc>`_, U.S. Geological Survey
+    * Louise Wilson, `Leigh Marine Laboratory <https://www.auckland.ac.nz/en/science/about-the-faculty/university-reserves/leigh-marine-laboratory.html>`_, The University of Auckland
 
 
 The image used in this documentation is courtesy of the Hudson Bay Project 

@@ -67,9 +67,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.canvas.points_loaded.connect(self.points_loaded)
 
         self.model = QtGui.QStandardItemModel()
+        self.current_model_index = QtCore.QModelIndex()
         self.treeView.setModel(self.model)
         self.reset_model()
-        self.treeView.doubleClicked.connect(self.double_click)
+        self.treeView.doubleClicked.connect(self.select_model_item)
 
         self.spinBoxPointRadius.valueChanged.connect(self.canvas.set_point_radius)
         self.spinBoxGrid.valueChanged.connect(self.canvas.set_grid_size)
@@ -95,12 +96,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def display_points(self, display):
         self.canvas.toggle_points(display=display)
-
-    def double_click(self, model_index):
-        item = self.model.itemFromIndex(model_index)
-        if item.isSelectable():
-            path = os.path.join(self.canvas.directory, item.text())
-            self.canvas.load_image(path)
 
     def cell_changed(self, row, column):
         if column == 0:
@@ -159,6 +154,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 font.setBold(True)
                 image_item.setFont(font)
                 self.treeView.setExpanded(image_item.index(), True)
+                self.current_model_index = image_item.index()
 
             for class_name in self.canvas.classes:
                 class_item = QtGui.QStandardItem(class_name)
@@ -170,6 +166,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 class_count.setEditable(False)
                 class_count.setSelectable(False)
                 image_item.appendRow([class_item, class_count])
+        self.treeView.scrollTo(self.current_model_index)
+        
 
     def export(self):
         if(self.radioButtonCounts.isChecked()):
@@ -198,10 +196,23 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         if file_name[0] is not '':
             self.canvas.load_points(file_name[0])
 
+    def next(self):
+        max_index = self.model.rowCount()
+        next_index = self.current_model_index.row() + 1
+        if next_index < max_index:
+            item = self.model.item(next_index)
+            self.select_model_item(item.index())
+
     def points_loaded(self, survey_id):
         self.lineEditSurveyId.setText(survey_id)
         self.display_classes()
         self.update_ui_settings()
+
+    def previous(self):
+        next_index = self.current_model_index.row() - 1
+        if next_index >= 0:
+            item = self.model.item(next_index)
+            self.select_model_item(item.index())
 
     def reset(self):
         msgBox = QtWidgets.QMessageBox()
@@ -217,6 +228,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.display_count_tree()
 
     def reset_model(self):
+        self.current_model_index = QtCore.QModelIndex()
         self.model.clear()
         self.model.setColumnCount(2)
         self.model.setHeaderData(0, QtCore.Qt.Horizontal, 'Image')
@@ -248,6 +260,12 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 QtWidgets.QMessageBox.warning(self.parent(), 'ERROR', 'You are attempting to save the pnt outside of the working directory. Operation canceled. POINT DATA NOT SAVED.', QtWidgets.QMessageBox.Ok)
             else:
                 self.canvas.save_points(file_name[0], self.lineEditSurveyId.text())
+
+    def select_model_item(self, model_index):
+        item = self.model.itemFromIndex(model_index)
+        if item.isSelectable():
+            path = os.path.join(self.canvas.directory, item.text())
+            self.canvas.load_image(path)
 
     def selection_changed(self, selected, deselected):
         if len(selected.indexes()) > 0:
