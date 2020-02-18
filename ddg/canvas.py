@@ -223,7 +223,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         peek = drop_list[0].toLocalFile()
         if os.path.isdir(peek):
             if self.directory == '':
-                self.directory = peek
+                # strip off trailing sep from path
+                osx_hack = os.path.join(peek, 'OSX')
+                self.directory = os.path.split(osx_hack)[0]
+                # end
                 self.directory_set.emit(self.directory)
                 files = glob.glob(os.path.join(self.directory, '*'))
                 image_format = [".jpg", ".jpeg", ".png", ".tif"]

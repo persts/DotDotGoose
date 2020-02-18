@@ -183,7 +183,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.chip_dialog.show()
 
     def image_loaded(self, directory, file_name):
-        self.tableWidgetClasses.selectionModel().clear()
+        # self.tableWidgetClasses.selectionModel().clear()
         self.display_count_tree()
     
     def import_metadata(self):
