@@ -332,8 +332,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             image_name = os.path.split(file_name)[1]
             if image_name not in self.points:
                 self.points[image_name] = {}
-
-        self.load_image(images[0])
+        if len(images) > 0:
+            self.load_image(images[0])
 
     def load_points(self, file_name):
         file = open(file_name, 'r')
