@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>375</width>
-    <height>906</height>
+    <height>880</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -150,6 +150,12 @@
    <item>
     <widget class="QFrame" name="frame_2">
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">

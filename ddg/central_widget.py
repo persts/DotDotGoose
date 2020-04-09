@@ -78,6 +78,9 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
         self.pushButtonAddField.clicked.connect(self.add_field_dialog)
         self.pushButtonDeleteField.clicked.connect(self.delete_field_dialog)
+        self.pushButtonFolder.clicked.connect(self.select_folder)
+        self.pushButtonZoomOut.clicked.connect(self.graphicsView.zoom_out)
+        self.pushButtonZoomIn.clicked.connect(self.graphicsView.zoom_in)
 
     def resizeEvent(self, theEvent):
         self.graphicsView.fitInView(self.canvas.itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
@@ -170,6 +173,11 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
     def get_custom_field_data(self):
         self.load_custom_data.emit(self.canvas.get_custom_field_data())
+
+    def select_folder(self):
+        name = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select image folder', self.canvas.directory)
+        if name != '':
+            self.canvas.load([QtCore.QUrl('file:{}'.format(name))])
 
     def update_coordinates(self, text):
         x = self.lineEditX.text()

@@ -36,7 +36,7 @@ if __name__ == '__main__':
     main.setWindowTitle('DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://cbc.amnh.org )'.format(__version__))
     main.setCentralWidget(CentralWidget())
     main.show()
-    main.resize(int(screen.width() * .95), screen.height() * 0.95)
+    main.resize(int(screen.width() * .90), screen.height() * 0.90)
     main.move(int(screen.width() * .05) // 2, 0)
 
     sys.exit(app.exec_())

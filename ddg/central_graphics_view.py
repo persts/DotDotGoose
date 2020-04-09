@@ -109,6 +109,12 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     def wheelEvent(self, event):
         if len(self.scene().items()) > 0:
             if event.angleDelta().y() > 0:
-                self.scale(1.1, 1.1)
+                self.zoom_in()
             else:
-                self.scale(0.9, 0.9)
+                self.zoom_out()
+    
+    def zoom_in(self):
+        self.scale(1.1, 1.1)
+
+    def zoom_out(self):
+        self.scale(0.9, 0.9)
