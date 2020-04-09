@@ -34,7 +34,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Survey Id</string>
+        <string>Survey Id </string>
        </property>
       </widget>
      </item>
