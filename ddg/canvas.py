@@ -53,6 +53,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.current_class_name = None
 
         self.qt_image = None
+        self.show_grid = True
 
         self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.red, QtCore.Qt.SolidPattern), 1)
 
@@ -111,7 +112,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def display_grid(self):
         self.clear_grid()
-        if self.current_image_name:
+        if self.current_image_name and self.show_grid:
             grid_color = QtGui.QColor(self.ui['grid']['color'][0], self.ui['grid']['color'][1], self.ui['grid']['color'][2])
             grid_size = self.ui['grid']['size']
             rect = self.itemsBoundingRect()
@@ -503,8 +504,10 @@ class Canvas(QtWidgets.QGraphicsScene):
     
     def toggle_grid(self, display):
         if display:
+            self.show_grid = True
             self.display_grid()
         else:
+            self.show_grid = False
             self.clear_grid()
 
     def toggle_points(self, display):

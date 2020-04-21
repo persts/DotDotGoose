@@ -279,6 +279,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.labelPointColor.setPixmap(icon)
         self.canvas.set_point_color(color)
 
+    def set_active_class(self, row):
+        if row < self.tableWidgetClasses.rowCount():
+            self.tableWidgetClasses.selectRow(row)
+
     def set_grid_color(self, color):
         icon = QtGui.QPixmap(20, 20)
         icon.fill(color)

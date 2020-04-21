@@ -49,6 +49,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
         self.point_widget = PointWidget(self.canvas, self)
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
+
         self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
         self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
@@ -64,6 +65,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.graphicsView.relabel_selection.connect(self.canvas.relabel_selected_points)
         self.graphicsView.toggle_points.connect(self.point_widget.checkBoxDisplayPoints.toggle)
         self.graphicsView.toggle_grid.connect(self.point_widget.checkBoxDisplayGrid.toggle)
+        self.graphicsView.switch_class.connect(self.point_widget.set_active_class)
 
         self.graphicsView.add_point.connect(self.canvas.add_point)
         self.canvas.image_loaded.connect(self.graphicsView.image_loaded)

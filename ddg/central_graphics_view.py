@@ -33,6 +33,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     relabel_selection = QtCore.pyqtSignal()
     toggle_points = QtCore.pyqtSignal()
     toggle_grid = QtCore.pyqtSignal()
+    switch_class = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
         QtWidgets.QGraphicsView.__init__(self, parent)
@@ -67,6 +68,27 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
             self.toggle_points.emit()
         elif event.key() == QtCore.Qt.Key_G:
             self.toggle_grid.emit()
+        elif event.key() == QtCore.Qt.Key_1:
+            self.switch_class.emit(0)
+        elif event.key() == QtCore.Qt.Key_2:
+            self.switch_class.emit(1)
+        elif event.key() == QtCore.Qt.Key_3:
+            self.switch_class.emit(2)
+        elif event.key() == QtCore.Qt.Key_4:
+            self.switch_class.emit(3)
+        elif event.key() == QtCore.Qt.Key_5:
+            self.switch_class.emit(4)
+        elif event.key() == QtCore.Qt.Key_6:
+            self.switch_class.emit(5)
+        elif event.key() == QtCore.Qt.Key_7:
+            self.switch_class.emit(6)
+        elif event.key() == QtCore.Qt.Key_8:
+            self.switch_class.emit(7)
+        elif event.key() == QtCore.Qt.Key_9:
+            self.switch_class.emit(8)
+        elif event.key() == QtCore.Qt.Key_0:
+            self.switch_class.emit(9)
+
 
     def keyReleaseEvent(self, event):
         if event.key() == QtCore.Qt.Key_Alt:
