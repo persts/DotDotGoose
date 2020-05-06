@@ -1,6 +1,6 @@
 If you use this application on data that results in a publication, report, or online analysis, we ask that you include the following reference:
 
-Ersts,P.J.[Internet] DotDotGoose (version 1.4.1). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
+Ersts,P.J.[Internet] DotDotGoose (version 1.5.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
 
 .. raw:: latex
 
@@ -300,6 +300,7 @@ I would like to thank the following people for beta testing and the feedback the
     * Louise Wilson, `Leigh Marine Laboratory <https://www.auckland.ac.nz/en/science/about-the-faculty/university-reserves/leigh-marine-laboratory.html>`_, The University of Auckland
     * Kalinka Rexer-Huber, `Parker Conservation <https://www.parkerconservation.co.nz/>`_
     * Richard Casalina Jr., `Values-in-Action Foundation <http://www.viafdn.org/>`_
+    * Peter Frost, Freelancer, New Zealand
 
 
 The image used in this documentation is courtesy of the Hudson Bay Project 
