@@ -49,6 +49,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
         self.point_widget = PointWidget(self.canvas, self)
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
+        self.point_widget.hide_custom_fields.connect(self.hide_custom_fields)
 
         self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
         self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
@@ -85,8 +86,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.pushButtonZoomIn.clicked.connect(self.graphicsView.zoom_in)
 
     def resizeEvent(self, theEvent):
-        self.graphicsView.fitInView(self.canvas.itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
-        self.graphicsView.setSceneRect(self.canvas.itemsBoundingRect())
+        self.graphicsView.resize_image()
 
     # Image data field functions
     def add_field(self):
@@ -175,6 +175,12 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
     def get_custom_field_data(self):
         self.load_custom_data.emit(self.canvas.get_custom_field_data())
+
+    def hide_custom_fields(self, hide):
+        if hide == True:
+            self.frameCustomField.hide()
+        else:
+            self.frameCustomField.show()
 
     def select_folder(self):
         name = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select image folder', self.canvas.directory)

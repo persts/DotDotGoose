@@ -37,6 +37,7 @@ WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'point_widget.ui'))
 
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
+    hide_custom_fields = QtCore.pyqtSignal(bool)
 
     def __init__(self, canvas, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -83,6 +84,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         icon.fill(QtCore.Qt.white)
         self.labelGridColor.setPixmap(icon)
         self.labelGridColor.mousePressEvent = self.change_grid_color
+
+        self.checkBoxImageFields.clicked.connect(self.hide_custom_fields.emit)
 
     def add_class(self):
         class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Class', 'Class Name')

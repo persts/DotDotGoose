@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <layout class="QHBoxLayout" name="SurveyId">
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
@@ -27,6 +27,13 @@
       <widget class="QLineEdit" name="lineEditSurveyId"/>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBoxImageFields">
+     <property name="text">
+      <string>Hide Image Data / Custom Fields</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QSplitter" name="splitter">
@@ -123,7 +130,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="groupBoxSummary">
       <property name="title">
        <string>Summary</string>
       </property>
@@ -136,7 +143,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="frame_2">
+    <widget class="QFrame" name="frameControls">
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="topMargin">
        <number>9</number>

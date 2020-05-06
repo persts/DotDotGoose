@@ -48,6 +48,16 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     def enterEvent(self, event):
         self.setFocus()
 
+    def dragEnterEvent(self, event):
+        event.setAccepted(True)
+
+    def dragMoveEvent(self, event):
+        pass
+
+    def dropEvent(self, event):
+        if len(event.mimeData().urls()) > 0:
+            self.drop_complete.emit(event.mimeData().urls())
+
     def image_loaded(self, directory, file_name):
         self.resetTransform()
         self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
@@ -89,7 +99,6 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         elif event.key() == QtCore.Qt.Key_0:
             self.switch_class.emit(9)
 
-
     def keyReleaseEvent(self, event):
         if event.key() == QtCore.Qt.Key_Alt:
             self.alt = False
@@ -118,15 +127,15 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
             QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
         self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
 
-    def dragEnterEvent(self, event):
-        event.setAccepted(True)
+    def resizeEvent(self, event):
+        self.resize_image()
 
-    def dragMoveEvent(self, event):
-        pass
-
-    def dropEvent(self, event):
-        if len(event.mimeData().urls()) > 0:
-            self.drop_complete.emit(event.mimeData().urls())
+    def resize_image(self):
+        vsb = self.verticalScrollBar().isVisible()
+        hsb = self.horizontalScrollBar().isVisible()
+        if not (vsb or hsb):
+            self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
+            self.setSceneRect(self.scene().itemsBoundingRect())
 
     def wheelEvent(self, event):
         if len(self.scene().items()) > 0:
