@@ -169,7 +169,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     if image in self.custom_fields['data'][field_name]:
                         output += ',{}'.format(self.custom_fields['data'][field_name][image])
                     else:
-                        output == ','
+                        output += ','
                 output += "\n"
                 file.write(output)
             file.close()
