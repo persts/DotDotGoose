@@ -51,13 +51,27 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
         self.point_widget.hide_custom_fields.connect(self.hide_custom_fields)
 
+        self.save_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("Ctrl+S")), self)  # quick save using Ctrl+S
+        self.save_shortcut.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.save_shortcut.activated.connect(self.point_widget.quick_save)
+
         self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
         self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
-
+        
         self.down_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down), self)
         self.down_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.down_arrow.activated.connect(self.point_widget.next)
+
+        # same as arrows but conventient for right handed people
+        self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("W")), self)
+        self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.up_arrow.activated.connect(self.point_widget.previous)
+        
+        self.down_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("S")), self)
+        self.down_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.down_arrow.activated.connect(self.point_widget.next)
+
 
         self.graphicsView.setScene(self.canvas)
         self.graphicsView.drop_complete.connect(self.canvas.load)
