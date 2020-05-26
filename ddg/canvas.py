@@ -158,7 +158,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 for class_name in self.classes:
                     if class_name in self.points[image]:
                         output += ',' + str(len(self.points[image][class_name]))
-                    else: 
+                    else:
                         output += ',0'
                 if image in self.coordinates:
                     output += ',' + self.coordinates[image]['x']
@@ -183,7 +183,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 for class_name in self.classes:
                     if class_name in self.points[image]:
                         for point in self.points[image][class_name]:
-                            output= '\n{},{},{},{},{}'.format(survey_id, image, class_name, point.x(), point.y())
+                            output = '\n{},{},{},{},{}'.format(survey_id, image, class_name, point.x(), point.y())
                             file.write(output)
             file.close()
 
@@ -289,7 +289,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     tail = array.shape[1] - max_stride
                     tile = np.zeros((array.shape[0], stride, array.shape[2]), dtype=np.uint8)
                     for s in range(0, max_stride, stride):
-                        tile[:, :] = array[:, s:s+stride]
+                        tile[:, :] = array[:, s:s + stride]
                         qt_image = QtGui.QImage(tile.data, tile.shape[1], tile.shape[0], QtGui.QImage.Format_RGB888)
                         pixmap = QtGui.QPixmap.fromImage(qt_image)
                         item = self.addPixmap(pixmap)
@@ -329,7 +329,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             file_name = file
             if type(file) == QtCore.QUrl:
                 file_name = file.toLocalFile()
-            
+
             image_name = os.path.split(file_name)[1]
             if image_name not in self.points:
                 self.points[image_name] = {}
@@ -447,7 +447,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             if class_name in self.points[image]:
                 del self.points[image][class_name]
         self.display_points()
-    
+
     def save_coordinates(self, x, y):
         if self.current_image_name is not None:
             if self.current_image_name not in self.coordinates:
@@ -461,11 +461,13 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.custom_fields['data'][field][self.current_image_name] = ''
             self.custom_fields['data'][field][self.current_image_name] = data
 
-    def save_points(self, file_name, survey_id):
+    def save_points(self, file_name, survey_id, display_dialog=False):
         output, _ = self.package_points(survey_id)
         file = open(file_name, 'w')
         json.dump(output, file)
         file.close()
+        if display_dialog:
+            QtWidgets.QMessageBox.information(self.parent(), 'SUCCESS', 'Point data saved.', QtWidgets.QMessageBox.Ok)
 
     def select_points(self, rect):
         self.selection = []
@@ -501,7 +503,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def set_point_radius(self, radius):
         self.ui['point']['radius'] = radius
         self.display_points()
-    
+
     def toggle_grid(self, display):
         if display:
             self.show_grid = True

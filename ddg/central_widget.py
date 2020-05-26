@@ -58,7 +58,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
         self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
-        
+
         self.down_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down), self)
         self.down_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.down_arrow.activated.connect(self.point_widget.next)
@@ -67,11 +67,10 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("W")), self)
         self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
-        
+
         self.down_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("S")), self)
         self.down_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
         self.down_arrow.activated.connect(self.point_widget.next)
-
 
         self.graphicsView.setScene(self.canvas)
         self.graphicsView.drop_complete.connect(self.canvas.load)
@@ -130,7 +129,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
     def delete_field(self):
         self.canvas.delete_custom_field(self.field_list.currentText())
         self.delete_dialog.close()
-    
+
     def delete_field_dialog(self):
         self.field_list = QtWidgets.QComboBox()
         self.field_list.addItems([x[0] for x in self.canvas.custom_fields['fields']])
@@ -191,7 +190,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.load_custom_data.emit(self.canvas.get_custom_field_data())
 
     def hide_custom_fields(self, hide):
-        if hide == True:
+        if hide is True:
             self.frameCustomField.hide()
         else:
             self.frameCustomField.show()

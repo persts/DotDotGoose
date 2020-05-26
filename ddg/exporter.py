@@ -22,12 +22,12 @@
 # along with with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------------
-import sys
 import os
 import numpy as np
 
 from PIL import Image
 from PyQt5 import QtCore
+
 
 class Exporter(QtCore.QThread):
     progress = QtCore.pyqtSignal(int)
@@ -68,7 +68,7 @@ class Exporter(QtCore.QThread):
                         self.totals[class_name] += 1
                         file_name = '{:010d}{}'.format(self.totals[class_name], self.file_type)
                         chip_name = '{}{}'.format(directory, file_name)
-                        output= '\n{},{},{},{},{},{}'.format(self.survey_id, image, class_name, point.x(), point.y(), chip_name)
+                        output = '\n{},{},{},{},{},{}'.format(self.survey_id, image, class_name, point.x(), point.y(), chip_name)
                         summary_file.write(output)
                         # caculate the clip window
                         x = max(0, int(point.x()) - self.x_offset)
@@ -77,7 +77,7 @@ class Exporter(QtCore.QThread):
                         y2 = min((int(point.y()) - self.y_offset) + (self.y_offset * 2), img.shape[0])
                         window = img[y:y2, x:x2]
                         # fill the chip with data and save
-                        chip = np.zeros((self.y_offset * 2, self.x_offset *2, img.shape[2]), img.dtype)
+                        chip = np.zeros((self.y_offset * 2, self.x_offset * 2, img.shape[2]), img.dtype)
                         chip[0:window.shape[0], 0:window.shape[1]] = window
                         out_image = Image.fromarray(chip)
                         out_image.save(chip_name)

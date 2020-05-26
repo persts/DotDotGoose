@@ -35,6 +35,7 @@ else:
     bundle_dir = os.path.dirname(__file__)
 CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'chip_dialog.ui'))
 
+
 class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
 
     def __init__(self, classes, points, directory, survey_id):
@@ -74,18 +75,18 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
         self.pushButtonCancel.setText('Cancel')
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select Directory', self.directory, QtWidgets.QFileDialog.ShowDirsOnly)
         if directory != '':
-            if len(os.listdir(directory) ) != 0:
+            if len(os.listdir(directory)) != 0:
                 QtWidgets.QMessageBox.warning(self, 'Target Directory', 'The target directory contains data, please select an empty directory for exporting.')
             else:
                 file_type = '.png'
                 if(self.radioButtonJpeg.isChecked()):
                     file_type = '.jpg'
                 # TODO: make this constructor parameters cleaner
-                self.exporter = Exporter(self.survey_id, self.classes, self.points, self.directory, directory, self.spinBoxWidth.value(), self.spinBoxHeight.value(),file_type)
+                self.exporter = Exporter(self.survey_id, self.classes, self.points, self.directory, directory, self.spinBoxWidth.value(), self.spinBoxHeight.value(), file_type)
                 self.exporter.finished.connect(self.finished)
                 self.exporter.progress.connect(self.progressBar.setValue)
                 self.exporter.start()
-    
+
     def finished(self):
         self.pushButtonCancel.setText('Close')
 

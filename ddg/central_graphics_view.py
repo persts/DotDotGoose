@@ -143,7 +143,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
                 self.zoom_in()
             else:
                 self.zoom_out()
-    
+
     def zoom_in(self):
         self.scale(1.1, 1.1)
         # Fix for MacOS and PyQt5 > v5.10

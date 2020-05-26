@@ -46,11 +46,12 @@ class BoxText(QtWidgets.QTextEdit):
         else:
             self.timer.start()
         QtWidgets.QTextEdit.keyPressEvent(self, event)
-    
+
     def load_data(self, data):
         key = self.parent().objectName()
         if key in data:
             self.setText(data[key])
+
 
 class LineText(QtWidgets.QLineEdit):
     update = QtCore.pyqtSignal(str, str)
@@ -73,7 +74,7 @@ class LineText(QtWidgets.QLineEdit):
         else:
             self.timer.start()
         QtWidgets.QLineEdit.keyPressEvent(self, event)
-    
+
     def load_data(self, data):
         key = self.parent().objectName()
         if key in data:
