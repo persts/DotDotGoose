@@ -461,13 +461,11 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.custom_fields['data'][field][self.current_image_name] = ''
             self.custom_fields['data'][field][self.current_image_name] = data
 
-    def save_points(self, file_name, survey_id, display_dialog=False):
+    def save_points(self, file_name, survey_id):
         output, _ = self.package_points(survey_id)
         file = open(file_name, 'w')
         json.dump(output, file)
         file.close()
-        if display_dialog:
-            QtWidgets.QMessageBox.information(self.parent(), 'SUCCESS', 'Point data saved.', QtWidgets.QMessageBox.Ok)
 
     def select_points(self, rect):
         self.selection = []

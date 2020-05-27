@@ -38,6 +38,7 @@ WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'point_widget.ui'))
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
     hide_custom_fields = QtCore.pyqtSignal(bool)
+    saving = QtCore.pyqtSignal()
 
     def __init__(self, canvas, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -266,7 +267,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         if self.previous_file_name is None:
             self.save()
         else:
-            self.canvas.save_points(self.previous_file_name, self.lineEditSurveyId.text(), True)
+            self.saving.emit()
+            self.canvas.save_points(self.previous_file_name, self.lineEditSurveyId.text())
 
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Points', os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')

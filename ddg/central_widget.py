@@ -50,6 +50,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.point_widget = PointWidget(self.canvas, self)
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
         self.point_widget.hide_custom_fields.connect(self.hide_custom_fields)
+        self.point_widget.saving.connect(self.display_quick_save)
 
         self.save_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("Ctrl+S")), self)  # quick save using Ctrl+S
         self.save_shortcut.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
@@ -97,6 +98,13 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.pushButtonFolder.clicked.connect(self.select_folder)
         self.pushButtonZoomOut.clicked.connect(self.graphicsView.zoom_out)
         self.pushButtonZoomIn.clicked.connect(self.graphicsView.zoom_in)
+
+        self.quick_save_frame = QtWidgets.QFrame(self.graphicsView)
+        self.quick_save_frame.setStyleSheet("QFrame { background: #4caf50;color: #FFF;font-weight: bold}")
+        self.quick_save_frame.setLayout(QtWidgets.QHBoxLayout())
+        self.quick_save_frame.layout().addWidget(QtWidgets.QLabel('Saving...'))
+        self.quick_save_frame.setGeometry(3, 3, 100, 35)
+        self.quick_save_frame.hide()
 
     def resizeEvent(self, theEvent):
         self.graphicsView.resize_image()
@@ -185,6 +193,10 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
     def display_working_directory(self, directory):
         self.labelWorkingDirectory.setText(directory)
+
+    def display_quick_save(self):
+        self.quick_save_frame.show()
+        QtCore.QTimer.singleShot(500, self.quick_save_frame.hide)
 
     def get_custom_field_data(self):
         self.load_custom_data.emit(self.canvas.get_custom_field_data())
