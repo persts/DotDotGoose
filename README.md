@@ -10,7 +10,7 @@ DotDotGoose is a free, open source tool to assist with manually counting objects
 ## Installation
 
 ### Dependencies
-Nenetic is being developed on Ubuntu 18.04 with the following libraries:
+DotDotGoose is being developed on Ubuntu 18.04 with the following libraries:
 
 * PyQt5 (5.10.1)
 * Pillow (5.4.1)
