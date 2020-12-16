@@ -270,14 +270,23 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.saving.emit()
             self.canvas.save_points(self.previous_file_name, self.lineEditSurveyId.text())
 
-    def save(self):
+    def save(self, override=False):
         file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Points', os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
         if file_name[0] != '':
             self.previous_file_name = file_name[0]
-            if self.canvas.directory != os.path.split(file_name[0])[0]:
-                QtWidgets.QMessageBox.warning(self.parent(), 'ERROR', 'You are attempting to save the pnt outside of the working directory. Operation canceled. POINT DATA NOT SAVED.', QtWidgets.QMessageBox.Ok)
+            if override is False and self.canvas.directory != os.path.split(file_name[0])[0]:
+                QtWidgets.QMessageBox.warning(self.parent(), 'ERROR', 'You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.', QtWidgets.QMessageBox.Ok)
             else:
-                self.canvas.save_points(file_name[0], self.lineEditSurveyId.text())
+                if self.canvas.save_points(file_name[0], self.lineEditSurveyId.text()) is False:
+                    msg_box = QtWidgets.QMessageBox()
+                    msg_box.setWindowTitle('ERROR')
+                    msg_box.setText('Save Failed!')
+                    msg_box.setInformativeText('It appears you cannot save your pnt file in the working directory, possibly due to permissions.\n\nEither change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory. ')
+                    msg_box.setStandardButtons(QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Cancel)
+                    msg_box.setDefaultButton(QtWidgets.QMessageBox.Save)
+                    response = msg_box.exec()
+                    if response == QtWidgets.QMessageBox.Save:
+                        self.save(True)
 
     def select_model_item(self, model_index):
         item = self.model.itemFromIndex(model_index)
