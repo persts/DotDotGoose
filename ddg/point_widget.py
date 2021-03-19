@@ -103,7 +103,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             root.appendRow([key, value, color_item])
 
     def add_category(self):
-        name, ok = QtWidgets.QInputDialog.getText(self, 'New Class', 'Class Name')
+        name, ok = QtWidgets.QInputDialog.getText(self, 'New Category', 'Enter Category Name')
         if ok:
             if name in self.canvas.categories:
                 dialog = QtWidgets.QMessageBox.question(self, "Choose different name", "Name "+ name + " already taken", QtWidgets.QMessageBox.Ok)
@@ -113,7 +113,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.classModel.invisibleRootItem().appendRow([key, value, color_item])
 
     def add_class(self):
-        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Class', 'Class Name')
+        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Component', 'Enter Component Name')
         if ok:
             if class_name in self.canvas.classes or class_name in self.canvas.categories:
                 dialog = QtWidgets.QMessageBox.question(self, "Choose different name", "Name "+ class_name + " already taken", QtWidgets.QMessageBox.Ok)
@@ -134,10 +134,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                     font = item.font()
                     font.setBold(False)
                     key.setFont(font)
-                # self.canvas.set_current_class(name)
-                # font = key.font()
-                # font.setBold(True)
-                # key.setFont(font)
                 self.classModel.itemFromIndex(category_index).appendRow([key, value, color_item])
 
     def change_active_point_color(self, event):
@@ -182,7 +178,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             image_item = QtGui.QStandardItem(image)
             image_item.setEditable(False)
             count = 0
-            for classes, points in self.canvas.points[image].items():
+            for _, points in self.canvas.points[image].items():
                 count += len(points)
             count_item = QtGui.QStandardItem(str(count))
             count_item.setEditable(False)
@@ -248,10 +244,13 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def item_clicked(self, index):
         if index.column() == 2:
+            category_item = index.parent()
+            name = category_item.child(index.row(), 0).data(0)
+            # prevent color change of categories
+            if name is None:
+                return
             color = QtWidgets.QColorDialog.getColor()
             if color.isValid():
-                category_item = index.parent()
-                name = category_item.child(index.row(), 0).data(0)
                 self.canvas.colors[name] = color
                 icon = QtGui.QPixmap(20, 20)
                 icon.fill(color)
@@ -325,7 +324,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def rename(self, index):
         column = index.column()
         row = index.row()
-        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New name', 'New Name')
+        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New name', 'Enter New Name')
         if class_name in self.canvas.classes or class_name in self.canvas.categories:
             dialog = QtWidgets.QMessageBox.question(self, "Choose different name", "Name "+ class_name + " already taken", QtWidgets.QMessageBox.Ok)
             return
@@ -481,7 +480,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         if len(img_items) == 0:
             self.display_count_tree()
         else:
-            class_item = self.canvas.current_selection
+            class_item = self.get_item_from_name(class_name)
             category_item = class_item.parent()
             row = class_item.row()
             category_item.child(row, 1).setData(str(count), QtCore.Qt.EditRole)

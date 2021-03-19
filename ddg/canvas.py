@@ -49,6 +49,9 @@ class Canvas(QtWidgets.QGraphicsScene):
     fields_updated = QtCore.pyqtSignal()
     points_updated = QtCore.pyqtSignal()
     update_point_count = QtCore.pyqtSignal(str, str, int)
+    DEFAULT_COLORS = {"Resistor":QtGui.QColor(QtCore.Qt.black), "Capacitor":QtGui.QColor(QtCore.Qt.gray), "Crystal":QtGui.QColor(QtCore.Qt.green), 
+                      "Diode": QtGui.QColor(QtCore.Qt.blue), "Inductor":QtGui.QColor(QtCore.Qt.cyan), "Integrated Circuit":QtGui.QColor(QtCore.Qt.yellow), 
+                      "Transistor":QtGui.QColor(QtCore.Qt.darkYellow), "Discrete < 3 Pins":QtGui.QColor(QtCore.Qt.magenta), "Discrete > 3 Pins":QtGui.QColor(QtCore.Qt.darkMagenta)}
 
     def __init__(self):
         from collections import defaultdict, OrderedDict
@@ -93,7 +96,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             a = Attributes()
             a["Name"] = class_name
             self.data[category].append(class_name)
-            self.colors[class_name] = QtGui.QColor(QtCore.Qt.black)
+            self.colors[class_name] = Canvas.DEFAULT_COLORS.get(category, QtGui.QColor(QtCore.Qt.black))
             self.class_attributes[class_name] = a
 
     def add_category(self, name):

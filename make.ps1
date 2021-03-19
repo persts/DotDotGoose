@@ -6,4 +6,4 @@ pyuic5 point_widget.ui -o point_widget_ui.py
 
 cd ..\..
 
-pyinstaller main.py --onefile --clean --windowed
+pyinstaller main.py --onefile --clean --windowed --name DotDotIC
