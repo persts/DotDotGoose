@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Survey Id </string>
+        <string>Project ID</string>
        </property>
       </widget>
      </item>
@@ -31,7 +31,7 @@
    <item>
     <widget class="QCheckBox" name="checkBoxImageFields">
      <property name="text">
-      <string>Hide Image Data / Custom Fields</string>
+      <string>Hide Component Details</string>
      </property>
     </widget>
    </item>
@@ -42,22 +42,11 @@
      </property>
      <widget class="QGroupBox" name="groupBoxClasses">
       <property name="title">
-       <string>Classes</string>
+       <string>Categories</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTableWidget" name="tableWidgetClasses">
-         <column>
-          <property name="text">
-           <string>Class</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string/>
-          </property>
-         </column>
-        </widget>
+        <widget class="QTreeView" name="classTree"/>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -76,7 +65,7 @@
             <string>Delete</string>
            </property>
            <property name="icon">
-            <iconset resource="../icons/ddg.qrc">
+            <iconset>
              <normaloff>:/icons/delete.svg</normaloff>:/icons/delete.svg</iconset>
            </property>
            <property name="iconSize">
@@ -101,6 +90,13 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButtonAddCategory">
+           <property name="text">
+            <string>Add Category</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButtonAddClass">
            <property name="maximumSize">
             <size>
@@ -109,14 +105,10 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Add class.</string>
+            <string>Add component to category</string>
            </property>
            <property name="text">
-            <string>Add</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../icons/ddg.qrc">
-             <normaloff>:/icons/add.svg</normaloff>:/icons/add.svg</iconset>
+            <string>Add Component</string>
            </property>
            <property name="iconSize">
             <size>
@@ -131,6 +123,12 @@
       </layout>
      </widget>
      <widget class="QGroupBox" name="groupBoxSummary">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="title">
        <string>Summary</string>
       </property>
@@ -282,171 +280,6 @@
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
-      </item>
-      <item>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="1">
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QRadioButton" name="radioButtonCounts">
-            <property name="text">
-             <string>Counts</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonPoints">
-            <property name="text">
-             <string>Points</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonChips">
-            <property name="text">
-             <string>Chips</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="0" column="1">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="3">
-         <widget class="QPushButton" name="pushButtonExport">
-          <property name="toolTip">
-           <string>Export</string>
-          </property>
-          <property name="text">
-           <string>Export</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/export.svg</normaloff>:/icons/export.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="pushButtonLoadPoints">
-          <property name="toolTip">
-           <string>Load point file.</string>
-          </property>
-          <property name="text">
-           <string>Load</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/load.svg</normaloff>:/icons/load.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="4">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="pushButtonImport">
-          <property name="toolTip">
-           <string>Import classes and custom field from existing point file.</string>
-          </property>
-          <property name="text">
-           <string>Import</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/import.svg</normaloff>:/icons/import.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="pushButtonReset">
-          <property name="toolTip">
-           <string>Reset point file.</string>
-          </property>
-          <property name="text">
-           <string>Reset</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/reset.svg</normaloff>:/icons/reset.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QPushButton" name="pushButtonSave">
-          <property name="toolTip">
-           <string>Save point file.</string>
-          </property>
-          <property name="text">
-           <string>Save</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/save.svg</normaloff>:/icons/save.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </item>
      </layout>
     </widget>

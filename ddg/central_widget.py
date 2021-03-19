@@ -51,6 +51,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
         self.point_widget.hide_custom_fields.connect(self.hide_custom_fields)
         self.point_widget.saving.connect(self.display_quick_save)
+        self.point_widget.class_selection_changed.connect(self.display_attributes)
 
         self.save_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("Ctrl+S")), self)  # quick save using Ctrl+S
         self.save_shortcut.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
@@ -80,21 +81,28 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.graphicsView.relabel_selection.connect(self.canvas.relabel_selected_points)
         self.graphicsView.toggle_points.connect(self.point_widget.checkBoxDisplayPoints.toggle)
         self.graphicsView.toggle_grid.connect(self.point_widget.checkBoxDisplayGrid.toggle)
-        self.graphicsView.switch_class.connect(self.point_widget.set_active_class)
+        # self.graphicsView.switch_class.connect(self.point_widget.set_active_class)
 
         self.graphicsView.add_point.connect(self.canvas.add_point)
+        self.graphicsView.display_pointer_coordinates.connect(self.display_pointer_coordinates)
         self.canvas.image_loaded.connect(self.graphicsView.image_loaded)
         self.canvas.directory_set.connect(self.display_working_directory)
 
         # Image data fields
         self.canvas.image_loaded.connect(self.display_coordinates)
-        self.canvas.image_loaded.connect(self.get_custom_field_data)
-        self.canvas.fields_updated.connect(self.display_custom_fields)
+        self.canvas.image_loaded.connect(self.display_attributes)
+        # self.canvas.fields_updated.connect(self.display_attributes)
         self.lineEditX.textEdited.connect(self.update_coordinates)
         self.lineEditY.textEdited.connect(self.update_coordinates)
 
-        self.pushButtonAddField.clicked.connect(self.add_field_dialog)
-        self.pushButtonDeleteField.clicked.connect(self.delete_field_dialog)
+        self.lineEdit_attributes = {}
+        self.lineEdit_attributes["Marking"] = self.lineEdit_marking
+        self.lineEdit_attributes["Partnumber"] = self.lineEdit_partnumber
+        self.lineEdit_attributes["Manufacturer"] = self.lineEdit_manufacturer
+        self.lineEdit_attributes["Package"] = self.lineEdit_package
+        for k, lineEdit in self.lineEdit_attributes.items():
+            lineEdit.textEdited.connect(self.update_attributes)
+
         self.pushButtonFolder.clicked.connect(self.select_folder)
         self.pushButtonZoomOut.clicked.connect(self.graphicsView.zoom_out)
         self.pushButtonZoomIn.clicked.connect(self.graphicsView.zoom_in)
@@ -106,50 +114,14 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.quick_save_frame.setGeometry(3, 3, 100, 35)
         self.quick_save_frame.hide()
 
+    def display_pointer_coordinates(self, point):
+        text = "{:d}, {:d}".format(int(point.x()), int(point.y()))
+        self.posLabel.setText(text)
+
+
     def resizeEvent(self, theEvent):
         self.graphicsView.resize_image()
 
-    # Image data field functions
-    def add_field(self):
-        field_def = (self.field_name.text(), self.field_type.currentText())
-        field_names = [x[0] for x in self.canvas.custom_fields['fields']]
-        if field_def[0] in field_names:
-            QtWidgets.QMessageBox.warning(self, 'Warning', 'Field name already exists')
-        else:
-            self.canvas.add_custom_field(field_def)
-            self.add_dialog.close()
-
-    def add_field_dialog(self):
-        self.field_name = QtWidgets.QLineEdit()
-        self.field_type = QtWidgets.QComboBox()
-        self.field_type.addItems(['line', 'box'])
-        self.add_button = QtWidgets.QPushButton('Save')
-        self.add_button.clicked.connect(self.add_field)
-        self.add_dialog = QtWidgets.QDialog(self)
-        self.add_dialog.setWindowTitle('Add Custom Field')
-        self.add_dialog.setLayout(QtWidgets.QVBoxLayout())
-        self.add_dialog.layout().addWidget(self.field_name)
-        self.add_dialog.layout().addWidget(self.field_type)
-        self.add_dialog.layout().addWidget(self.add_button)
-        self.add_dialog.resize(250, self.add_dialog.height())
-        self.add_dialog.show()
-
-    def delete_field(self):
-        self.canvas.delete_custom_field(self.field_list.currentText())
-        self.delete_dialog.close()
-
-    def delete_field_dialog(self):
-        self.field_list = QtWidgets.QComboBox()
-        self.field_list.addItems([x[0] for x in self.canvas.custom_fields['fields']])
-        self.delete_button = QtWidgets.QPushButton('Delete')
-        self.delete_button.clicked.connect(self.delete_field)
-        self.delete_dialog = QtWidgets.QDialog(self)
-        self.delete_dialog.setWindowTitle('Delete Custom Field')
-        self.delete_dialog.setLayout(QtWidgets.QVBoxLayout())
-        self.delete_dialog.layout().addWidget(self.field_list)
-        self.delete_dialog.layout().addWidget(self.delete_button)
-        self.delete_dialog.resize(250, self.delete_dialog.height())
-        self.delete_dialog.show()
 
     def display_coordinates(self, directory, image):
         if image in self.canvas.coordinates:
@@ -159,47 +131,20 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
             self.lineEditX.setText('')
             self.lineEditY.setText('')
 
-    def display_custom_fields(self, fields):
-
-        def build(item):
-            container = QtWidgets.QGroupBox(item[0], self)
-            container.setObjectName(item[0])
-            container.setLayout(QtWidgets.QVBoxLayout())
-            if item[1].lower() == 'line':
-                edit = LineText(container)
-            else:
-                edit = BoxText(container)
-            edit.update.connect(self.canvas.save_custom_field_data)
-            self.load_custom_data.connect(edit.load_data)
-            container.layout().addWidget(edit)
-            return container
-
-        custom_fields = self.findChild(QtWidgets.QFrame, 'frameCustomFields')
-        if custom_fields.layout() is None:
-            custom_fields.setLayout(QtWidgets.QVBoxLayout())
+    def display_attributes(self):
+        if self.canvas.current_class_name is None:
+            for _, lineEdit in self.lineEdit_attributes.items():
+                lineEdit.setText("")
         else:
-            layout = custom_fields.layout()
-            while layout.count():
-                child = layout.takeAt(0)
-                if child.widget():
-                    child.widget().deleteLater()
-
-        for item in fields:
-            widget = build(item)
-            custom_fields.layout().addWidget(widget)
-        v = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        custom_fields.layout().addItem(v)
-        self.get_custom_field_data()
-
+            for k, lineEdit in self.lineEdit_attributes.items():
+                lineEdit.setText(self.canvas.class_attributes[self.canvas.current_class_name][k])
+                
     def display_working_directory(self, directory):
         self.labelWorkingDirectory.setText(directory)
 
     def display_quick_save(self):
         self.quick_save_frame.show()
         QtCore.QTimer.singleShot(500, self.quick_save_frame.hide)
-
-    def get_custom_field_data(self):
-        self.load_custom_data.emit(self.canvas.get_custom_field_data())
 
     def hide_custom_fields(self, hide):
         if hide is True:
@@ -216,3 +161,8 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         x = self.lineEditX.text()
         y = self.lineEditY.text()
         self.canvas.save_coordinates(x, y)
+        
+    def update_attributes(self, text):
+        for k, lineEdit in self.lineEdit_attributes.items():
+            value = lineEdit.text()
+            self.canvas.set_component_attribute(k, value)

@@ -112,7 +112,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../icons/ddg.qrc">
             <normaloff>:/icons/folder.svg</normaloff>:/icons/folder.svg</iconset>
           </property>
           <property name="iconSize">
@@ -159,7 +159,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../icons/ddg.qrc">
             <normaloff>:/icons/zoom_in.svg</normaloff>:/icons/zoom_in.svg</iconset>
           </property>
           <property name="iconSize">
@@ -179,7 +179,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="../icons/ddg.qrc">
             <normaloff>:/icons/zoom_out.svg</normaloff>:/icons/zoom_out.svg</iconset>
           </property>
           <property name="iconSize">
@@ -198,7 +198,7 @@
    <item>
     <widget class="QFrame" name="frameCustomField">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>1</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -227,12 +227,6 @@
       </property>
       <item>
        <widget class="QGroupBox" name="groupBoxImageData">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -246,7 +240,7 @@
          </size>
         </property>
         <property name="title">
-         <string>PCB Data</string>
+         <string>Image Data</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
@@ -254,7 +248,7 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>Length</string>
+              <string>X</string>
              </property>
             </widget>
            </item>
@@ -275,7 +269,7 @@
            <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Width  </string>
+              <string>Y</string>
              </property>
             </widget>
            </item>
@@ -293,7 +287,7 @@
             </sizepolicy>
            </property>
            <property name="title">
-            <string>Component details</string>
+            <string>Custom Fields</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <property name="leftMargin">
@@ -303,138 +297,86 @@
              <number>8</number>
             </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <widget class="QLabel" name="label_marking">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+               <widget class="QPushButton" name="pushButtonDeleteField">
+                <property name="toolTip">
+                 <string>Delete custom field.</string>
                 </property>
                 <property name="text">
-                 <string>Marking</string>
+                 <string/>
                 </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                <property name="icon">
+                 <iconset resource="../icons/ddg.qrc">
+                  <normaloff>:/icons/delete.svg</normaloff>:/icons/delete.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>24</width>
+                  <height>24</height>
+                 </size>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_marking">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonAddField">
+                <property name="toolTip">
+                 <string>Add custom field.</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="../icons/ddg.qrc">
+                  <normaloff>:/icons/add.svg</normaloff>:/icons/add.svg</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>24</width>
+                  <height>24</height>
+                 </size>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <widget class="QLabel" name="label_manufacturer">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Manufacturer</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit_manufacturer"/>
-              </item>
-             </layout>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <widget class="QLabel" name="label_partnumber">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Partnumber</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit_partnumber"/>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_8">
-              <item>
-               <widget class="QLabel" name="label_package">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Package</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit_package"/>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox">
+             <widget class="QFrame" name="frameCustomFields">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="title">
-               <string/>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
               </property>
-              <property name="flat">
-               <bool>true</bool>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
               </property>
              </widget>
             </item>
            </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxPosition">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string/>
-           </property>
-           <widget class="QLabel" name="posLabel">
-            <property name="geometry">
-             <rect>
-              <x>2</x>
-              <y>-4</y>
-              <width>91</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>0,0</string>
-            </property>
-           </widget>
           </widget>
          </item>
         </layout>

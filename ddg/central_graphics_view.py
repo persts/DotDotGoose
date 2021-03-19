@@ -27,6 +27,7 @@ from PyQt5 import QtWidgets, QtCore
 
 class CentralGraphicsView(QtWidgets.QGraphicsView):
     add_point = QtCore.pyqtSignal(QtCore.QPointF)
+    display_pointer_coordinates = QtCore.pyqtSignal(QtCore.QPointF)
     drop_complete = QtCore.pyqtSignal(list)
     region_selected = QtCore.pyqtSignal(QtCore.QRectF)
     delete_selection = QtCore.pyqtSignal()
@@ -109,6 +110,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
 
     def mouseMoveEvent(self, event):
         QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
+        self.display_pointer_coordinates.emit(self.mapToScene(event.pos()))
 
     def mousePressEvent(self, event):
         if self.ctrl:

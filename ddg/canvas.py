@@ -30,55 +30,99 @@ import numpy as np
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+class Attributes(dict):
+    DEFAULT_KEYS = ["Name", "Partnumber", "Description", "Short Description", "Manufacturer", "Marking", "Datasheet", "Length", "Width", "Height", "Weight", "Package"]
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        for k in Attributes.DEFAULT_KEYS:
+            self[k] = ""
+
+    def __delitem__(self, k):
+        if not k in Attributes.DEFAULT_KEYS:
+            if self.has_key(k):
+                dict.__delitem__(self, k)
 
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
     points_loaded = QtCore.pyqtSignal(str)
     directory_set = QtCore.pyqtSignal(str)
-    fields_updated = QtCore.pyqtSignal(list)
+    fields_updated = QtCore.pyqtSignal()
+    points_updated = QtCore.pyqtSignal()
     update_point_count = QtCore.pyqtSignal(str, str, int)
 
     def __init__(self):
+        from collections import defaultdict, OrderedDict
         QtWidgets.QGraphicsScene.__init__(self)
+        # dictionary for saving points: Structured like points[image_name][class_name] = [list of points]
         self.points = {}
+        self.visible_points = {} # to be implemented
         self.colors = {}
         self.coordinates = {}
-        self.custom_fields = {'fields': [], 'data': {}}
-        self.classes = []
+
+        self._categories = ["Resistor", "Capacitor", "Crystal", "Diode", "Inductor", "Integrated Circuit", "Transistor", "Discrete < 3 Pins", "Discrete > 3 Pins"]
+        self.class_attributes = {}
+        self.data = {}
+        for c in self._categories:
+            self.data[c] = [] # classes
+        self.previous_class_name = None
+        self.next_class_name = None
+
         self.selection = []
         self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
 
         self.directory = ''
         self.current_image_name = None
         self.current_class_name = None
+        self.current_category_name = None
+        self.current_selection = None
 
         self.qt_image = None
         self.show_grid = True
 
         self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.red, QtCore.Qt.SolidPattern), 1)
 
-    def add_class(self, class_name):
-        if class_name not in self.classes:
-            self.classes.append(class_name)
-            self.classes.sort()
-            self.colors[class_name] = QtGui.QColor(QtCore.Qt.black)
+    @property
+    def classes(self):
+        classes = []
+        for _, v in self.data.items():
+            classes.extend(v)
+        return classes
 
-    def add_custom_field(self, field_def):
-        self.custom_fields['fields'].append(field_def)
-        self.custom_fields['data'][field_def[0]] = {}
-        self.fields_updated.emit(self.custom_fields['fields'])
+    def add_class(self, category, class_name):
+        if class_name not in self.classes:
+            a = Attributes()
+            a["Name"] = class_name
+            self.data[category].append(class_name)
+            self.colors[class_name] = QtGui.QColor(QtCore.Qt.black)
+            self.class_attributes[class_name] = a
+
+    def add_category(self, name):
+        if name not in self._categories:
+            self.data[name] = []
+            self._categories.append(name)
 
     def add_point(self, point):
         if self.current_image_name is not None and self.current_class_name is not None:
-            if self.current_class_name not in self.points[self.current_image_name]:
-                self.points[self.current_image_name][self.current_class_name] = []
+            for image in self.points.keys():
+                if self.current_class_name not in self.points[image]:
+                    self.points[image][self.current_class_name] = []
             display_radius = self.ui['point']['radius']
             active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
             active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
             active_pen = QtGui.QPen(active_brush, 2)
             self.points[self.current_image_name][self.current_class_name].append(point)
+            count = 0
+            for image in self.points.keys():
+                count += len(self.points[image][self.current_class_name])
             self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
-            self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
+            self.update_point_count.emit(self.current_image_name, self.current_class_name, count)
+
+    @property
+    def categories(self):
+        i1 = list(sorted(self.data.keys()))
+        i2 = list(sorted(self._categories))
+        assert i1 == i2
+        return self._categories
 
     def clear_grid(self):
         for graphic in self.items():
@@ -95,20 +139,12 @@ class Canvas(QtWidgets.QGraphicsScene):
             points = self.points[self.current_image_name]
             for class_name, point in self.selection:
                 points[class_name].remove(point)
-                self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
+                count = 0
+                for image in self.points.keys():
+                    count += len(self.points[image][class_name])
+                self.update_point_count.emit(self.current_image_name, class_name, count)
             self.selection = []
             self.display_points()
-
-    def delete_custom_field(self, field):
-        if field in self.custom_fields['data']:
-            self.custom_fields['data'].pop(field)
-            index = -1
-            for i, (field_name, _) in enumerate(self.custom_fields['fields']):
-                if field_name == field:
-                    index = i
-            if index >= 0:
-                self.custom_fields['fields'].pop(index)
-            self.fields_updated.emit(self.custom_fields['fields'])
 
     def display_grid(self):
         self.clear_grid()
@@ -143,49 +179,15 @@ class Canvas(QtWidgets.QGraphicsScene):
                         self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), pen, brush)
 
     def export_counts(self, file_name, survey_id):
-        if self.current_image_name is not None:
-            file = open(file_name, 'w')
-            output = 'survey id,image'
-            for class_name in self.classes:
-                output += ',' + class_name
-            output += ",x,y"
-            for field_name, _ in self.custom_fields['fields']:
-                output += ',{}'.format(field_name)
-            output += '\n'
-            file.write(output)
-            for image in self.points:
-                output = survey_id + ',' + image
-                for class_name in self.classes:
-                    if class_name in self.points[image]:
-                        output += ',' + str(len(self.points[image][class_name]))
-                    else:
-                        output += ',0'
-                if image in self.coordinates:
-                    output += ',' + self.coordinates[image]['x']
-                    output += ',' + self.coordinates[image]['y']
-                else:
-                    output += ',,'
-                for field_name, _ in self.custom_fields['fields']:
-                    if image in self.custom_fields['data'][field_name]:
-                        output += ',{}'.format(self.custom_fields['data'][field_name][image])
-                    else:
-                        output += ','
-                output += "\n"
-                file.write(output)
-            file.close()
-
-    def export_points(self, file_name, survey_id):
-        if self.current_image_name is not None:
-            file = open(file_name, 'w')
-            output = 'survey id,image,class,x,y'
-            file.write(output)
-            for image in self.points:
-                for class_name in self.classes:
-                    if class_name in self.points[image]:
-                        for point in self.points[image][class_name]:
-                            output = '\n{},{},{},{},{}'.format(survey_id, image, class_name, point.x(), point.y())
-                            file.write(output)
-            file.close()
+        import csv
+        with open(file_name, "w", newline="") as f:
+            writer = csv.writer(f, delimiter=";")
+            for image in self.points.keys():
+                for category in self.categories:
+                    for class_name in self.data[category]:
+                        count = len(self.points[image].get(class_name, []))
+                        row = [image, category, class_name, count]
+                        writer.writerow(row)
 
     def get_custom_field_data(self):
         data = {}
@@ -197,28 +199,13 @@ class Canvas(QtWidgets.QGraphicsScene):
                     data[field_def[0]] = ''
         return data
 
-    def import_metadata(self, file_name):
-        file = open(file_name, 'r')
-        data = json.load(file)
-        file.close()
-
-        # Backward compat
-        if 'custom_fields' in data:
-            self.custom_fields = data['custom_fields']
-        else:
-            self.custom_fields = {'fields': [], 'data': {}}
-        if 'ui' in data:
-            self.ui = data['ui']
-        else:
-            self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
-        # End Backward compat
-
-        self.colors = data['colors']
-        for class_name in data['colors']:
-            self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
-        self.classes = data['classes']
-        self.fields_updated.emit(self.custom_fields['fields'])
-        self.points_loaded.emit('')
+    def get_category_from_class(self, class_name):
+        category = None
+        for c, v in self.data.items():
+            if class_name in v:
+                category = c
+                break
+        return category
 
     def load(self, drop_list):
         peek = drop_list[0].toLocalFile()
@@ -275,7 +262,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
             self.clear()
             self.current_image_name = os.path.split(file_name)[1]
-            if self.current_image_name not in self.points:
+            if self.current_image_name not in self.points.keys():
                 self.points[self.current_image_name] = {}
             try:
                 img = Image.open(file_name)
@@ -344,11 +331,8 @@ class Canvas(QtWidgets.QGraphicsScene):
         file.close()
         survey_id = data['metadata']['survey_id']
 
+        self.class_attributes = data["attributes"]
         # Backward compat
-        if 'custom_fields' in data:
-            self.custom_fields = data['custom_fields']
-        else:
-            self.custom_fields = {'fields': [], 'data': {}}
         if 'ui' in data:
             self.ui = data['ui']
         else:
@@ -356,8 +340,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         # End Backward compat
 
         self.colors = data['colors']
-        self.classes = data['classes']
-        self.coordinates = data['metadata']['coordinates']
+        self.data = data['data']
         self.points = {}
         if 'points' in data:
             self.points = data['points']
@@ -370,7 +353,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         for class_name in data['colors']:
             self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
         self.points_loaded.emit(survey_id)
-        self.fields_updated.emit(self.custom_fields['fields'])
+        self.fields_updated.emit()
         path = os.path.split(file_name)[0]
         if self.points.keys():
             path = os.path.join(path, list(self.points.keys())[0])
@@ -378,8 +361,8 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def package_points(self, survey_id):
         count = 0
-        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id, 'coordinates': self.coordinates}, 'custom_fields': self.custom_fields, 'ui': self.ui}
-        package['classes'] = self.classes
+        package = {'data': {}, 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id}, 'attributes': self.class_attributes, 'ui': self.ui}
+        package['data'] = self.data
         for class_name in self.colors:
             r = self.colors[class_name].red()
             g = self.colors[class_name].green()
@@ -403,49 +386,64 @@ class Canvas(QtWidgets.QGraphicsScene):
             for _, point in self.selection:
                 self.add_point(point)
             self.delete_selected_points()
+            self.points_updated.emit()
+
+    def rename_category(self, old_category, new_category):
+        if new_category in self.categories:
+            raise ValueError("New name already exists {}".format(new_category))
+        self.data[new_category] = self.data[old_category]
+        index = self._categories.index(old_category)
+        self._categories.pop(index)
+        self._categories.insert(index, new_category)
+        del self.data[old_category]
 
     def rename_class(self, old_class, new_class):
-        index = self.classes.index(old_class)
-        del self.classes[index]
-        if new_class not in self.classes:
-            self.colors[new_class] = self.colors.pop(old_class)
-            self.classes.append(new_class)
-            self.classes.sort()
-        else:
-            del self.colors[old_class]
+        if new_class in self.classes:
+            raise ValueError("New name already exists {}".format(new_class))
 
+        for k, v in self.data.items():
+            if old_class in v:
+                category = k
+
+        classes = self.data[category]
+        index  = classes.index(old_class)
+        classes.pop(index)
+        classes.insert(index, new_class)
+        self.data[category] = classes
+        self.colors[new_class] = self.colors.pop(old_class)
+        self.class_attributes[new_class] = self.class_attributes[old_class]
+        del self.class_attributes[old_class]
+        
         for image in self.points:
             if old_class in self.points[image] and new_class in self.points[image]:
                 self.points[image][new_class] += self.points[image].pop(old_class)
             elif old_class in self.points[image]:
                 self.points[image][new_class] = self.points[image].pop(old_class)
         self.display_points()
-
-    def reset(self, clear_image=False):
-        self.points = {}
-        self.colors = {}
-        self.classes = []
-        self.classes = []
-        self.selection = []
-        self.coordinates = {}
-        self.custom_fields = {'fields': [], 'data': {}}
-
-        self.clear()
-        self.directory = ''
-        self.current_image_name = ''
-        self.current_class_name = None
-        self.fields_updated.emit([])
-        self.points_loaded.emit('')
-        self.image_loaded.emit('', '')
-        self.directory_set.emit('')
-
-    def remove_class(self, class_name):
-        index = self.classes.index(class_name)
-        del self.colors[class_name]
-        del self.classes[index]
+        
+    def remove_class(self, name):
+        category = self.get_category_from_class(name)
         for image in self.points:
-            if class_name in self.points[image]:
-                del self.points[image][class_name]
+            if name in self.points[image]:
+                del self.points[image][name]
+        classes = self.data[category]
+        classes.pop(classes.index(name))
+        self.data[category] = classes
+        del self.class_attributes[name]
+        self.current_class_name = None
+        self.display_points()
+
+    def remove_category(self, name):
+        classes = self.data[name]
+        for image in self.points:
+            for class_name in classes:
+                del self.class_attributes[class_name]
+                if class_name in self.points[image]:
+                    del self.points[image][class_name]
+        self.current_category_name = None
+        self.current_class_name = None
+        del self.data[name]
+        self._categories.pop(self._categories.index(name))
         self.display_points()
 
     def save_coordinates(self, x, y):
@@ -454,12 +452,6 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.coordinates[self.current_image_name] = {'x': '', 'y': ''}
             self.coordinates[self.current_image_name]['x'] = x
             self.coordinates[self.current_image_name]['y'] = y
-
-    def save_custom_field_data(self, field, data):
-        if self.current_image_name is not None:
-            if self.current_image_name not in self.custom_fields['data'][field]:
-                self.custom_fields['data'][field][self.current_image_name] = ''
-            self.custom_fields['data'][field][self.current_image_name] = data
 
     def save_points(self, file_name, survey_id):
         try:
@@ -483,12 +475,17 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.addEllipse(QtCore.QRectF(point.x() - offset, point.y() - offset, display_radius + 6, display_radius + 6), self.selected_pen)
                     self.selection.append((class_name, point))
 
-    def set_current_class(self, class_index):
-        if class_index is None or class_index >= len(self.classes):
-            self.current_class_name = None
+    def set_current_class(self, class_name):
+        if class_name in self.classes:
+            self.current_class_name = class_name
+            category = self.get_category_from_class(class_name)
+            if category: self.set_current_category(category)
         else:
-            self.current_class_name = self.classes[class_index]
+            self.current_class_name = None
         self.display_points()
+
+    def set_current_category(self, category):
+        self.current_category_name = category
 
     def set_grid_color(self, color):
         self.ui['grid']['color'] = [color.red(), color.green(), color.blue()]
@@ -520,3 +517,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
         else:
             self.clear_points()
+            
+    def set_component_attribute(self, attribute, value):
+        if self.current_class_name is not None:
+            self.class_attributes[self.current_class_name][attribute] = value
+            # self.fields_updated.emit()
