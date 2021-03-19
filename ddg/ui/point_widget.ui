@@ -64,10 +64,6 @@
            <property name="text">
             <string>Delete</string>
            </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>:/icons/delete.svg</normaloff>:/icons/delete.svg</iconset>
-           </property>
            <property name="iconSize">
             <size>
              <width>24</width>
@@ -286,8 +282,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../icons/ddg.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

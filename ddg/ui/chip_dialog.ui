@@ -137,7 +137,7 @@
         <string>Cancel</string>
        </property>
        <property name="icon">
-        <iconset resource="../icons/ddg.qrc">
+        <iconset>
          <normaloff>:/icons/cancel.svg</normaloff>:/icons/cancel.svg</iconset>
        </property>
        <property name="iconSize">
@@ -167,7 +167,7 @@
         <string>Export</string>
        </property>
        <property name="icon">
-        <iconset resource="../icons/ddg.qrc">
+        <iconset>
          <normaloff>:/icons/export.svg</normaloff>:/icons/export.svg</iconset>
        </property>
        <property name="iconSize">
@@ -182,8 +182,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../icons/ddg.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -29,13 +29,14 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from ddg import Canvas
 from ddg import PointWidget
 from ddg.fields import BoxText, LineText
+from ddg.ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
 
 # from .ui_central_widget import Ui_central as CLASS_DIALOG
-if getattr(sys, 'frozen', False):
-    bundle_dir = sys._MEIPASS
-else:
-    bundle_dir = os.path.dirname(__file__)
-CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'central_widget.ui'))
+# if getattr(sys, 'frozen', False):
+#     from ddg.ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
+# else:
+#     bundle_dir = os.path.dirname(__file__)
+#     CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'central_widget.ui'))
 
 
 class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):

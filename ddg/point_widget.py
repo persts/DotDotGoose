@@ -27,13 +27,14 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 from .chip_dialog import ChipDialog
+from ddg.ui.point_widget_ui import Ui_PointWidget as WIDGET
 
 # from .ui_point_widget import Ui_Pointwidget as WIDGET
-if getattr(sys, 'frozen', False):
-    bundle_dir = sys._MEIPASS
-else:
-    bundle_dir = os.path.dirname(__file__)
-WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'point_widget.ui'))
+# if getattr(sys, 'frozen', False):
+#     from ddg.ui.central_widget_ui import Ui_PointWidget as WIDGET
+# else:
+#     bundle_dir = os.path.dirname(__file__)
+# WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'point_widget.ui'))
 
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
