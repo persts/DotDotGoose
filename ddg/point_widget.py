@@ -61,6 +61,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.classTree.doubleClicked.connect(self.rename)
         self.classTree.selectionModel().selectionChanged.connect(self.selection_changed)
         self.fill_default_categories()
+        self.classTree.resizeColumnToContents(0)
         self.tree_expanded = {} # list of the expanded items in the model
 
         self.checkBoxDisplayPoints.toggled.connect(self.display_points)
@@ -157,20 +158,27 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             total_count = 0
             category_item, category_count_item, _ = self._get_default_category(category)
             if len(classes) != 0:
+                invisible = []
                 for class_name in classes:
                     class_item, class_count_item, class_color_item = self._get_default_class(class_name)
+                    if not self.canvas.class_visibility[class_name]:
+                        class_item.setCheckState(QtCore.Qt.Unchecked)
+                        invisible.append(class_name)
                     count = 0
                     for image in self.canvas.points.keys():
                         count += len(self.canvas.points[image].get(class_name, []))
                     class_count_item.setData(str(count), QtCore.Qt.EditRole)
                     total_count += count
                     category_item.appendRow([class_item, class_count_item, class_color_item])
+                if len(invisible) == len(classes):
+                    category_item.setCheckState(QtCore.Qt.Unchecked)
             category_count_item.setData(str(total_count), QtCore.Qt.EditRole)
             root.appendRow([category_item, category_count_item, QtGui.QStandardItem("")])
         for row in range(self.classModel.rowCount()):
                 index = self.classModel.index(row, 0)
                 item = self.classModel.itemFromIndex(index)
                 self.classTree.setExpanded(index, self.tree_expanded[item.data(0)])
+        self.classTree.resizeColumnToContents(0)
 
     def display_count_tree(self):
         self.reset_model()
@@ -221,7 +229,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def _get_default_category(self, name):
         key = QtGui.QStandardItem(name)
-        # key.setCheckable(True) # to be implemented for export and visibility functionality
+        key.setCheckable(True)
+        key.setCheckState(QtCore.Qt.Checked)
         key.setSelectable(True)
         key.setEditable(False)
         key.setTextAlignment(QtCore.Qt.AlignLeft)
@@ -232,7 +241,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def _get_default_class(self, class_name):
         key = QtGui.QStandardItem(class_name)
-        # key.setCheckable(True) # to be implemented for export and visibility functionality
+        key.setCheckable(True)
+        key.setCheckState(QtCore.Qt.Checked)
         value = QtGui.QStandardItem("0")
         value.setEditable(False)
         color_item = QtGui.QStandardItem()
@@ -244,6 +254,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def item_clicked(self, index):
         if index.column() == 2:
+            # set new color
             category_item = index.parent()
             name = category_item.child(index.row(), 0).data(0)
             # prevent color change of categories
@@ -256,6 +267,25 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 icon.fill(color)
                 self.classModel.itemFromIndex(index).setData(icon, QtCore.Qt.DecorationRole)
                 self.canvas.display_points()
+        elif index.column() == 0:
+            # edit checkstate
+            category_item = index.parent()
+            name = category_item.child(index.row(), 0).data(0)
+            if name is None:
+                # clicked is a category
+                item = self.classModel.itemFromIndex(index)
+                for row in range(item.rowCount()):
+                    state = item.checkState()
+                    class_item = item.child(row, 0)
+                    class_item.setCheckState(state)
+                    self.canvas.class_visibility[class_item.data(0)] = state > 1
+            else:
+                category_item = self.classModel.itemFromIndex(index.parent())
+                item = category_item.child(index.row(), 0)
+                name = item.data(0)
+                state = item.checkState()
+                self.canvas.class_visibility[name] = state > 1
+            self.canvas.display_points()
 
     def image_loaded(self, directory, file_name):
         # self.classTree.selectionModel().clear()

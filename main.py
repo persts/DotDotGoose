@@ -55,8 +55,10 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(self.exportDetailsAction)
 
         # --- Edit menu
-        # editMenu = QMenu("&Edit", self)
-        # menuBar.addMenu(editMenu)
+        editMenu = QMenu("&Edit", self)
+        menuBar.addMenu(editMenu)
+        editMenu.addAction(self.editPointsAction)
+        editMenu.addAction(self.editMeasureAction)
 
         # --- Help menu
         helpMenu = QMenu("&Help", self)
@@ -67,7 +69,7 @@ class MainWindow(QMainWindow):
         self.saveAction = QAction("Save Project", self)
         self.saveAction.triggered.connect(self._centralWidget.point_widget.save)
         self.openAction = QAction("Open Project/Points", self)
-        self.openAction.triggered.connect(self._centralWidget.point_widget.load)
+        self.openAction.triggered.connect(self.load)
         # import metadata merge in load project ?
         self.exportCountsAction = QAction("Export to Text (csv)", self)
         self.exportCountsAction.triggered.connect(self._centralWidget.point_widget.export_counts)
@@ -76,6 +78,17 @@ class MainWindow(QMainWindow):
         
         self.infoAction = QAction("Info", self)
         self.infoAction.triggered.connect(self.display_info)
+
+        self.editPointsAction = QAction("Edit Counts", self)
+        self.editPointsAction.setCheckable(True)
+        self.editPointsAction.setChecked(True)
+        self.editPointsAction.triggered.connect(self.set_edit_points)
+
+        self.editMeasureAction = QAction("Edit Measurements", self)
+        self.editMeasureAction.setCheckable(True)
+        self.editMeasureAction.setChecked(False)
+        self.editMeasureAction.triggered.connect(self.set_edit_rects)
+
 
     def display_info(self):
         msg = QMessageBox()
@@ -86,6 +99,20 @@ class MainWindow(QMainWindow):
         msg.setInformativeText(msgText)
         msg.setStandardButtons(QMessageBox.Ok)
         _ = msg.exec_()
+    
+    def load(self):
+        self._centralWidget.point_widget.load()
+        self.set_edit_points()
+
+    def set_edit_points(self):
+        self.editPointsAction.setChecked(True)
+        self.editMeasureAction.setChecked(False)
+        self._centralWidget.canvas.set_edit_style("points")
+
+    def set_edit_rects(self):
+        self.editMeasureAction.setChecked(True)
+        self.editPointsAction.setChecked(False)
+        self._centralWidget.canvas.set_edit_style("rects")
 
 
 if __name__ == '__main__':

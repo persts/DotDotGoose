@@ -80,8 +80,10 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.graphicsView.region_selected.connect(self.canvas.select_points)
         self.graphicsView.delete_selection.connect(self.canvas.delete_selected_points)
         self.graphicsView.relabel_selection.connect(self.canvas.relabel_selected_points)
+        self.graphicsView.measure_area.connect(self.canvas.measure_area)
         self.graphicsView.toggle_points.connect(self.point_widget.checkBoxDisplayPoints.toggle)
         self.graphicsView.toggle_grid.connect(self.point_widget.checkBoxDisplayGrid.toggle)
+        self.graphicsView.scale_selected.connect(self.set_scale)
         # self.graphicsView.switch_class.connect(self.point_widget.set_active_class)
 
         self.graphicsView.add_point.connect(self.canvas.add_point)
@@ -92,7 +94,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         # Image data fields
         self.canvas.image_loaded.connect(self.display_coordinates)
         self.canvas.image_loaded.connect(self.display_attributes)
-        # self.canvas.fields_updated.connect(self.display_attributes)
+        self.canvas.fields_updated.connect(self.display_attributes)
         self.lineEditX.textEdited.connect(self.update_coordinates)
         self.lineEditY.textEdited.connect(self.update_coordinates)
 
@@ -101,6 +103,9 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.lineEdit_attributes["Partnumber"] = self.lineEdit_partnumber
         self.lineEdit_attributes["Manufacturer"] = self.lineEdit_manufacturer
         self.lineEdit_attributes["Package"] = self.lineEdit_package
+        self.lineEdit_attributes["Length"] = self.lineEdit_length
+        self.lineEdit_attributes["Width"] = self.lineEdit_width
+        self.lineEdit_attributes["Height"] = self.lineEdit_height
         for k, lineEdit in self.lineEdit_attributes.items():
             lineEdit.textEdited.connect(self.update_attributes)
 
@@ -116,13 +121,22 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.quick_save_frame.hide()
 
     def display_pointer_coordinates(self, point):
-        text = "{:d}, {:d}".format(int(point.x()), int(point.y()))
+        img = self.canvas.current_image_name
+        image_scale = self.canvas.image_scale.get(img, Canvas.DEFAULT_SCALE)
+        scale = image_scale["scale"]
+        left = image_scale["left"]
+        top = image_scale["top"]
+        unit = image_scale["unit"]
+        text = "{:.1f}, {:.1f} {}".format(int(point.x())*scale - left, int(point.y())*scale - top, unit)
         self.posLabel.setText(text)
 
+    def set_scale(self, rect):
+        mm, ok = QtWidgets.QInputDialog.getInt(self, 'Set scale', 'Enter Length (x-axis) in mm')
+        if ok:
+            self.canvas.set_scale(mm, rect)
 
     def resizeEvent(self, theEvent):
         self.graphicsView.resize_image()
-
 
     def display_coordinates(self, directory, image):
         if image in self.canvas.coordinates:

@@ -30,6 +30,7 @@ import numpy as np
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Attributes(dict):
     DEFAULT_KEYS = ["Name", "Partnumber", "Description", "Short Description", "Manufacturer", "Marking", "Datasheet", "Length", "Width", "Height", "Weight", "Package"]
     def __init__(self, *args, **kwargs):
@@ -52,13 +53,14 @@ class Canvas(QtWidgets.QGraphicsScene):
     DEFAULT_COLORS = {"Resistor":QtGui.QColor(QtCore.Qt.black), "Capacitor":QtGui.QColor(QtCore.Qt.gray), "Crystal":QtGui.QColor(QtCore.Qt.green), 
                       "Diode": QtGui.QColor(QtCore.Qt.blue), "Inductor":QtGui.QColor(QtCore.Qt.cyan), "Integrated Circuit":QtGui.QColor(QtCore.Qt.yellow), 
                       "Transistor":QtGui.QColor(QtCore.Qt.darkYellow), "Discrete < 3 Pins":QtGui.QColor(QtCore.Qt.magenta), "Discrete > 3 Pins":QtGui.QColor(QtCore.Qt.darkMagenta)}
+    DEFAULT_SCALE = {"scale":1, "unit":"px", "top":0, "left":0}
 
     def __init__(self):
-        from collections import defaultdict, OrderedDict
+        from collections import defaultdict
         QtWidgets.QGraphicsScene.__init__(self)
         # dictionary for saving points: Structured like points[image_name][class_name] = [list of points]
         self.points = {}
-        self.visible_points = {} # to be implemented
+        self.class_visibility = {} # to be implemented
         self.colors = {}
         self.coordinates = {}
 
@@ -71,6 +73,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.next_class_name = None
 
         self.selection = []
+        self.edit_style = "points"
         self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
 
         self.directory = ''
@@ -83,6 +86,9 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.show_grid = True
 
         self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.red, QtCore.Qt.SolidPattern), 1)
+
+        self.image_scale = defaultdict(dict)
+        self.measure_rects = defaultdict(list)
 
     @property
     def classes(self):
@@ -98,6 +104,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.data[category].append(class_name)
             self.colors[class_name] = Canvas.DEFAULT_COLORS.get(category, QtGui.QColor(QtCore.Qt.black))
             self.class_attributes[class_name] = a
+            self.class_visibility[class_name] = True
 
     def add_category(self, name):
         if name not in self._categories:
@@ -105,20 +112,29 @@ class Canvas(QtWidgets.QGraphicsScene):
             self._categories.append(name)
 
     def add_point(self, point):
-        if self.current_image_name is not None and self.current_class_name is not None:
-            for image in self.points.keys():
-                if self.current_class_name not in self.points[image]:
-                    self.points[image][self.current_class_name] = []
-            display_radius = self.ui['point']['radius']
-            active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
-            active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
-            active_pen = QtGui.QPen(active_brush, 2)
-            self.points[self.current_image_name][self.current_class_name].append(point)
-            count = 0
-            for image in self.points.keys():
-                count += len(self.points[image][self.current_class_name])
-            self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
-            self.update_point_count.emit(self.current_image_name, self.current_class_name, count)
+
+        if self.edit_style != "points":
+            return
+
+        if self.current_image_name is None or self.current_class_name is None:
+            return
+
+        if not self.class_visibility[self.current_class_name]:
+            return
+
+        for image in self.points.keys():
+            if self.current_class_name not in self.points[image]:
+                self.points[image][self.current_class_name] = []
+        display_radius = self.ui['point']['radius']
+        active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
+        active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
+        active_pen = QtGui.QPen(active_brush, 2)
+        self.points[self.current_image_name][self.current_class_name].append(point)
+        count = 0
+        for image in self.points.keys():
+            count += len(self.points[image][self.current_class_name])
+        self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
+        self.update_point_count.emit(self.current_image_name, self.current_class_name, count)
 
     @property
     def categories(self):
@@ -136,18 +152,36 @@ class Canvas(QtWidgets.QGraphicsScene):
         for graphic in self.items():
             if type(graphic) == QtWidgets.QGraphicsEllipseItem:
                 self.removeItem(graphic)
+            
+    def clear_measures(self):
+        for graphic in self.items():
+            if type(graphic) == QtWidgets.QGraphicsPathItem:
+                self.removeItem(graphic)
+            elif type(graphic) == QtWidgets.QGraphicsTextItem:
+                self.removeItem(graphic)
 
     def delete_selected_points(self):
         if self.current_image_name is not None:
-            points = self.points[self.current_image_name]
-            for class_name, point in self.selection:
-                points[class_name].remove(point)
-                count = 0
-                for image in self.points.keys():
-                    count += len(self.points[image][class_name])
-                self.update_point_count.emit(self.current_image_name, class_name, count)
-            self.selection = []
-            self.display_points()
+            if self.edit_style == "points":
+                points = self.points[self.current_image_name]
+                for class_name, point in self.selection:
+                    points[class_name].remove(point)
+                    count = 0
+                    for image in self.points.keys():
+                        count += len(self.points[image][class_name])
+                    self.update_point_count.emit(self.current_image_name, class_name, count)
+                self.selection = []
+                self.display_points()
+            elif self.edit_style == "rects":
+                mrects = self.measure_rects[self.current_image_name]
+                for selected in self.selection:
+                    for i, mrect in enumerate(mrects):
+                        if selected == mrect:
+                            self.measure_rects[self.current_image_name].pop(i)
+                            break
+                self.selection = []
+                self.display_measures()
+
 
     def display_grid(self):
         self.clear_grid()
@@ -172,6 +206,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
             active_pen = QtGui.QPen(active_brush, 2)
             for class_name in self.points[self.current_image_name]:
+                if not self.class_visibility[class_name]:
+                    continue
                 points = self.points[self.current_image_name][class_name]
                 brush = QtGui.QBrush(self.colors[class_name], QtCore.Qt.SolidPattern)
                 pen = QtGui.QPen(brush, 2)
@@ -181,26 +217,62 @@ class Canvas(QtWidgets.QGraphicsScene):
                     else:
                         self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), pen, brush)
 
+    def display_measures(self):
+        if self.current_image_name is None:
+            return
+        self.clear_measures()
+
+        white = QtGui.QColor(255, 255, 255)
+        color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
+        brush = QtGui.QBrush(color, QtCore.Qt.SolidPattern)
+        pen = QtGui.QPen(brush, 2)
+
+        image_scale = self.image_scale.get(self.current_image_name, Canvas.DEFAULT_SCALE)
+        scale = image_scale["scale"]
+        unit = image_scale["unit"]
+
+        mrects = self.measure_rects[self.current_image_name].copy()
+        self.measure_rects[self.current_image_name] = []
+        for mrect in mrects:
+            rect = mrect.boundingRect()
+            topLeft = rect.topLeft()
+            bottomRight = rect.bottomRight()
+            ppath = QtGui.QPainterPath()
+            ppath.setFillRule(QtCore.Qt.WindingFill)
+            ppath.addRect(rect)
+            path = self.addPath(ppath, pen)
+
+            topItem = self.addText("{:.1f} {}".format(rect.width()*scale, unit))
+            topItem.setDefaultTextColor(white)
+            font = topItem.font()
+            font.setBold(True)
+            topItem.setFont(font)
+            topItem.setPos(topLeft.x(), topLeft.y() - topItem.boundingRect().height())
+
+            leftItem = self.addText("{:.1f} {}".format(rect.height()*scale, unit))
+            leftItem.setDefaultTextColor(white)
+            leftItem.setPos(topLeft.x(), bottomRight.y() - leftItem.boundingRect().height())
+            leftItem.setRotation(-90)
+            font = leftItem.font()
+            font.setBold(True)
+            leftItem.setFont(font)
+            self.measure_rects[self.current_image_name].append(path)
+
     def export_counts(self, file_name, survey_id):
         import csv
         with open(file_name, "w", newline="") as f:
             writer = csv.writer(f, delimiter=";")
+            header = ["Image", "Category", "Component", "Count", 'Manufacturer', "Partnumber", 
+                    "Marking", "Package", "Length", "Width", "Height"]
+            writer.writerow(header)
             for image in self.points.keys():
                 for category in self.categories:
                     for class_name in self.data[category]:
                         count = len(self.points[image].get(class_name, []))
-                        row = [image, category, class_name, count]
+                        attr = self.class_attributes[class_name]
+                        row = [image, category, class_name, count, attr['Manufacturer'], attr["Partnumber"], 
+                                attr["Marking"], attr["Package"], attr["Length"], attr["Width"], attr["Height"]]
                         writer.writerow(row)
-
-    def get_custom_field_data(self):
-        data = {}
-        if self.current_image_name is not None:
-            for field_def in self.custom_fields['fields']:
-                if self.current_image_name in self.custom_fields['data'][field_def[0]]:
-                    data[field_def[0]] = self.custom_fields['data'][field_def[0]][self.current_image_name]
-                else:
-                    data[field_def[0]] = ''
-        return data
 
     def get_category_from_class(self, class_name):
         category = None
@@ -347,6 +419,8 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points = {}
         if 'points' in data:
             self.points = data['points']
+        self.class_visibility = data['visibility']
+        self.image_scale = data['image_scale']
 
         for image in self.points:
             for class_name in self.points[image]:
@@ -355,6 +429,19 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.points[image][class_name][p] = QtCore.QPointF(point['x'], point['y'])
         for class_name in data['colors']:
             self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
+        for image in data["measures"]:
+            for rect in data["measures"][image]:
+                x = rect['x']
+                y = rect['y']
+                w = rect['w']
+                h = rect['h']
+                qrect = QtCore.QRectF(x, y, w, h)
+                ppath = QtGui.QPainterPath()
+                ppath.setFillRule(QtCore.Qt.WindingFill)
+                ppath.addRect(qrect)
+                path = QtWidgets.QGraphicsPathItem(ppath)
+                self.measure_rects[image].append(path)
+
         self.points_loaded.emit(survey_id)
         self.fields_updated.emit()
         path = os.path.split(file_name)[0]
@@ -362,9 +449,49 @@ class Canvas(QtWidgets.QGraphicsScene):
             path = os.path.join(path, list(self.points.keys())[0])
             self.load_image(path)
 
+    def measure_area(self, rect):
+        if self.current_image_name is None or self.edit_style != "rects":
+            return
+
+        image_scale = self.image_scale.get(self.current_image_name, Canvas.DEFAULT_SCALE)
+
+        topLeft = rect.topLeft()
+        bottomRight = rect.bottomRight()
+        width = bottomRight.x() - topLeft.x()
+        height = bottomRight.y() - topLeft.y()
+        scale = image_scale["scale"]
+        unit = image_scale["unit"]
+
+        active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
+        active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
+        active_pen = QtGui.QPen(active_brush, 2)
+
+        ppath = QtGui.QPainterPath()
+        ppath.setFillRule(QtCore.Qt.WindingFill)
+        ppath.addRect(rect)
+        path = self.addPath(ppath, active_pen)
+
+        topItem = self.addText("{:.1f} {}".format(width*scale, unit))
+        topItem.setDefaultTextColor(QtGui.QColor(255, 255, 255))
+        font = topItem.font()
+        font.setBold(True)
+        topItem.setFont(font)
+        topItem.setPos(topLeft.x(), topLeft.y() - topItem.boundingRect().height())
+
+        leftItem = self.addText("{:.1f} {}".format(height*scale, unit))
+        leftItem.setDefaultTextColor(QtGui.QColor(255, 255, 255))
+        leftItem.setPos(topLeft.x(), bottomRight.y() - leftItem.boundingRect().height())
+        leftItem.setRotation(-90)
+        font = leftItem.font()
+        font.setBold(True)
+        leftItem.setFont(font)
+        self.measure_rects[self.current_image_name].append(path)
+
     def package_points(self, survey_id):
         count = 0
-        package = {'data': {}, 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id}, 'attributes': self.class_attributes, 'ui': self.ui}
+        package = {'data': {}, 'points': {}, 'colors': {}, 
+                   'metadata': {'survey_id': survey_id}, 'attributes': self.class_attributes, 'ui': self.ui, 
+                   'visibility': self.class_visibility, 'image_scale': self.image_scale, 'measures': {}}
         package['data'] = self.data
         for class_name in self.colors:
             r = self.colors[class_name].red()
@@ -381,6 +508,17 @@ class Canvas(QtWidgets.QGraphicsScene):
                     p = {'x': point.x(), 'y': point.y()}
                     dst.append(p)
                     count += 1
+        for image in self.measure_rects:
+            package['measures'][image] = []
+            for mrect in self.measure_rects[image]:
+                measure_data = {}
+                rect = mrect.boundingRect()
+                measure_data['x'] = rect.x()
+                measure_data['y'] = rect.y()
+                measure_data['w'] = rect.width()
+                measure_data['h'] = rect.height()
+                package['measures'][image].append(measure_data)
+        
         return (package, count)
 
     def relabel_selected_points(self):
@@ -414,8 +552,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         classes.insert(index, new_class)
         self.data[category] = classes
         self.colors[new_class] = self.colors.pop(old_class)
+        self.class_visibility[new_class] = self.class_visibility[old_class]
         self.class_attributes[new_class] = self.class_attributes[old_class]
         del self.class_attributes[old_class]
+        del self.class_visibility[old_class]
         
         for image in self.points:
             if old_class in self.points[image] and new_class in self.points[image]:
@@ -434,6 +574,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.data[category] = classes
         del self.class_attributes[name]
         self.current_class_name = None
+        del self.class_visibility[name]
         self.display_points()
 
     def remove_category(self, name):
@@ -441,6 +582,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         for image in self.points:
             for class_name in classes:
                 del self.class_attributes[class_name]
+                del self.class_visibility[class_name]
                 if class_name in self.points[image]:
                     del self.points[image][class_name]
         self.current_category_name = None
@@ -468,15 +610,29 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def select_points(self, rect):
         self.selection = []
-        self.display_points()
-        current = self.points[self.current_image_name]
-        display_radius = self.ui['point']['radius']
-        for class_name in current:
-            for point in current[class_name]:
-                if rect.contains(point):
-                    offset = ((display_radius + 6) // 2)
-                    self.addEllipse(QtCore.QRectF(point.x() - offset, point.y() - offset, display_radius + 6, display_radius + 6), self.selected_pen)
-                    self.selection.append((class_name, point))
+        if self.edit_style == "points":
+            self.display_points()
+            current = self.points[self.current_image_name]
+            display_radius = self.ui['point']['radius']
+            for class_name in current:
+                for point in current[class_name]:
+                    if rect.contains(point):
+                        offset = ((display_radius + 6) // 2)
+                        self.addEllipse(QtCore.QRectF(point.x() - offset, point.y() - offset, display_radius + 6, display_radius + 6), self.selected_pen)
+                        self.selection.append((class_name, point))
+        elif self.edit_style == "rects":
+            drop = []
+            color = QtGui.QColor(223, 23, 23)
+            brush = QtGui.QBrush(color, QtCore.Qt.SolidPattern)
+            pen = QtGui.QPen(brush, 4)
+            for mrect in self.measure_rects[self.current_image_name]:
+                if mrect.path().intersects(rect):
+                    self.removeItem(mrect)
+                    path = QtGui.QPainterPath()
+                    path.setFillRule(QtCore.Qt.WindingFill)
+                    path.addRect(mrect.boundingRect())
+                    self.addPath(path, pen)
+                    self.selection.append(mrect)
 
     def set_current_class(self, class_name):
         if class_name in self.classes:
@@ -489,6 +645,15 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def set_current_category(self, category):
         self.current_category_name = category
+
+    def set_edit_style(self, edit_style):
+        self.edit_style = edit_style
+        if self.edit_style == "points":
+            self.clear_measures()
+            self.display_points()
+        elif self.edit_style == "rects":
+            self.clear_points()
+            self.display_measures()
 
     def set_grid_color(self, color):
         self.ui['grid']['color'] = [color.red(), color.green(), color.blue()]
@@ -505,6 +670,17 @@ class Canvas(QtWidgets.QGraphicsScene):
     def set_point_radius(self, radius):
         self.ui['point']['radius'] = radius
         self.display_points()
+
+    def set_scale(self, mm, rect):
+        if self.current_image_name is None:
+            return
+        scale = int(mm)/int(rect.width())
+        topLeft = rect.topLeft()
+        self.image_scale[self.current_image_name]["scale"] = scale
+        self.image_scale[self.current_image_name]["unit"] = "mm"
+        self.image_scale[self.current_image_name]["top"] = topLeft.y()*scale
+        self.image_scale[self.current_image_name]["left"] = topLeft.x()*scale
+        self.display_measures()
 
     def toggle_grid(self, display):
         if display:

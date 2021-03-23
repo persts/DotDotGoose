@@ -30,6 +30,8 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     display_pointer_coordinates = QtCore.pyqtSignal(QtCore.QPointF)
     drop_complete = QtCore.pyqtSignal(list)
     region_selected = QtCore.pyqtSignal(QtCore.QRectF)
+    scale_selected = QtCore.pyqtSignal(QtCore.QRectF) # signal for measuring pixels vs mm
+    measure_area = QtCore.pyqtSignal(QtCore.QRectF) # signal for measuring pixels vs mm
     delete_selection = QtCore.pyqtSignal()
     relabel_selection = QtCore.pyqtSignal()
     toggle_points = QtCore.pyqtSignal()
@@ -43,6 +45,8 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         self.shift = False
         self.ctrl = False
         self.alt = False
+        self.set_scale = False
+        self.m = False
         self.delay = 0
         self.setViewportUpdateMode(0)
 
@@ -65,12 +69,17 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         self.setSceneRect(self.scene().itemsBoundingRect())
 
     def keyPressEvent(self, event):
+        key = event.key()
         if event.key() == QtCore.Qt.Key_Alt:
             self.alt = True
         elif event.key() == QtCore.Qt.Key_Control:
             self.ctrl = True
         elif event.key() == QtCore.Qt.Key_Shift:
             self.shift = True
+        elif event.key() == QtCore.Qt.Key_E:
+            self.set_scale = True
+        elif event.key() == QtCore.Qt.Key_M:
+           self.m = True
         elif event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
             self.delete_selection.emit()
         elif event.key() == QtCore.Qt.Key_R:
@@ -107,6 +116,10 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
             self.ctrl = False
         elif event.key() == QtCore.Qt.Key_Shift:
             self.shift = False
+        elif event.key() == QtCore.Qt.Key_E:
+            self.set_scale = False
+        elif event.key() == QtCore.Qt.Key_M:
+            self.m = False
 
     def mouseMoveEvent(self, event):
         QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
@@ -115,7 +128,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     def mousePressEvent(self, event):
         if self.ctrl:
             self.add_point.emit(self.mapToScene(event.pos()))
-        elif self.shift:
+        elif self.shift or self.set_scale or self.m:
             self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
             QtWidgets.QGraphicsView.mousePressEvent(self, event)
         else:
@@ -125,7 +138,15 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     def mouseReleaseEvent(self, event):
         if self.dragMode() == QtWidgets.QGraphicsView.RubberBandDrag:
             rect = self.rubberBandRect()
-            self.region_selected.emit(self.mapToScene(rect).boundingRect())
+            if self.shift:
+                self.region_selected.emit(self.mapToScene(rect).boundingRect())
+                self.shift = False
+            elif self.set_scale:
+                self.scale_selected.emit(self.mapToScene(rect).boundingRect())
+                self.set_scale = False
+            elif self.m:
+                self.measure_area.emit(self.mapToScene(rect).boundingRect())
+                self.m = False
             QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
         self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
 
