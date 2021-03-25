@@ -4,13 +4,13 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['C:\\Users\\GeorgStockinger\\OneDrive - A2MAC1\\Dokumente\\python\\DotDotGoose'],
+             pathex=['C:\\Users\\GeorgStockinger\\OneDrive - A2MAC1\\Dokumente\\python\\DotDotIC'],
              binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
-             excludes=[],
+             excludes=['pandas', 'scipy', 'matplotlib', 'xlwings', 'beautifulsoup4', 'sklearn', 'tornado', 'hook', 'setuptools', 'site', 'tensorflow'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher,
