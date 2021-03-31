@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1143</width>
+    <width>1192</width>
     <height>526</height>
    </rect>
   </property>
@@ -92,6 +92,9 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item>
+       <widget class="QWidget" name="toolWidget" native="true"/>
+      </item>
       <item>
        <widget class="CentralGraphicsView" name="graphicsView"/>
       </item>
@@ -264,17 +267,17 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Length</string>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_2">
              <property name="text">
               <string>Width  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Length</string>
              </property>
             </widget>
            </item>
@@ -486,6 +489,21 @@
    <header>ddg/central_graphics_view</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>lineEditX</tabstop>
+  <tabstop>lineEditY</tabstop>
+  <tabstop>lineEdit_marking</tabstop>
+  <tabstop>lineEdit_partnumber</tabstop>
+  <tabstop>lineEdit_manufacturer</tabstop>
+  <tabstop>lineEdit_package</tabstop>
+  <tabstop>lineEdit_length</tabstop>
+  <tabstop>lineEdit_width</tabstop>
+  <tabstop>lineEdit_height</tabstop>
+  <tabstop>pushButtonFolder</tabstop>
+  <tabstop>pushButtonZoomIn</tabstop>
+  <tabstop>pushButtonZoomOut</tabstop>
+  <tabstop>graphicsView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -27,14 +27,12 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 from .chip_dialog import ChipDialog
-from ddg.ui.point_widget_ui import Ui_PointWidget as WIDGET
 
-# from .ui_point_widget import Ui_Pointwidget as WIDGET
-# if getattr(sys, 'frozen', False):
-#     from ddg.ui.central_widget_ui import Ui_PointWidget as WIDGET
-# else:
-#     bundle_dir = os.path.dirname(__file__)
-# WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'point_widget.ui'))
+if getattr(sys, 'frozen', False):
+    from ddg.ui.central_widget_ui import Ui_PointWidget as WIDGET
+else:
+    bundle_dir = os.path.dirname(__file__)
+WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'point_widget.ui'))
 
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
@@ -114,20 +112,26 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.classModel.invisibleRootItem().appendRow([key, value, color_item])
 
     def add_class(self):
-        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Component', 'Enter Component Name')
+        # get current selection:
+        if self.canvas.current_selection is not None:
+            name = self.canvas.current_selection.data(0)
+            if name not in self.canvas.categories: # current selection is not a category
+                category_item = self.canvas.current_selection.parent()
+            else: # selection is a category
+                category_item = self.canvas.current_selection
+            category_name = category_item.data(0)
+            category_index = category_item.index()
+        else:
+            return
+        
+        default_name = "{:} #{:d}".format(category_name, category_item.rowCount() + 1)
+
+        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Component', 'Enter Component Name', text=default_name)
         if ok:
             if class_name in self.canvas.classes or class_name in self.canvas.categories:
                 dialog = QtWidgets.QMessageBox.question(self, "Choose different name", "Name "+ class_name + " already taken", QtWidgets.QMessageBox.Ok)
-                return
-            # get current selection:
-            if self.canvas.current_selection is not None:
-                name = self.canvas.current_selection.data(0)
-                if name not in self.canvas.categories: # current selection is not a category
-                    category_item = self.canvas.current_selection.parent()
-                else: # selection is a category
-                    category_item = self.canvas.current_selection
-                category_name = category_item.data(0)
-                category_index = category_item.index()
+                self.add_class()
+            else:
                 self.canvas.add_class(category_name, class_name)
                 key, value, color_item = self._get_default_class(class_name)
                 if self.canvas.current_class_name is not None: # toggle previous selection
@@ -136,6 +140,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                     font.setBold(False)
                     key.setFont(font)
                 self.classModel.itemFromIndex(category_index).appendRow([key, value, color_item])
+                self.classTree.setExpanded(category_index, True)
+                self.select_tree_item(key)
 
     def change_active_point_color(self, event):
         color = QtWidgets.QColorDialog.getColor()
@@ -453,6 +459,26 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                     if response == QtWidgets.QMessageBox.Save:
                         self.save(True)
 
+    def select_tree_item(self, item):
+        selectionModel = self.classTree.selectionModel()
+        flags = QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Rows
+        selected = QtCore.QItemSelection()
+        if item.parent() is None:
+            index = self.classModel.indexFromItem(item)
+        else:
+            category_item = item.parent()
+            rows = category_item.rowCount()
+            category_index = self.classModel.indexFromItem(category_item)
+            row = 0
+            for i in range(rows):
+                child = category_item.child(i, 0)
+                if child.data(0) == item.data(0):
+                    row = i
+                    break
+            index = self.classModel.index(row, 0, category_index)
+        selectionModel.clearSelection()
+        selectionModel.select(index, flags)
+
     def select_model_item(self, model_index):
         item = self.model.itemFromIndex(model_index)
         if item.isSelectable():
@@ -468,7 +494,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             item = self.classModel.itemFromIndex(index)
             self.canvas.current_selection = item
             name = item.data(0)
-            # print("Selected: ", name, index.row(), index.column())
+            print("Selected: ", name, index.row(), index.column())
             categories = list(self.canvas.categories)
             if name in categories:
                 self.canvas.set_current_category(name)
@@ -484,6 +510,11 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 font = item.font()
                 font.setBold(False)
                 item.setFont(font)
+        elif len(selected.indexes()) == 0 and len(deselected.indexes()) > 0:
+            item = self.classModel.itemFromIndex(deselected.indexes()[0])
+            font = item.font()
+            font.setBold(False)
+            item.setFont(font)
             # self.update_closest_class_names() to be implemented later
         else:
             self.canvas.set_current_class(None)

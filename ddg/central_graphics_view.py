@@ -76,7 +76,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
             self.ctrl = True
         elif event.key() == QtCore.Qt.Key_Shift:
             self.shift = True
-        elif event.key() == QtCore.Qt.Key_E:
+        elif event.key() == QtCore.Qt.Key_C:
             self.set_scale = True
         elif event.key() == QtCore.Qt.Key_M:
            self.m = True
@@ -116,7 +116,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
             self.ctrl = False
         elif event.key() == QtCore.Qt.Key_Shift:
             self.shift = False
-        elif event.key() == QtCore.Qt.Key_E:
+        elif event.key() == QtCore.Qt.Key_C:
             self.set_scale = False
         elif event.key() == QtCore.Qt.Key_M:
             self.m = False
