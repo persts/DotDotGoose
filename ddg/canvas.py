@@ -26,10 +26,14 @@ import os
 import json
 import glob
 import numpy as np
+from enum import Enum
 
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+class EditStyle(Enum):
+    POINTS = 1
+    RECTS = 2
 
 class Attributes(dict):
     DEFAULT_KEYS = ["Name", "Partnumber", "Description", "Short Description", "Manufacturer", "Marking", "Datasheet", "Length", "Width", "Height", "Weight", "Package"]
@@ -51,8 +55,9 @@ class Canvas(QtWidgets.QGraphicsScene):
     points_updated = QtCore.pyqtSignal()
     update_point_count = QtCore.pyqtSignal(str, str, int)
     DEFAULT_COLORS = {"Resistor":QtGui.QColor(QtCore.Qt.black), "Capacitor":QtGui.QColor(QtCore.Qt.gray), "Crystal":QtGui.QColor(QtCore.Qt.green), 
-                      "Diode": QtGui.QColor(QtCore.Qt.blue), "Inductor":QtGui.QColor(QtCore.Qt.cyan), "Integrated Circuit":QtGui.QColor(QtCore.Qt.yellow), 
-                      "Transistor":QtGui.QColor(QtCore.Qt.darkYellow), "Discrete < 3 Pins":QtGui.QColor(QtCore.Qt.magenta), "Discrete > 3 Pins":QtGui.QColor(QtCore.Qt.darkMagenta)}
+                      "Diode": QtGui.QColor(QtCore.Qt.blue), "Inductor":QtGui.QColor(QtCore.Qt.cyan), "Integrated Circuit":QtGui.QColor(QtCore.Qt.yellow).darker(200), 
+                      "Transistor":QtGui.QColor(QtCore.Qt.darkYellow), "Discrete < 3 Pins":QtGui.QColor(QtCore.Qt.magenta), 
+                      "Discrete > 3 Pins":QtGui.QColor(QtCore.Qt.darkMagenta), "Connectors":QtGui.QColor(QtCore.Qt.cyan)}
     DEFAULT_SCALE = {"scale":1, "unit":"px", "top":0, "left":0}
 
     def __init__(self):
@@ -64,7 +69,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.colors = {}
         self.coordinates = {}
 
-        self._categories = ["Resistor", "Capacitor", "Crystal", "Diode", "Inductor", "Integrated Circuit", "Transistor", "Discrete < 3 Pins", "Discrete > 3 Pins"]
+        self._categories = ["Resistor", "Capacitor", "Crystal", "Diode", "Inductor", "Integrated Circuit", "Transistor", "Discrete < 3 Pins", "Discrete > 3 Pins", "Connectors"]
         self.class_attributes = {}
         self.data = {}
         for c in self._categories:
@@ -73,7 +78,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.next_class_name = None
 
         self.selection = []
-        self.edit_style = "points"
+        self.edit_style = EditStyle.POINTS
         self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
 
         self.directory = ''
@@ -113,7 +118,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def add_point(self, point):
 
-        if self.edit_style != "points":
+        if self.edit_style != EditStyle.POINTS:
             return
 
         if self.current_image_name is None or self.current_class_name is None:
@@ -162,16 +167,16 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def clear_selection(self):
         self.selection = []
-        if self.edit_style == "rects":
+        if self.edit_style == EditStyle.RECTS:
             self.clear_measures()
             self.display_measures()
-        elif self.edit_style == "points":
+        elif self.edit_style == EditStyle.POINTS:
             self.clear_points()
             self.display_points()
 
     def delete_selected_points(self):
         if self.current_image_name is not None:
-            if self.edit_style == "points":
+            if self.edit_style == EditStyle.POINTS:
                 points = self.points[self.current_image_name]
                 for class_name, point in self.selection:
                     points[class_name].remove(point)
@@ -181,7 +186,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.update_point_count.emit(self.current_image_name, class_name, count)
                 self.selection = []
                 self.display_points()
-            elif self.edit_style == "rects":
+            elif self.edit_style == EditStyle.RECTS:
                 mrects = self.measure_rects[self.current_image_name]
                 for selected in self.selection:
                     for i, mrect in enumerate(mrects):
@@ -392,7 +397,10 @@ class Canvas(QtWidgets.QGraphicsScene):
                 QtWidgets.QMessageBox.critical(None, 'File Not Found', '{} is not in the same folder as the point file.'.format(self.current_image_name))
                 self.image_loaded.emit(self.directory, self.current_image_name)
             self.image_loaded.emit(self.directory, self.current_image_name)
-            self.display_points()
+            if self.edit_style == EditStyle.POINTS:
+                self.display_points()
+            elif self.edit_style == EditStyle.RECTS:
+                self.display_measures()
             self.display_grid()
             QtWidgets.QApplication.restoreOverrideCursor()
 
@@ -460,7 +468,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.load_image(path)
 
     def measure_area(self, rect):
-        if self.current_image_name is None or self.edit_style != "rects":
+        if self.current_image_name is None or self.edit_style != EditStyle.RECTS:
             return
 
         image_scale = self.image_scale.get(self.current_image_name, Canvas.DEFAULT_SCALE)
@@ -628,7 +636,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def select_points(self, rect):
         self.selection = []
-        if self.edit_style == "points":
+        if self.edit_style == EditStyle.POINTS:
             self.display_points()
             current = self.points[self.current_image_name]
             display_radius = self.ui['point']['radius']
@@ -638,7 +646,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                         offset = ((display_radius + 6) // 2)
                         self.addEllipse(QtCore.QRectF(point.x() - offset, point.y() - offset, display_radius + 6, display_radius + 6), self.selected_pen)
                         self.selection.append((class_name, point))
-        elif self.edit_style == "rects":
+        elif self.edit_style == EditStyle.RECTS:
             drop = []
             color = QtGui.QColor(223, 23, 23)
             brush = QtGui.QBrush(color, QtCore.Qt.SolidPattern)
@@ -666,10 +674,10 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def set_edit_style(self, edit_style):
         self.edit_style = edit_style
-        if self.edit_style == "points":
+        if self.edit_style == EditStyle.POINTS:
             self.clear_measures()
             self.display_points()
-        elif self.edit_style == "rects":
+        elif self.edit_style == EditStyle.RECTS:
             self.clear_points()
             self.display_measures()
 

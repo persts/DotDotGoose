@@ -26,6 +26,7 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QMenuBar, QMenu, QAction, QMessageBox
 from PyQt5 import QtWidgets
 from ddg import CentralWidget
+from ddg.canvas import EditStyle
 from ddg import __version__
 
 # _TITLE_STRING = 'DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://cbc.amnh.org )'.format(__version__)
@@ -107,12 +108,12 @@ class MainWindow(QMainWindow):
     def set_edit_points(self):
         self.editPointsAction.setChecked(True)
         self.editMeasureAction.setChecked(False)
-        self._centralWidget.canvas.set_edit_style("points")
+        self._centralWidget.canvas.set_edit_style(EditStyle.POINTS)
 
     def set_edit_rects(self):
         self.editMeasureAction.setChecked(True)
         self.editPointsAction.setChecked(False)
-        self._centralWidget.canvas.set_edit_style("rects")
+        self._centralWidget.canvas.set_edit_style(EditStyle.RECTS)
 
 
 if __name__ == '__main__':
