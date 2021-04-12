@@ -27,6 +27,8 @@ import json
 import glob
 import numpy as np
 from enum import Enum
+import dataclasses
+from dataclasses import dataclass
 
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -34,6 +36,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class EditStyle(Enum):
     POINTS = 1
     RECTS = 2
+
+@dataclass
+class Scale:
+    scale: float = 1
+    unit: str = "mm"
+    top: int = 0
+    left: int = 0
+
+    @staticmethod
+    def from_dict(dictionary):
+        scale = Scale()
+        fields = dataclasses.fields(Scale)
+        for field in fields:
+            setattr(scale, field.name, dictionary.get(field.name, field.default))
+        return scale
 
 class Attributes(dict):
     DEFAULT_KEYS = ["Name", "Partnumber", "Description", "Short Description", "Manufacturer", "Marking", "Datasheet", "Length", "Width", "Height", "Weight", "Package"]
@@ -58,42 +75,11 @@ class Canvas(QtWidgets.QGraphicsScene):
                       "Diode": QtGui.QColor(QtCore.Qt.blue), "Inductor":QtGui.QColor(QtCore.Qt.cyan), "Integrated Circuit":QtGui.QColor(QtCore.Qt.yellow).darker(200), 
                       "Transistor":QtGui.QColor(QtCore.Qt.darkYellow), "Discrete < 3 Pins":QtGui.QColor(QtCore.Qt.magenta), 
                       "Discrete > 3 Pins":QtGui.QColor(QtCore.Qt.darkMagenta), "Connectors":QtGui.QColor(QtCore.Qt.cyan)}
-    DEFAULT_SCALE = {"scale":1, "unit":"px", "top":0, "left":0}
 
     def __init__(self):
         from collections import defaultdict
         QtWidgets.QGraphicsScene.__init__(self)
-        # dictionary for saving points: Structured like points[image_name][class_name] = [list of points]
-        self.points = {}
-        self.class_visibility = {} # to be implemented
-        self.colors = {}
-        self.coordinates = {}
-
-        self._categories = ["Resistor", "Capacitor", "Crystal", "Diode", "Inductor", "Integrated Circuit", "Transistor", "Discrete < 3 Pins", "Discrete > 3 Pins", "Connectors"]
-        self.class_attributes = {}
-        self.data = {}
-        for c in self._categories:
-            self.data[c] = [] # classes
-        self.previous_class_name = None
-        self.next_class_name = None
-
-        self.selection = []
-        self.edit_style = EditStyle.POINTS
-        self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
-
-        self.directory = ''
-        self.current_image_name = None
-        self.current_class_name = None
-        self.current_category_name = None
-        self.current_selection = None
-
-        self.qt_image = None
-        self.show_grid = True
-
-        self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.red, QtCore.Qt.SolidPattern), 1)
-
-        self.image_scale = defaultdict(dict)
-        self.measure_rects = defaultdict(list)
+        self.reset()
 
     @property
     def classes(self):
@@ -192,6 +178,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     for i, mrect in enumerate(mrects):
                         if selected == mrect:
                             self.measure_rects[self.current_image_name].pop(i)
+                            self.measure_rects_data[self.current_image_name].pop(i)
                             break
                 self.selection = []
                 self.display_measures()
@@ -213,6 +200,8 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.addLine(line, pen)
 
     def display_points(self):
+        if self.edit_style != EditStyle.POINTS:
+            return
         self.clear_points()
         if self.current_image_name in self.points:
             display_radius = self.ui['point']['radius']
@@ -234,6 +223,8 @@ class Canvas(QtWidgets.QGraphicsScene):
     def display_measures(self):
         if self.current_image_name is None:
             return
+        if self.edit_style != EditStyle.RECTS:
+            return
         self.clear_measures()
 
         white = QtGui.QColor(255, 255, 255)
@@ -241,17 +232,19 @@ class Canvas(QtWidgets.QGraphicsScene):
         brush = QtGui.QBrush(color, QtCore.Qt.SolidPattern)
         pen = QtGui.QPen(brush, 2)
 
-        image_scale = self.image_scale.get(self.current_image_name, Canvas.DEFAULT_SCALE)
-        scale = image_scale["scale"]
-        unit = image_scale["unit"]
+        image_scale = self.image_scale.get(self.current_image_name, Scale())
+        scale = image_scale.scale
+        unit = image_scale.unit
 
         mrects = self.measure_rects[self.current_image_name].copy()
+        mrects_data = self.measure_rects_data[self.current_image_name].copy()
         self.measure_rects[self.current_image_name] = []
-        for mrect in mrects:
-            x = mrect.path().currentPosition().x()
-            y = mrect.path().currentPosition().y()
-            width = mrect.path().elementAt(2).x - x
-            height = mrect.path().elementAt(2).y - y
+        self.measure_rects_data[self.current_image_name] = []
+        for mrect in mrects_data:
+            x = mrect["x"]
+            y = mrect["y"]
+            width = mrect["width"]
+            height = mrect["height"]
             ppath = QtGui.QPainterPath()
             ppath.setFillRule(QtCore.Qt.WindingFill)
             ppath.addRect(x, y, width, height)
@@ -272,6 +265,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             font.setBold(True)
             leftItem.setFont(font)
             self.measure_rects[self.current_image_name].append(path)
+            self.measure_rects_data[self.current_image_name].append(mrect)
 
     def export_counts(self, file_name, survey_id):
         import csv
@@ -417,6 +411,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.load_image(images[0])
 
     def load_points(self, file_name):
+        self.reset()
         file = open(file_name, 'r')
         self.directory = os.path.split(file_name)[0]
         self.directory_set.emit(self.directory)
@@ -432,13 +427,19 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
         # End Backward compat
 
+        self.coordinates = data["pcb_data"]
         self.colors = data['colors']
         self.data = data['data']
         self.points = {}
         if 'points' in data:
             self.points = data['points']
         self.class_visibility = data['visibility']
-        self.image_scale = data['image_scale']
+        image_scale = data['image_scale']
+        for k, l in image_scale.items():
+            new_list = []
+            for scale_dict in l:
+                new_list.append(Scale.from_dict(scale_dict))
+            self.image_scale[k] = new_list
 
         for image in self.points:
             for class_name in self.points[image]:
@@ -459,6 +460,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 ppath.addRect(qrect)
                 path = QtWidgets.QGraphicsPathItem(ppath)
                 self.measure_rects[image].append(path)
+                self.measure_rects_data[image].append({"x":x, "y":y, "width":w, "height":h})
 
         self.points_loaded.emit(survey_id)
         self.fields_updated.emit()
@@ -471,14 +473,14 @@ class Canvas(QtWidgets.QGraphicsScene):
         if self.current_image_name is None or self.edit_style != EditStyle.RECTS:
             return
 
-        image_scale = self.image_scale.get(self.current_image_name, Canvas.DEFAULT_SCALE)
+        image_scale = self.image_scale.get(self.current_image_name, Scale)
 
         topLeft = rect.topLeft()
         bottomRight = rect.bottomRight()
         width = bottomRight.x() - topLeft.x()
         height = bottomRight.y() - topLeft.y()
-        scale = image_scale["scale"]
-        unit = image_scale["unit"]
+        scale = image_scale.scale
+        unit = image_scale.unit
 
         active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
         active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
@@ -504,12 +506,17 @@ class Canvas(QtWidgets.QGraphicsScene):
         font.setBold(True)
         leftItem.setFont(font)
         self.measure_rects[self.current_image_name].append(path)
+        self.measure_rects_data[self.current_image_name].append({"x":topLeft.x(), "y":topLeft.y(), "width":width, "height":height})
 
     def package_points(self, survey_id):
         count = 0
-        package = {'data': {}, 'points': {}, 'colors': {}, 
+        image_scale = {}
+        for k, l in self.image_scale.items():
+            new_list = [dataclasses.asdict(scale) for scale in l]
+            image_scale[k] = new_list
+        package = {'data': {}, 'points': {}, 'colors': {}, 'pcb_data': self.coordinates, 
                    'metadata': {'survey_id': survey_id}, 'attributes': self.class_attributes, 'ui': self.ui, 
-                   'visibility': self.class_visibility, 'image_scale': self.image_scale, 'measures': {}}
+                   'visibility': self.class_visibility, 'image_scale': image_scale, 'measures': {}}
         package['data'] = self.data
         for class_name in self.colors:
             r = self.colors[class_name].red()
@@ -526,20 +533,14 @@ class Canvas(QtWidgets.QGraphicsScene):
                     p = {'x': point.x(), 'y': point.y()}
                     dst.append(p)
                     count += 1
-        for image in self.measure_rects:
+        for image in self.measure_rects_data:
             package['measures'][image] = []
-            for mrect in self.measure_rects[image]:
+            for mrect in self.measure_rects_data[image]:
                 measure_data = {}
-                topLeft = mrect.currentPosition()
-                bottomRight = mrect.elementAt(2)
-                x = topLeft.x()
-                y = topLeft.y()
-                width = bottomRight.x - topLeft.x()
-                width = bottomRight.y - topLeft.y()
-                measure_data['x'] = x
-                measure_data['y'] = y
-                measure_data['w'] = width
-                measure_data['h'] = height
+                measure_data['x'] = mrect["x"]
+                measure_data['y'] = mrect["y"]
+                measure_data['w'] = mrect["width"]
+                measure_data['h'] = mrect["height"]
                 package['measures'][image].append(measure_data)
         
         return (package, count)
@@ -616,6 +617,40 @@ class Canvas(QtWidgets.QGraphicsScene):
         del self.data[name]
         self._categories.pop(self._categories.index(name))
         self.display_points()
+
+    def reset(self):
+        from collections import defaultdict
+        self.points = {}
+        self.class_visibility = {} # to be implemented
+        self.colors = {}
+        self.coordinates = {}
+
+        self._categories = ["Resistor", "Capacitor", "Crystal", "Diode", "Inductor", "Integrated Circuit", "Transistor", "Discrete < 3 Pins", "Discrete > 3 Pins", "Connectors"]
+        self.class_attributes = {}
+        self.data = {}
+        for c in self._categories:
+            self.data[c] = [] # classes
+        self.previous_class_name = None
+        self.next_class_name = None
+
+        self.selection = []
+        self.edit_style = EditStyle.POINTS
+        self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
+
+        self.directory = ''
+        self.current_image_name = None
+        self.current_class_name = None
+        self.current_category_name = None
+        self.current_selection = None
+
+        self.qt_image = None
+        self.show_grid = True
+
+        self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.red, QtCore.Qt.SolidPattern), 1)
+
+        self.image_scale = defaultdict(dict)
+        self.measure_rects = defaultdict(list) # here we sore the QGraphicsPathItems
+        self.measure_rects_data = defaultdict(list) # here we store the x, y, w, h of the measured rects. PathItems are destroyed when updating the view therefore we need to store that info seperately
 
     def save_coordinates(self, x, y):
         if self.current_image_name is not None:
@@ -702,10 +737,12 @@ class Canvas(QtWidgets.QGraphicsScene):
             return
         scale = int(mm)/int(rect.width())
         topLeft = rect.topLeft()
-        self.image_scale[self.current_image_name]["scale"] = scale
-        self.image_scale[self.current_image_name]["unit"] = "mm"
-        self.image_scale[self.current_image_name]["top"] = topLeft.y()*scale
-        self.image_scale[self.current_image_name]["left"] = topLeft.x()*scale
+        if self.current_image_name not in self.image_scale.keys():
+            self.image_scale[self.current_image_name] = Scale()
+        self.image_scale[self.current_image_name].scale = scale
+        self.image_scale[self.current_image_name].unit = "mm"
+        self.image_scale[self.current_image_name].top = topLeft.y()*scale
+        self.image_scale[self.current_image_name].left = topLeft.x()*scale
         self.display_measures()
 
     def toggle_grid(self, display):

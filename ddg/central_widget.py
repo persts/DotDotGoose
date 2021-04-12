@@ -27,6 +27,7 @@ import sys
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 
 from ddg import Canvas
+from ddg.canvas import Scale
 from ddg import PointWidget
 from ddg.fields import BoxText, LineText
 from ddg.ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
@@ -122,11 +123,11 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
     def display_pointer_coordinates(self, point):
         img = self.canvas.current_image_name
-        image_scale = self.canvas.image_scale.get(img, Canvas.DEFAULT_SCALE)
-        scale = image_scale["scale"]
-        left = image_scale["left"]
-        top = image_scale["top"]
-        unit = image_scale["unit"]
+        image_scale = self.canvas.image_scale.get(img, Scale())
+        scale = image_scale.scale
+        left = image_scale.left
+        top = image_scale.top
+        unit = image_scale.unit
         text = "{:.1f}, {:.1f} {}".format(int(point.x())*scale - left, int(point.y())*scale - top, unit)
         self.posLabel.setText(text)
 

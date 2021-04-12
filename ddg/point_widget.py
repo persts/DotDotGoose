@@ -331,6 +331,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def points_loaded(self, survey_id):
         self.lineEditSurveyId.setText(survey_id)
         self.display_classes()
+        self.display_count_tree()
         self.update_ui_settings()
 
     def previous(self):
