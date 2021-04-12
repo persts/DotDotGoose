@@ -160,6 +160,15 @@ class Canvas(QtWidgets.QGraphicsScene):
             elif type(graphic) == QtWidgets.QGraphicsTextItem:
                 self.removeItem(graphic)
 
+    def clear_selection(self):
+        self.selection = []
+        if self.edit_style == "rects":
+            self.clear_measures()
+            self.display_measures()
+        elif self.edit_style == "points":
+            self.clear_points()
+            self.display_points()
+
     def delete_selected_points(self):
         if self.current_image_name is not None:
             if self.edit_style == "points":

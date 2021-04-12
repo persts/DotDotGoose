@@ -33,6 +33,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
     scale_selected = QtCore.pyqtSignal(QtCore.QRectF) # signal for measuring pixels vs mm
     measure_area = QtCore.pyqtSignal(QtCore.QRectF) # signal for measuring pixels vs mm
     delete_selection = QtCore.pyqtSignal()
+    clear_selection = QtCore.pyqtSignal()
     relabel_selection = QtCore.pyqtSignal()
     toggle_points = QtCore.pyqtSignal()
     toggle_grid = QtCore.pyqtSignal()
@@ -126,6 +127,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         self.display_pointer_coordinates.emit(self.mapToScene(event.pos()))
 
     def mousePressEvent(self, event):
+        self.clear_selection.emit()
         if self.ctrl:
             self.add_point.emit(self.mapToScene(event.pos()))
         elif self.shift or self.set_scale or self.m:

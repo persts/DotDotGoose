@@ -78,6 +78,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.graphicsView.drop_complete.connect(self.canvas.load)
         self.graphicsView.region_selected.connect(self.canvas.select_points)
         self.graphicsView.delete_selection.connect(self.canvas.delete_selected_points)
+        self.graphicsView.clear_selection.connect(self.canvas.clear_selection)
         self.graphicsView.relabel_selection.connect(self.canvas.relabel_selected_points)
         self.graphicsView.measure_area.connect(self.canvas.measure_area)
         self.graphicsView.toggle_points.connect(self.point_widget.checkBoxDisplayPoints.toggle)
