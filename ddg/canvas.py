@@ -551,6 +551,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         index = self._categories.index(old_category)
         self._categories.pop(index)
         self._categories.insert(index, new_category)
+        self.current_category_name = new_category
         del self.data[old_category]
 
     def rename_class(self, old_class, new_class):
@@ -578,6 +579,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.points[image][new_class] += self.points[image].pop(old_class)
             elif old_class in self.points[image]:
                 self.points[image][new_class] = self.points[image].pop(old_class)
+        self.current_class_name = new_class
         self.display_points()
         
     def remove_class(self, name):
