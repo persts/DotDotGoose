@@ -27,12 +27,13 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
 from .chip_dialog import ChipDialog
+from .ui.point_widget_ui import Ui_PointWidget as WIDGET
 
-if getattr(sys, 'frozen', False):
-    from ddg.ui.central_widget_ui import Ui_PointWidget as WIDGET
-else:
-    bundle_dir = os.path.dirname(__file__)
-WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'point_widget.ui'))
+# if getattr(sys, 'frozen', False):
+#     from ddg.ui.ponit_widget_ui import Ui_PointWidget as WIDGET
+# else:
+#     bundle_dir = os.path.dirname(__file__)
+# WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'point_widget.ui'))
 
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
@@ -363,7 +364,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         class_name, ok = QtWidgets.QInputDialog.getText(self, 'New name', 'Enter New Name')
         if class_name in self.canvas.classes or class_name in self.canvas.categories:
             dialog = QtWidgets.QMessageBox.question(self, "Choose different name", "Name "+ class_name + " already taken", QtWidgets.QMessageBox.Ok)
-            return
+            self.rename(index)
         if column == 0 and class_name != "":
             is_expanded = self.classTree.isExpanded(index)
             old = index.data(0)

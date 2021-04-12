@@ -28,12 +28,13 @@ import sys
 from .exporter import Exporter
 
 from PyQt5 import QtCore, QtWidgets, uic
+from ddg.ui.chip_dialog_ui import Ui_DialogChipExport as CLASS_DIALOG
 
-if getattr(sys, 'frozen', False):
-    from ddg.ui.chip_dialog_ui import Ui_DialogChipExport as CLASS_DIALOG
-else:
-    bundle_dir = os.path.dirname(__file__)
-    CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'chip_dialog.ui'))
+# if getattr(sys, 'frozen', False):
+#     from ddg.ui.chip_dialog_ui import Ui_DialogChipExport as CLASS_DIALOG
+# else:
+#     bundle_dir = os.path.dirname(__file__)
+#     CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'chip_dialog.ui'))
 
 
 class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):

@@ -234,24 +234,25 @@ class Canvas(QtWidgets.QGraphicsScene):
         mrects = self.measure_rects[self.current_image_name].copy()
         self.measure_rects[self.current_image_name] = []
         for mrect in mrects:
-            rect = mrect.boundingRect()
-            topLeft = rect.topLeft()
-            bottomRight = rect.bottomRight()
+            x = mrect.path().currentPosition().x()
+            y = mrect.path().currentPosition().y()
+            width = mrect.path().elementAt(2).x - x
+            height = mrect.path().elementAt(2).y - y
             ppath = QtGui.QPainterPath()
             ppath.setFillRule(QtCore.Qt.WindingFill)
-            ppath.addRect(rect)
+            ppath.addRect(x, y, width, height)
             path = self.addPath(ppath, pen)
 
-            topItem = self.addText("{:.1f} {}".format(rect.width()*scale, unit))
+            topItem = self.addText("{:.1f} {}".format(width*scale, unit))
             topItem.setDefaultTextColor(white)
             font = topItem.font()
             font.setBold(True)
             topItem.setFont(font)
-            topItem.setPos(topLeft.x(), topLeft.y() - topItem.boundingRect().height())
+            topItem.setPos(x, y)
 
-            leftItem = self.addText("{:.1f} {}".format(rect.height()*scale, unit))
+            leftItem = self.addText("{:.1f} {}".format(height*scale, unit))
             leftItem.setDefaultTextColor(white)
-            leftItem.setPos(topLeft.x(), bottomRight.y() - leftItem.boundingRect().height())
+            leftItem.setPos(x, y + leftItem.boundingRect().width() + topItem.boundingRect().height()*1.05)
             leftItem.setRotation(-90)
             font = leftItem.font()
             font.setBold(True)
@@ -476,11 +477,11 @@ class Canvas(QtWidgets.QGraphicsScene):
         font = topItem.font()
         font.setBold(True)
         topItem.setFont(font)
-        topItem.setPos(topLeft.x(), topLeft.y() - topItem.boundingRect().height())
+        topItem.setPos(topLeft.x(), topLeft.y())
 
         leftItem = self.addText("{:.1f} {}".format(height*scale, unit))
         leftItem.setDefaultTextColor(QtGui.QColor(255, 255, 255))
-        leftItem.setPos(topLeft.x(), bottomRight.y() - leftItem.boundingRect().height())
+        leftItem.setPos(topLeft.x(), topLeft.y() + leftItem.boundingRect().width() + topItem.boundingRect().height()*1.05)
         leftItem.setRotation(-90)
         font = leftItem.font()
         font.setBold(True)
@@ -512,11 +513,16 @@ class Canvas(QtWidgets.QGraphicsScene):
             package['measures'][image] = []
             for mrect in self.measure_rects[image]:
                 measure_data = {}
-                rect = mrect.boundingRect()
-                measure_data['x'] = rect.x()
-                measure_data['y'] = rect.y()
-                measure_data['w'] = rect.width()
-                measure_data['h'] = rect.height()
+                topLeft = mrect.currentPosition()
+                bottomRight = mrect.elementAt(2)
+                x = topLeft.x()
+                y = topLeft.y()
+                width = bottomRight.x - topLeft.x()
+                width = bottomRight.y - topLeft.y()
+                measure_data['x'] = x
+                measure_data['y'] = y
+                measure_data['w'] = width
+                measure_data['h'] = height
                 package['measures'][image].append(measure_data)
         
         return (package, count)
@@ -545,6 +551,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         for k, v in self.data.items():
             if old_class in v:
                 category = k
+                break
 
         classes = self.data[category]
         index  = classes.index(old_class)
