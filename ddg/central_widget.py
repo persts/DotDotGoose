@@ -27,7 +27,7 @@ import sys
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 
 from ddg import Canvas
-from ddg.canvas import Scale
+from ddg.canvas import Scale, manufacturer_names, package_names
 from ddg import PointWidget
 from ddg.fields import BoxText, LineText
 from ddg.ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
@@ -98,6 +98,8 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.canvas.fields_updated.connect(self.display_attributes)
         self.lineEditX.textEdited.connect(self.update_coordinates)
         self.lineEditY.textEdited.connect(self.update_coordinates)
+        self.lineEditX.setDisabled(True)
+        self.lineEditY.setDisabled(True)
 
         self.lineEdit_attributes = {}
         self.lineEdit_attributes["Marking"] = self.lineEdit_marking
@@ -109,6 +111,13 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.lineEdit_attributes["Height"] = self.lineEdit_height
         for k, lineEdit in self.lineEdit_attributes.items():
             lineEdit.textEdited.connect(self.update_attributes)
+            lineEdit.setDisabled(True)
+
+        package_completer = QtWidgets.QCompleter(package_names)
+        self.lineEdit_package.setCompleter(package_completer)
+
+        manufacturer_completer = QtWidgets.QCompleter(manufacturer_names)
+        self.lineEdit_manufacturer.setCompleter(manufacturer_completer)
 
         self.pushButtonFolder.clicked.connect(self.select_folder)
         self.pushButtonZoomOut.clicked.connect(self.graphicsView.zoom_out)
@@ -140,6 +149,12 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.graphicsView.resize_image()
 
     def display_coordinates(self, directory, image):
+        if self.canvas.current_image_name is None:
+            self.lineEditX.setDisabled(True)
+            self.lineEditY.setDisabled(True)
+        else:
+            self.lineEditX.setDisabled(False)
+            self.lineEditY.setDisabled(False)
         if image in self.canvas.coordinates:
             self.lineEditX.setText(self.canvas.coordinates[image]['x'])
             self.lineEditY.setText(self.canvas.coordinates[image]['y'])
@@ -148,12 +163,25 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
             self.lineEditY.setText('')
 
     def display_attributes(self):
-        if self.canvas.current_class_name is None:
+        if self.canvas.current_class_name is None or self.canvas.current_image_name is None:
             for _, lineEdit in self.lineEdit_attributes.items():
                 lineEdit.setText("")
+                lineEdit.setDisabled(True)
         else:
             for k, lineEdit in self.lineEdit_attributes.items():
-                lineEdit.setText(self.canvas.class_attributes[self.canvas.current_class_name][k])
+                lineEdit.setDisabled(False)
+                value = self.canvas.class_attributes[self.canvas.current_class_name][k]
+                if k == "Packages":
+                    if value not in package_names:
+                        package_names.append(value)
+                        package_names.sort()
+                        self.lineEdit_package.setCompleter(QtWidgets.QCompleter(package_names))
+                elif k == "Manufacturer":
+                    if value not in manufacturer_names:
+                        manufacturer_names.append(value)
+                        manufacturer_names.sort()
+                        self.lineEdit_manufacturer.setCompleter(QtWidgets.QCompleter(manufacturer_names))
+                lineEdit.setText(value)
                 
     def display_working_directory(self, directory):
         self.labelWorkingDirectory.setText(directory)

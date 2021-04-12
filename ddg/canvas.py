@@ -33,6 +33,9 @@ from dataclasses import dataclass
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+package_names = ["0402", "0603", "1206"]
+manufacturer_names = ["Infineon"]
+
 class EditStyle(Enum):
     POINTS = 1
     RECTS = 2
@@ -420,6 +423,13 @@ class Canvas(QtWidgets.QGraphicsScene):
         survey_id = data['metadata']['survey_id']
 
         self.class_attributes = data["attributes"]
+        for class_name, attributes in self.class_attributes.items():
+            if attributes["Package"] not in package_names:
+                package_names.append(attributes["Package"])
+            if attributes["Manufacturer"] not in manufacturer_names:
+                manufacturer_names.append(attributes["Manufacturer"])
+        package_names.sort()
+        manufacturer_names.sort()
         # Backward compat
         if 'ui' in data:
             self.ui = data['ui']
