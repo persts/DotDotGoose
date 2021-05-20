@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 import sys
 import os
-from PyQt5.QtWidgets import QMainWindow, QMenuBar, QMenu, QAction, QMessageBox
+from PyQt5.QtWidgets import QDialog, QMainWindow, QMenu, QAction, QMessageBox, QTextEdit, QVBoxLayout, QWidget
 from PyQt5 import QtWidgets
 from ddg import CentralWidget
 from ddg.canvas import EditStyle
@@ -66,6 +66,7 @@ class MainWindow(QMainWindow):
         helpMenu = QMenu("&Help", self)
         menuBar.addMenu(helpMenu)
         helpMenu.addAction(self.infoAction)
+        helpMenu.addAction(self.showControlsAction)
 
     def _createActions(self):
         self.saveAction = QAction("Save Project", self)
@@ -81,6 +82,9 @@ class MainWindow(QMainWindow):
         self.infoAction = QAction("Info", self)
         self.infoAction.triggered.connect(self.display_info)
 
+        self.showControlsAction = QAction("Controls", self)
+        self.showControlsAction.triggered.connect(self.display_controls)
+
         self.editPointsAction = QAction("Edit Counts", self)
         self.editPointsAction.setCheckable(True)
         self.editPointsAction.setChecked(True)
@@ -95,14 +99,61 @@ class MainWindow(QMainWindow):
 
 
     def display_info(self):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setWindowTitle("Info")
-        msg.setText("Information about DotDotIC " + __version__)
-        msgText = "Contact gstockinger@ecs-network.com for bug reports.\nDotDotIC is based in the fabulous DotDotGoose.\nPlease visit their website\nhttps://biodiversityinformatics.amnh.org/open_source/dotdotgoose !"
-        msg.setInformativeText(msgText)
-        msg.setStandardButtons(QMessageBox.Ok)
-        _ = msg.exec_()
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Information about DotDotIC " + __version__)
+        dialog.resize(500, 500)
+        textEdit = QTextEdit(dialog, readOnly=True)
+        textEdit.setHtml(
+            """
+            <html>
+                <body>
+                    <article>
+                        <h2> Info </h2>                            
+                        <p> Version: {} </p>
+                        <p> Bugeports: gstockinger@ecs-network.com </p>
+                        <h2> Disclaimer </h2>
+                        <p> DotDotIC is based in the fabulous DotDotGoose. </p>
+                        <p> Please visit their website\nhttps://biodiversityinformatics.amnh.org/open_source/dotdotgoose ! </p>
+                        <p></p>
+                    </article>
+                </body>
+            </html>
+        """.format(__version__))
+        layout = QVBoxLayout()
+        layout.addWidget(textEdit)
+        dialog.setLayout(layout)
+        _ = dialog.show()
+
+    def display_controls(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Controls")
+        dialog.resize(500, 500)
+        textEdit = QTextEdit(dialog, readOnly=True)
+        textEdit.setHtml(
+            """
+            <html>
+                <body>
+                    <article>
+                        <h2> General </h2>                            
+                        <p> There are two modes for counting or measuring which can be selected in the toolbar. </p>
+                        <h2> Count Mode </h2>
+                        <p> STRG + Right Click   - Add Count    </p>
+                        <p> SHIFT + Drag         - Select Items </p>
+                        <p> DEL (With Selection) - Delete Items </p>
+                        <p></p>
+                        <h2> Measure Mode </h2>
+                        <p> C + Drag             - Calibrate Scale </p>
+                        <p> M + Drag             - Measure         </p>
+                        <p> SHIFT + Drag         - Select Items    </p>
+                        <p> DEL (With Selection) - Delete Items    </p>
+                    </article>
+                </body>
+            </html>
+        """)
+        layout = QVBoxLayout()
+        layout.addWidget(textEdit)
+        dialog.setLayout(layout)
+        _ = dialog.show()
     
     def load(self):
         self._centralWidget.point_widget.load()
