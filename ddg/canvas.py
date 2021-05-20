@@ -29,12 +29,12 @@ import numpy as np
 from enum import Enum
 import dataclasses
 from dataclasses import dataclass
+from ddg.config import AutoCompleteFile
 
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-package_names = ["0402", "0603", "1206"]
-manufacturer_names = ["Infineon"]
+completion = AutoCompleteFile()
 
 class EditStyle(Enum):
     POINTS = 1
@@ -43,7 +43,7 @@ class EditStyle(Enum):
 @dataclass
 class Scale:
     scale: float = 1
-    unit: str = "mm"
+    unit: str = "px"
     top: int = 0
     left: int = 0
 
@@ -424,12 +424,10 @@ class Canvas(QtWidgets.QGraphicsScene):
 
         self.class_attributes = data["attributes"]
         for class_name, attributes in self.class_attributes.items():
-            if attributes["Package"] not in package_names:
-                package_names.append(attributes["Package"])
-            if attributes["Manufacturer"] not in manufacturer_names:
-                manufacturer_names.append(attributes["Manufacturer"])
-        package_names.sort()
-        manufacturer_names.sort()
+            if attributes["Package"] not in completion.packages:
+                completion.update(packages=[attributes["Package"]])
+            if attributes["Manufacturer"] not in completion.manufacturer_names:
+                completion.update(manufacturers=[attributes["Manufacturer"]])
         # Backward compat
         if 'ui' in data:
             self.ui = data['ui']
@@ -437,9 +435,10 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
         # End Backward compat
 
-        self.coordinates = data["pcb_data"]
-        self.colors = data['colors']
-        self.data = data['data']
+        self.coordinates = data["pcb_data"].copy()
+        self.colors = data['colors'].copy()
+        self.data = data['data'].copy()
+        self._categories = list(self.data.keys())
         self.points = {}
         if 'points' in data:
             self.points = data['points']
@@ -524,10 +523,17 @@ class Canvas(QtWidgets.QGraphicsScene):
         for k, l in self.image_scale.items():
             new_list = [dataclasses.asdict(scale) for scale in l]
             image_scale[k] = new_list
+
+        for class_name, attributes in self.class_attributes.items():
+            if attributes["Package"] not in completion.packages:
+                completion.update(packages=[attributes["Package"]])
+            if attributes["Manufacturer"] not in completion.manufacturer_names:
+                completion.update(manufacturers=[attributes["Manufacturer"]])
+
         package = {'data': {}, 'points': {}, 'colors': {}, 'pcb_data': self.coordinates, 
                    'metadata': {'survey_id': survey_id}, 'attributes': self.class_attributes, 'ui': self.ui, 
                    'visibility': self.class_visibility, 'image_scale': image_scale, 'measures': {}}
-        package['data'] = self.data
+        package['data'] = self.data.copy()
         for class_name in self.colors:
             r = self.colors[class_name].red()
             g = self.colors[class_name].green()
@@ -566,12 +572,11 @@ class Canvas(QtWidgets.QGraphicsScene):
     def rename_category(self, old_category, new_category):
         if new_category in self.categories:
             raise ValueError("New name already exists {}".format(new_category))
-        self.data[new_category] = self.data[old_category]
+        self.data[new_category] = self.data.pop(old_category)
         index = self._categories.index(old_category)
         self._categories.pop(index)
         self._categories.insert(index, new_category)
         self.current_category_name = new_category
-        del self.data[old_category]
 
     def rename_class(self, old_class, new_class):
         if new_class in self.classes:
@@ -630,12 +635,15 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def reset(self):
         from collections import defaultdict
+        from ddg.config import DDConfig
+
+        self.config = DDConfig(DDConfig.DEFAULTFILE)
         self.points = {}
         self.class_visibility = {} # to be implemented
         self.colors = {}
         self.coordinates = {}
 
-        self._categories = ["Resistor", "Capacitor", "Crystal", "Diode", "Inductor", "Integrated Circuit", "Transistor", "Discrete < 3 Pins", "Discrete > 3 Pins", "Connectors"]
+        self._categories = self.config.categories.copy() 
         self.class_attributes = {}
         self.data = {}
         for c in self._categories:
@@ -645,7 +653,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
         self.selection = []
         self.edit_style = EditStyle.POINTS
-        self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
+        self.ui = self.config.ui.copy()
 
         self.directory = ''
         self.current_image_name = None
@@ -675,6 +683,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             file = open(file_name, 'w')
             json.dump(output, file)
             file.close()
+            completion.write(AutoCompleteFile.DEFAULTFILE)
         except OSError:
             return False
         return True

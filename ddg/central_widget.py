@@ -27,17 +27,10 @@ import sys
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 
 from ddg import Canvas
-from ddg.canvas import Scale, manufacturer_names, package_names
+from ddg.canvas import Scale, completion
 from ddg import PointWidget
 from ddg.fields import BoxText, LineText
-from ddg.ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
-
-# if getattr(sys, 'frozen', False):
-#     from ddg.ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
-# else:
-#     bundle_dir = os.path.dirname(__file__)
-#     CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'central_widget.ui'))
-
+from .ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
 
 class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
@@ -113,10 +106,10 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
             lineEdit.textEdited.connect(self.update_attributes)
             lineEdit.setDisabled(True)
 
-        package_completer = QtWidgets.QCompleter(package_names)
+        package_completer = QtWidgets.QCompleter(completion.packages)
         self.lineEdit_package.setCompleter(package_completer)
 
-        manufacturer_completer = QtWidgets.QCompleter(manufacturer_names)
+        manufacturer_completer = QtWidgets.QCompleter(completion.manufacturers)
         self.lineEdit_manufacturer.setCompleter(manufacturer_completer)
 
         self.pushButtonFolder.clicked.connect(self.select_folder)
@@ -129,6 +122,21 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.quick_save_frame.layout().addWidget(QtWidgets.QLabel('Saving...'))
         self.quick_save_frame.setGeometry(3, 3, 100, 35)
         self.quick_save_frame.hide()
+        
+        self.toolBar = QtWidgets.QToolBar()
+        self.toolLayout.addWidget(self.toolBar)
+        self.pointsToolButton = QtWidgets.QToolButton()
+        self.pointsToolButton.setText("Count")
+        self.pointsToolButton.setCheckable(True)
+        self.pointsToolButton.setChecked(True)
+        self.pointsToolButton.setAutoExclusive(True)
+        self.toolBar.addWidget(self.pointsToolButton)
+        self.rectsToolButton = QtWidgets.QToolButton()
+        self.rectsToolButton.setText("Measure")
+        self.rectsToolButton.setCheckable(True)
+        self.rectsToolButton.setChecked(False)
+        self.rectsToolButton.setAutoExclusive(True)
+        self.toolBar.addWidget(self.rectsToolButton)
 
     def display_pointer_coordinates(self, point):
         img = self.canvas.current_image_name
@@ -172,15 +180,13 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
                 lineEdit.setDisabled(False)
                 value = self.canvas.class_attributes[self.canvas.current_class_name][k]
                 if k == "Packages":
-                    if value not in package_names:
-                        package_names.append(value)
-                        package_names.sort()
-                        self.lineEdit_package.setCompleter(QtWidgets.QCompleter(package_names))
+                    if value not in completion.packages:
+                        completion.update(packages=[value])
+                        self.lineEdit_package.setCompleter(QtWidgets.QCompleter(completion.packages))
                 elif k == "Manufacturer":
-                    if value not in manufacturer_names:
-                        manufacturer_names.append(value)
-                        manufacturer_names.sort()
-                        self.lineEdit_manufacturer.setCompleter(QtWidgets.QCompleter(manufacturer_names))
+                    if value not in completion.manufacturers:
+                        completion.update(manufacturers=[value])
+                        self.lineEdit_manufacturer.setCompleter(QtWidgets.QCompleter(completion.manufacturers))
                 lineEdit.setText(value)
                 
     def display_working_directory(self, directory):

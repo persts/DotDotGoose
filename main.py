@@ -23,6 +23,7 @@
 #
 # --------------------------------------------------------------------------
 import sys
+import os
 from PyQt5.QtWidgets import QMainWindow, QMenuBar, QMenu, QAction, QMessageBox
 from PyQt5 import QtWidgets
 from ddg import CentralWidget
@@ -84,11 +85,13 @@ class MainWindow(QMainWindow):
         self.editPointsAction.setCheckable(True)
         self.editPointsAction.setChecked(True)
         self.editPointsAction.triggered.connect(self.set_edit_points)
+        self._centralWidget.pointsToolButton.setDefaultAction(self.editPointsAction)
 
         self.editMeasureAction = QAction("Edit Measurements", self)
         self.editMeasureAction.setCheckable(True)
         self.editMeasureAction.setChecked(False)
         self.editMeasureAction.triggered.connect(self.set_edit_rects)
+        self._centralWidget.rectsToolButton.setDefaultAction(self.editMeasureAction)
 
 
     def display_info(self):
@@ -108,11 +111,15 @@ class MainWindow(QMainWindow):
     def set_edit_points(self):
         self.editPointsAction.setChecked(True)
         self.editMeasureAction.setChecked(False)
+        self._centralWidget.pointsToolButton.setChecked(True)
+        self._centralWidget.rectsToolButton.setChecked(False)
         self._centralWidget.canvas.set_edit_style(EditStyle.POINTS)
 
     def set_edit_rects(self):
         self.editMeasureAction.setChecked(True)
         self.editPointsAction.setChecked(False)
+        self._centralWidget.pointsToolButton.setChecked(False)
+        self._centralWidget.rectsToolButton.setChecked(True)
         self._centralWidget.canvas.set_edit_style(EditStyle.RECTS)
 
 

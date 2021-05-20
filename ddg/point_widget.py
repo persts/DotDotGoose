@@ -25,16 +25,8 @@
 import os
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-
 from .chip_dialog import ChipDialog
 from .ui.point_widget_ui import Ui_PointWidget as WIDGET
-
-# if getattr(sys, 'frozen', False):
-#     from ddg.ui.ponit_widget_ui import Ui_PointWidget as WIDGET
-# else:
-#     bundle_dir = os.path.dirname(__file__)
-# WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'ui', 'point_widget.ui'))
-
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
     hide_custom_fields = QtCore.pyqtSignal(bool)
@@ -184,7 +176,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         for row in range(self.classModel.rowCount()):
                 index = self.classModel.index(row, 0)
                 item = self.classModel.itemFromIndex(index)
-                self.classTree.setExpanded(index, self.tree_expanded[item.data(0)])
+                self.classTree.setExpanded(index, self.tree_expanded.get(item.data(0), False))
         self.classTree.resizeColumnToContents(0)
 
     def display_count_tree(self):
@@ -496,7 +488,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             item = self.classModel.itemFromIndex(index)
             self.canvas.current_selection = item
             name = item.data(0)
-            print("Selected: ", name, index.row(), index.column())
             categories = list(self.canvas.categories)
             if name in categories:
                 self.canvas.set_current_category(name)
@@ -607,4 +598,4 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 
         self.canvas.previous_class_name = previous_name
         self.canvas.next_class_name = next_name
-        print("Closest:", self.canvas.previous_class_name, self.canvas.current_class_name, self.canvas.next_class_name)
+        # print("Closest:", self.canvas.previous_class_name, self.canvas.current_class_name, self.canvas.next_class_name)

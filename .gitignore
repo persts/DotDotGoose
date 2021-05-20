@@ -1,5 +1,6 @@
 ui_*
 build/
+envs/
 dist/
 package/ 
 data/
