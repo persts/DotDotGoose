@@ -23,11 +23,16 @@
 #
 # --------------------------------------------------------------------------
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
 
 
 class CentralGraphicsView(QtWidgets.QGraphicsView):
     add_point = QtCore.pyqtSignal(QtCore.QPointF)
+    add_class = QtCore.pyqtSignal()
     display_pointer_coordinates = QtCore.pyqtSignal(QtCore.QPointF)
+    find_point = QtCore.pyqtSignal(QtCore.QPointF)
+    select_class = QtCore.pyqtSignal(str)
     drop_complete = QtCore.pyqtSignal(list)
     region_selected = QtCore.pyqtSignal(QtCore.QRectF)
     scale_selected = QtCore.pyqtSignal(QtCore.QRectF) # signal for measuring pixels vs mm
@@ -50,6 +55,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         self.m = False
         self.delay = 0
         self.setViewportUpdateMode(0)
+        self.hovered_name = None
 
     def enterEvent(self, event):
         self.setFocus()
@@ -71,44 +77,48 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
 
     def keyPressEvent(self, event):
         key = event.key()
-        if event.key() == QtCore.Qt.Key_Alt:
+        if key == QtCore.Qt.Key_Alt:
             self.alt = True
-        elif event.key() == QtCore.Qt.Key_Control:
+        elif key == QtCore.Qt.Key_Control:
             self.ctrl = True
-        elif event.key() == QtCore.Qt.Key_Shift:
+        elif key == QtCore.Qt.Key_Shift:
             self.shift = True
-        elif event.key() == QtCore.Qt.Key_C:
+        elif key == QtCore.Qt.Key_C:
             self.set_scale = True
-        elif event.key() == QtCore.Qt.Key_M:
+        elif key == QtCore.Qt.Key_M:
            self.m = True
-        elif event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
+        elif key == QtCore.Qt.Key_Delete or key == QtCore.Qt.Key_Backspace:
             self.delete_selection.emit()
-        elif event.key() == QtCore.Qt.Key_R:
+        elif key == QtCore.Qt.Key_R:
             self.relabel_selection.emit()
-        elif event.key() == QtCore.Qt.Key_D:
+        elif key == QtCore.Qt.Key_D:
             self.toggle_points.emit()
-        elif event.key() == QtCore.Qt.Key_G:
+        elif key == QtCore.Qt.Key_G:
             self.toggle_grid.emit()
-        elif event.key() == QtCore.Qt.Key_1:
+        elif key == QtCore.Qt.Key_1:
             self.switch_class.emit(0)
-        elif event.key() == QtCore.Qt.Key_2:
+        elif key == QtCore.Qt.Key_2:
             self.switch_class.emit(1)
-        elif event.key() == QtCore.Qt.Key_3:
+        elif key == QtCore.Qt.Key_3:
             self.switch_class.emit(2)
-        elif event.key() == QtCore.Qt.Key_4:
+        elif key == QtCore.Qt.Key_4:
             self.switch_class.emit(3)
-        elif event.key() == QtCore.Qt.Key_5:
+        elif key == QtCore.Qt.Key_5:
             self.switch_class.emit(4)
-        elif event.key() == QtCore.Qt.Key_6:
+        elif key == QtCore.Qt.Key_6:
             self.switch_class.emit(5)
-        elif event.key() == QtCore.Qt.Key_7:
+        elif key == QtCore.Qt.Key_7:
             self.switch_class.emit(6)
-        elif event.key() == QtCore.Qt.Key_8:
+        elif key == QtCore.Qt.Key_8:
             self.switch_class.emit(7)
-        elif event.key() == QtCore.Qt.Key_9:
+        elif key == QtCore.Qt.Key_9:
             self.switch_class.emit(8)
-        elif event.key() == QtCore.Qt.Key_0:
+        elif key == QtCore.Qt.Key_0:
             self.switch_class.emit(9)
+        elif key == QtCore.Qt.Key_Plus or key == QtCore.Qt.Key_BracketRight:
+            if self.ctrl:
+                self.add_class.emit()
+            pass
 
     def keyReleaseEvent(self, event):
         if event.key() == QtCore.Qt.Key_Alt:
@@ -124,7 +134,13 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
 
     def mouseMoveEvent(self, event):
         QtWidgets.QGraphicsView.mouseMoveEvent(self, event)
-        self.display_pointer_coordinates.emit(self.mapToScene(event.pos()))
+        current_coordinates = self.mapToScene(event.pos())
+        self.display_pointer_coordinates.emit(current_coordinates)
+        self.find_point.emit(current_coordinates)
+        if self.hovered_name is not None:
+            QApplication.setOverrideCursor(Qt.PointingHandCursor)
+        else:
+            QApplication.restoreOverrideCursor()
 
     def mousePressEvent(self, event):
         self.clear_selection.emit()
@@ -136,6 +152,8 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         else:
             self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
             QtWidgets.QGraphicsView.mousePressEvent(self, event)
+            if self.hovered_name is not None:
+                self.select_class.emit(self.hovered_name)
 
     def mouseReleaseEvent(self, event):
         if self.dragMode() == QtWidgets.QGraphicsView.RubberBandDrag:

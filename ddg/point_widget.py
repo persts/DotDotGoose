@@ -24,9 +24,48 @@
 # --------------------------------------------------------------------------
 import os
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QDialog, QMainWindow, QMenu, QAction, QLineEdit, QVBoxLayout, QLabel
 from .chip_dialog import ChipDialog
 from .ui.point_widget_ui import Ui_PointWidget as WIDGET
+from .ui.input_dialog_ui import Ui_InputDialog as DIALOG
+
+class InputDialog(QDialog, DIALOG):
+    def __init__(self, point_widget):
+        QtWidgets.QDialog.__init__(self)
+        self.setupUi(self)
+        self.point_widget = point_widget
+        self.pushButtonCancel.clicked.connect(self.close)
+        self.pushButtonOk.clicked.connect(self.ok)
+
+    def setNames(self, index):
+        self.index = index
+        self.selected = index.data(0)
+        if self.selected in self.point_widget.canvas.categories:
+            self.classname = None
+            self.category = self.selected
+        else:
+            self.classname = self.selected
+            self.category = self.point_widget.canvas.get_category_from_class(self.classname)
+        if self.classname is None:
+            self.classEdit.setEnabled(False)
+            self.classEdit.setText("")
+        else:
+            self.classEdit.setEnabled(True)
+            self.classEdit.setText(self.classname)
+        if self.category is None:
+            self.classEdit.setEnabled(False)
+            self.classEdit.setText("")
+        else:
+            self.categoryEdit.setEnabled(True)
+            self.categoryEdit.setText(self.category)
+        self.show()
+
+    def ok(self):
+        new_category = self.categoryEdit.text()
+        new_classname = self.classEdit.text()
+        self.point_widget.rename(self.index, self.category, self.classname, new_category, new_classname)
+        self.close()
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
     hide_custom_fields = QtCore.pyqtSignal(bool)
@@ -38,7 +77,11 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.setupUi(self)
         self.canvas = canvas
 
-        self.pushButtonAddClass.clicked.connect(self.add_class)
+        self.inputDialog = InputDialog(self)
+
+        self.pushButtonAddClass.clicked.connect(lambda: self.add_class(askname=True))
+        self.pushButtonAddClass.resize(self.pushButtonAddClass.sizeHint().width(), self.pushButtonAddClass.sizeHint().height())
+        self.pushButtonAddCurrent.clicked.connect(lambda: self.add_class(askname=False))
         self.pushButtonAddCategory.clicked.connect(self.add_category)
         self.pushButtonRemoveClass.clicked.connect(self.remove_class)
 
@@ -49,8 +92,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.classTree.setColumnWidth(1, 10)
         self.classTree.setColumnWidth(2, 10)
         self.classTree.clicked.connect(self.item_clicked)
-        self.classTree.doubleClicked.connect(self.rename)
+        self.classTree.doubleClicked.connect(self.inputDialog.setNames)
         self.classTree.selectionModel().selectionChanged.connect(self.selection_changed)
+        self.classTree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.classTree.customContextMenuRequested.connect(self.openContextMenu)
         self.fill_default_categories()
         self.classTree.resizeColumnToContents(0)
         self.tree_expanded = {} # list of the expanded items in the model
@@ -61,6 +106,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.canvas.update_point_count.connect(self.update_point_count)
         self.canvas.points_loaded.connect(self.points_loaded)
         self.canvas.points_updated.connect(self.display_classes)
+        self.canvas.directory_set.connect(self.set_autosave)
 
         # model for pictures
         self.model = QtGui.QStandardItemModel()
@@ -104,7 +150,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.canvas.add_category(name)
             self.classModel.invisibleRootItem().appendRow([key, value, color_item])
 
-    def add_class(self):
+    def add_class(self, askname=True):
         # get current selection:
         if self.canvas.current_selection is not None:
             name = self.canvas.current_selection.data(0)
@@ -118,8 +164,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             return
         
         default_name = "{:} #{:d}".format(category_name, category_item.rowCount() + 1)
-
-        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Component', 'Enter Component Name', text=default_name)
+        if askname:
+            class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Component', 'Enter Component Name', text=default_name)
+        else:
+            class_name, ok = default_name, True
         if ok:
             if class_name in self.canvas.classes or class_name in self.canvas.categories:
                 dialog = QtWidgets.QMessageBox.question(self, "Choose different name", "Name "+ class_name + " already taken", QtWidgets.QMessageBox.Ok)
@@ -178,6 +226,11 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 item = self.classModel.itemFromIndex(index)
                 self.classTree.setExpanded(index, self.tree_expanded.get(item.data(0), False))
         self.classTree.resizeColumnToContents(0)
+        # for category, classes in self.canvas.data.items():
+        #     print(category)
+        #     for c in classes:
+        #         print("---> " + c)
+
 
     def display_count_tree(self):
         self.reset_model()
@@ -287,7 +340,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.canvas.display_points()
 
     def image_loaded(self, directory, file_name):
-        # self.classTree.selectionModel().clear()
+        self.display_classes()
         self.display_count_tree()
 
     def load(self):
@@ -296,85 +349,59 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.previous_file_name = file_name[0]
             self.canvas.load_points(file_name[0])
 
-    def next(self):
-        # to be implemented later
-        return
-        if self.canvas.current_class_name:
-            item = self.get_item_from_name(self.canvas.current_class_name)
-            font = item.font()
-            font.setBold(False)
-            item.setFont(font)
-
-        if self.canvas.next_class_name:
-            item = self.get_item_from_name(self.canvas.next_class_name)
-            self.canvas.set_current_class(self.canvas.next_class_name)
-            font = item.font()
-            font.setBold(True)
-            item.setFont(font)
-            for i in range(self.classModel.rowCount()):
-                item = self.classModel.item(i)
-                for j in range(item.rowCount()):
-                    if self.canvas.next_class_name == item.child(j,0).data(0):
-                        index = self.classModel.index(j, 0, item.index())
-                        self.classTree.selectionModel().clearSelection()
-                        self.classTree.selectionModel().select(index, QtCore.QItemSelectionModel.Rows)
-        self.update_closest_class_names()
-
     def points_loaded(self, survey_id):
         self.lineEditSurveyId.setText(survey_id)
         self.display_classes()
         self.display_count_tree()
         self.update_ui_settings()
 
-    def previous(self):
-        # to be implemented later
-        return
-        if self.canvas.current_class_name:
-            item = self.get_item_from_name(self.canvas.current_class_name)
-            font = item.font()
-            font.setBold(False)
-            item.setFont(font)
-            
-        if self.canvas.previous_class_name:
-            item = self.get_item_from_name(self.canvas.previous_class_name)
-            self.canvas.set_current_class(self.canvas.previous_class_name)
-            font = item.font()
-            font.setBold(True)
-            item.setFont(font)
-            for i in range(self.classModel.rowCount()):
-                item = self.classModel.item(i)
-                for j in range(item.rowCount()):
-                    if self.canvas.next_class_name == item.child(j,0).data(0):
-                        index = self.classModel.index(j, 0, item.index())
-                        # self.classTree.selectionModel().clearSelection()
-                        # self.classTree.selectionModel().select(index, QtCore.QItemSelectionModel.Rows)
-                        self.classTree.selectionModel().emitSelectionChanged()
-        self.update_closest_class_names()
-
-    def rename(self, index):
+    def rename(self, index, category, classname, new_category, new_classname):
         column = index.column()
         row = index.row()
-        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New name', 'Enter New Name')
-        if class_name in self.canvas.classes or class_name in self.canvas.categories:
-            dialog = QtWidgets.QMessageBox.question(self, "Choose different name", "Name "+ class_name + " already taken", QtWidgets.QMessageBox.Ok)
-            self.rename(index)
-        if column == 0 and class_name != "":
+        # class_name, ok = QtWidgets.QInputDialog.getText(self, 'New name', 'Enter New Name')
+        if new_category == category and new_classname == classname:
+            self.inputDialog.close()
+            return
+        # if new_classname in self.canvas.classes and new_category in self.canvas.categories:
+        #     dialog = QtWidgets.QMessageBox.question(self, "Choose different names", "Category/Component "+ new_category + "/" + new_classname +" already taken", QtWidgets.QMessageBox.Ok)
+        #     self.inputDialog.close()
+        #     return
+        if column == 0 and new_category != "":
             is_expanded = self.classTree.isExpanded(index)
-            old = index.data(0)
-            new = class_name
-            if old != new:
-                self.classTree.selectionModel().clear()
-                if old in self.canvas.classes:
-                    self.canvas.rename_class(old, new)
-                elif old in self.canvas.categories:
-                    self.canvas.rename_category(old, new)
-                for row in range(self.classModel.rowCount()):
-                    ind = self.classModel.index(row, 0)
-                    item = self.classModel.itemFromIndex(ind)
-                    self.tree_expanded[item.data(0)] = self.classTree.isExpanded(ind)
-                self.tree_expanded[new] = self.classTree.isExpanded(index)
-                self.display_classes()
-                # self.display_count_tree()
+            self.classTree.selectionModel().clear()
+            for row in range(self.classModel.rowCount()):
+                ind = self.classModel.index(row, 0)
+                item = self.classModel.itemFromIndex(ind)
+                self.tree_expanded[item.data(0)] = self.classTree.isExpanded(ind)
+            if classname is None and new_category != category: # rename category
+                if category in self.canvas.categories and new_category not in self.canvas.categories:
+                    self.canvas.rename_category(category, new_category)
+                    self.tree_expanded[new_category] = self.classTree.isExpanded(index)
+                else:
+                    classes = self.canvas.data[category].copy()
+                    for c in classes:
+                        self.canvas.move_class(c, category, new_category)
+                    self.canvas.remove_category(category)
+                    # dialog = QtWidgets.QMessageBox.question(self, "Choose different names", "Category/Component "+ new_category + "/" + new_classname +" already taken", QtWidgets.QMessageBox.Ok)
+                    # self.inputDialog.close()
+                    # return
+            elif new_category != category and new_classname != "": # rename category and class
+                if new_category not in self.canvas.categories:
+                    self.canvas.add_category(new_category)
+                if classname in self.canvas.classes:
+                    if new_classname == classname:
+                        self.canvas.move_class(classname, category, new_category)
+                    elif new_classname != classname and new_classname not in self.canvas.classes:
+                        self.canvas.rename_class(classname, new_classname)
+                        self.canvas.move_class(new_classname, category, new_category)
+                    else:
+                        dialog = QtWidgets.QMessageBox.question(self, "Choose different names", "Category/Component "+ new_category + "/" + new_classname +" already taken", QtWidgets.QMessageBox.Ok)
+                        self.inputDialog.close()
+                        return
+            elif new_classname != classname and new_category == category and new_classname != "":
+                if classname in self.canvas.classes:
+                    self.canvas.rename_class(classname, new_classname)
+            self.display_classes()
 
     def reset_class_model(self):
         self.classTree.reset()
@@ -391,10 +418,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.model.setColumnCount(2)
         self.model.setHeaderData(0, QtCore.Qt.Horizontal, 'Image')
         self.model.setHeaderData(1, QtCore.Qt.Horizontal, 'Count')
-        # self.treeView.setExpandsOnDoubleClick(False)
-        # self.treeView.header().setStretchLastSection(False)
-        # self.treeView.header().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        # self.treeView.setTextElideMode(QtCore.Qt.ElideMiddle)
 
     def remove_class(self):
         indexes = self.classTree.selectedIndexes()
@@ -427,6 +450,18 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                     self.tree_expanded[item.data(0)] = self.classTree.isExpanded(ind)
                 self.display_classes()
                 self.display_count_tree()
+
+    
+    def autosave(self):
+        filename = os.path.join(self.canvas.directory, "autosave.pnt")
+        self.saving.emit()
+        self.canvas.save_points(filename, self.lineEditSurveyId.text())
+
+    def set_autosave(self):
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(int(1000*60*self.canvas.config.autosave_timeout))
+        self.timer.timeout.connect(self.autosave)
+        self.timer.start()
 
     def quick_save(self):
         if self.previous_file_name is None:
@@ -472,6 +507,20 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             index = self.classModel.index(row, 0, category_index)
         selectionModel.clearSelection()
         selectionModel.select(index, flags)
+
+    def select_tree_item_from_name(self, name):
+        for category_row in range(self.classModel.rowCount()):
+            category_index = self.classModel.index(category_row, 0)
+            category_item = self.classModel.itemFromIndex(category_index)
+            if category_item.data(0) == name:
+                self.select_tree_item(category_item)
+                return
+            category_rows = category_item.rowCount()
+            for i in range(category_rows):
+                child = category_item.child(i, 0)
+                if child.data(0) == name:
+                    self.select_tree_item(child)
+                    return
 
     def select_model_item(self, model_index):
         item = self.model.itemFromIndex(model_index)
@@ -528,6 +577,16 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         icon.fill(color)
         self.labelGridColor.setPixmap(icon)
         self.canvas.set_grid_color(color)
+
+    def openContextMenu(self, position):
+        indexes = self.sender().selectedIndexes()
+        index = self.classTree.indexAt(position)
+        if not index.isValid():
+            return
+        menu = QMenu()
+        action_rename = menu.addAction("Rename")
+        action_rename.triggered.connect(lambda: self.inputDialog.setNames(index))
+        menu.exec_(self.sender().viewport().mapToGlobal(position))
 
     def update_point_count(self, image_name, class_name, count):
         img_items = self.model.findItems(image_name)
@@ -598,4 +657,3 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 
         self.canvas.previous_class_name = previous_name
         self.canvas.next_class_name = next_name
-        # print("Closest:", self.canvas.previous_class_name, self.canvas.current_class_name, self.canvas.next_class_name)

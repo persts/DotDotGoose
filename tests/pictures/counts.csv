@@ -1,2 +1,2 @@
-Image;Category;Component;Count;Manufacturer;Partnumber;Marking;Package;Length;Width;Height
-front.jpg;Capacitor;efefef;16;;;;;;;
+Image;Category;Component;Count;Description;Manufacturer;Partnumber;Marking;Package;Length;Width;Height;IO/Pin Count
+front - Kopie.jpg;Resistor;Resistor #1;7;12;123;3123123;32;120623;12;3123;;123

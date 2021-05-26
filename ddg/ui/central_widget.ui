@@ -257,35 +257,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEditY"/>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEditX">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Width  </string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Length</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QGridLayout" name="gridLayout_2"/>
          </item>
          <item>
           <widget class="QGroupBox" name="groupBoxCustomFields">
@@ -316,124 +288,6 @@
               <property name="verticalSpacing">
                <number>5</number>
               </property>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_length">
-                <property name="text">
-                 <string>Length</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_package">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Package</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_manufacturer">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Manufacturer</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="label_width">
-                <property name="text">
-                 <string>Width</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="lineEdit_marking">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_marking">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Marking</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="QLineEdit" name="lineEdit_width"/>
-              </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="lineEdit_package"/>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="lineEdit_manufacturer"/>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="lineEdit_partnumber"/>
-              </item>
-              <item row="4" column="1">
-               <widget class="QLineEdit" name="lineEdit_length"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_partnumber">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Partnumber</string>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="0" rowspan="2">
-               <widget class="QLabel" name="label_height">
-                <property name="text">
-                 <string>Height</string>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="1">
-               <widget class="QLineEdit" name="lineEdit_height"/>
-              </item>
-              <item row="9" column="0">
-               <widget class="Line" name="line">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="9" column="1">
-               <widget class="Line" name="line_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item>
@@ -494,15 +348,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>lineEditX</tabstop>
-  <tabstop>lineEditY</tabstop>
-  <tabstop>lineEdit_marking</tabstop>
-  <tabstop>lineEdit_partnumber</tabstop>
-  <tabstop>lineEdit_manufacturer</tabstop>
-  <tabstop>lineEdit_package</tabstop>
-  <tabstop>lineEdit_length</tabstop>
-  <tabstop>lineEdit_width</tabstop>
-  <tabstop>lineEdit_height</tabstop>
   <tabstop>pushButtonFolder</tabstop>
   <tabstop>pushButtonZoomIn</tabstop>
   <tabstop>pushButtonZoomOut</tabstop>

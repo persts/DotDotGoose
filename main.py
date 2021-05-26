@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 import sys
 import os
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMenu, QAction, QMessageBox, QTextEdit, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QDialog, QMainWindow, QMenu, QAction, QTextEdit, QVBoxLayout
 from PyQt5 import QtWidgets
 from ddg import CentralWidget
 from ddg.canvas import EditStyle
@@ -51,8 +51,10 @@ class MainWindow(QMainWindow):
         # --- File menu
         fileMenu = QMenu("&File", self)
         menuBar.addMenu(fileMenu)
+        fileMenu.addAction(self.quickSaveAction)
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(self.openAction)
+        fileMenu.addSeparator()
         fileMenu.addAction(self.exportCountsAction)
         fileMenu.addAction(self.exportDetailsAction)
 
@@ -69,8 +71,10 @@ class MainWindow(QMainWindow):
         helpMenu.addAction(self.showControlsAction)
 
     def _createActions(self):
-        self.saveAction = QAction("Save Project", self)
+        self.saveAction = QAction("Save Project As...", self)
         self.saveAction.triggered.connect(self._centralWidget.point_widget.save)
+        self.quickSaveAction = QAction("Save Project", self)
+        self.quickSaveAction.triggered.connect(self._centralWidget.point_widget.quick_save)
         self.openAction = QAction("Open Project/Points", self)
         self.openAction.triggered.connect(self.load)
         # import metadata merge in load project ?
@@ -136,6 +140,7 @@ class MainWindow(QMainWindow):
                     <article>
                         <h2> General </h2>                            
                         <p> There are two modes for counting or measuring which can be selected in the toolbar. </p>
+                        <p> STRG + +             - Add component to current category    </p>
                         <h2> Count Mode </h2>
                         <p> STRG + Right Click   - Add Count    </p>
                         <p> SHIFT + Drag         - Select Items </p>

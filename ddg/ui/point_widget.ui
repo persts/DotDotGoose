@@ -93,6 +93,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButtonAddCurrent">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButtonAddClass">
            <property name="maximumSize">
             <size>
@@ -104,7 +114,7 @@
             <string>Add component to category</string>
            </property>
            <property name="text">
-            <string>Add Component</string>
+            <string>Add New ...</string>
            </property>
            <property name="iconSize">
             <size>

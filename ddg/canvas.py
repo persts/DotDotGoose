@@ -29,7 +29,7 @@ import numpy as np
 from enum import Enum
 import dataclasses
 from dataclasses import dataclass
-from ddg.config import AutoCompleteFile
+from ddg.config import AutoCompleteFile, DDConfig
 
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -56,7 +56,7 @@ class Scale:
         return scale
 
 class Attributes(dict):
-    DEFAULT_KEYS = ["Name", "Partnumber", "Description", "Short Description", "Manufacturer", "Marking", "Datasheet", "Length", "Width", "Height", "Weight", "Package"]
+    DEFAULT_KEYS = ["Name", "Partnumber", "Description", "Short Description", "Manufacturer", "Marking", "Datasheet", "Length", "Width", "Height", "Weight", "Package", "IO/Pin Count"]
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
         for k in Attributes.DEFAULT_KEYS:
@@ -66,6 +66,7 @@ class Attributes(dict):
         if not k in Attributes.DEFAULT_KEYS:
             if self.has_key(k):
                 dict.__delitem__(self, k)
+
 
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
@@ -274,16 +275,17 @@ class Canvas(QtWidgets.QGraphicsScene):
         import csv
         with open(file_name, "w", newline="") as f:
             writer = csv.writer(f, delimiter=";")
-            header = ["Image", "Category", "Component", "Count", 'Manufacturer', "Partnumber", 
-                    "Marking", "Package", "Length", "Width", "Height"]
+            header = ["Image", "Category", "Component", "Count", "Description", "Manufacturer", "Partnumber", 
+                    "Marking", "Package", "Length", "Width", "Height", "IO/Pin Count"]
             writer.writerow(header)
             for image in self.points.keys():
                 for category in self.categories:
                     for class_name in self.data[category]:
                         count = len(self.points[image].get(class_name, []))
                         attr = self.class_attributes[class_name]
-                        row = [image, category, class_name, count, attr['Manufacturer'], attr["Partnumber"], 
-                                attr["Marking"], attr["Package"], attr["Length"], attr["Width"], attr["Height"]]
+                        row = [image, category, class_name, count, attr["Description"], attr['Manufacturer'], 
+                               attr["Partnumber"], attr["Marking"], attr["Package"], attr["Length"], attr["Width"], 
+                               attr["Height"], attr["IO/Pin Count"]]
                         writer.writerow(row)
 
     def get_category_from_class(self, class_name):
@@ -310,7 +312,17 @@ class Canvas(QtWidgets.QGraphicsScene):
                 image_list = sorted(image_list)
                 self.load_images(image_list)
             else:
-                QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Working directory already set. Load canceled.', QtWidgets.QMessageBox.Ok)
+                message_box = QtWidgets.QMessageBox(self.parent())
+                message_box.setText("Warning")
+                message_box.setInformativeText('Working directory already set. Change current project?')
+                message_box.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                message_box.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+                ret = message_box.exec()
+                if ret == QtWidgets.QMessageBox.Cancel:
+                    return
+                else:
+                    self.reset()
+                    self.load(drop_list)
         else:
             base_path = os.path.split(peek)[0]
             for entry in drop_list:
@@ -319,17 +331,25 @@ class Canvas(QtWidgets.QGraphicsScene):
                 error = False
                 message = ''
                 if os.path.isdir(file_name):
-                    error = True
                     message = 'Mix of files and directories detected. Load canceled.'
-                if base_path != path:
-                    error = True
-                    message = 'Files from multiple directories detected. Load canceled.'
-                if self.directory != '' and self.directory != path:
-                    error = True
-                    message = 'Image originated outside current working directory. Load canceled.'
-                if error:
                     QtWidgets.QMessageBox.warning(self.parent(), 'Warning', message, QtWidgets.QMessageBox.Ok)
-                    return None
+                    return
+                if base_path != path:
+                    message = 'Files from multiple directories detected. Load canceled.'
+                    QtWidgets.QMessageBox.warning(self.parent(), 'Warning', message, QtWidgets.QMessageBox.Ok)
+                    return
+                if self.directory != '' and self.directory != path:
+                    message_box = QtWidgets.QMessageBox(self.parent())
+                    message_box.setText("Warning")
+                    message_box.setInformativeText('Working directory already set. Change current project?')
+                    message_box.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                    message_box.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+                    ret = message_box.exec()
+                    if ret == QtWidgets.QMessageBox.Cancel:
+                        return
+                    else:
+                        self.reset()
+                        self.load(drop_list)
             self.directory = base_path
             self.directory_set.emit(self.directory)
             self.load_images(drop_list)
@@ -426,7 +446,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         for class_name, attributes in self.class_attributes.items():
             if attributes["Package"] not in completion.packages:
                 completion.update(packages=[attributes["Package"]])
-            if attributes["Manufacturer"] not in completion.manufacturer_names:
+            if attributes["Manufacturer"] not in completion.manufacturers:
                 completion.update(manufacturers=[attributes["Manufacturer"]])
         # Backward compat
         if 'ui' in data:
@@ -527,7 +547,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         for class_name, attributes in self.class_attributes.items():
             if attributes["Package"] not in completion.packages:
                 completion.update(packages=[attributes["Package"]])
-            if attributes["Manufacturer"] not in completion.manufacturer_names:
+            if attributes["Manufacturer"] not in completion.manufacturers:
                 completion.update(manufacturers=[attributes["Manufacturer"]])
 
         package = {'data': {}, 'points': {}, 'colors': {}, 'pcb_data': self.coordinates, 
@@ -577,6 +597,19 @@ class Canvas(QtWidgets.QGraphicsScene):
         self._categories.pop(index)
         self._categories.insert(index, new_category)
         self.current_category_name = new_category
+
+    def move_class(self, classname, old_category, new_category):
+        if new_category not in self.categories or old_category not in self.categories:
+            raise ValueError("Category not found {}".format(new_category))
+        if classname not in self.classes:
+            raise ValueError("New name not found {}".format(classname))
+
+        classes = self.data[old_category]
+        index  = classes.index(classname)
+        to_move = classes.pop(index)
+        self.data[old_category] = classes
+        self.data[new_category].append(to_move)
+        self.display_points()
 
     def rename_class(self, old_class, new_class):
         if new_class in self.classes:
@@ -669,6 +702,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.image_scale = defaultdict(dict)
         self.measure_rects = defaultdict(list) # here we sore the QGraphicsPathItems
         self.measure_rects_data = defaultdict(list) # here we store the x, y, w, h of the measured rects. PathItems are destroyed when updating the view therefore we need to store that info seperately
+        self.timer = None
 
     def save_coordinates(self, x, y):
         if self.current_image_name is not None:
@@ -782,4 +816,3 @@ class Canvas(QtWidgets.QGraphicsScene):
     def set_component_attribute(self, attribute, value):
         if self.current_class_name is not None:
             self.class_attributes[self.current_class_name][attribute] = value
-            # self.fields_updated.emit()
