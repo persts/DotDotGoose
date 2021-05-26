@@ -67,6 +67,19 @@ class InputDialog(QDialog, DIALOG):
         self.point_widget.rename(self.index, self.category, self.classname, new_category, new_classname)
         self.close()
 
+
+class ItemModel(QtGui.QStandardItemModel):
+    update_tree = QtCore.pyqtSignal(str, str, int)
+    def dropMimeData(self, data, action, row, column, parent):
+        column = 0
+        row = max(0, row)
+        super().dropMimeData(data, action, row, column, parent)
+        d = self.itemFromIndex(self.index(row, column, parent))
+        p = self.itemFromIndex(self.index(parent.row(), parent.column()))
+        # print('dropMimeData %s %s %d %d' % (p.data(0), d.data(0), column, row))
+        self.update_tree.emit(p.data(0), d.data(0), row)
+        return True
+
 class PointWidget(QtWidgets.QWidget, WIDGET):
     hide_custom_fields = QtCore.pyqtSignal(bool)
     class_selection_changed = QtCore.pyqtSignal()
@@ -85,7 +98,12 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.pushButtonAddCategory.clicked.connect(self.add_category)
         self.pushButtonRemoveClass.clicked.connect(self.remove_class)
 
-        self.classModel = QtGui.QStandardItemModel()
+        self.classModel = ItemModel() # QtGui.QStandardItemModel()
+        self.classTree.setDragEnabled(True)
+        self.classTree.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        root = self.classModel.invisibleRootItem()
+        root.setDropEnabled(False)
+        self.classModel.update_tree.connect(self.update_from_drop)
         self.classModel.setHorizontalHeaderLabels(['Name', '#', ""])
         self.classTree.setModel(self.classModel)
         self.classTree.setColumnWidth(0, 270)
@@ -288,16 +306,21 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         key.setTextAlignment(QtCore.Qt.AlignLeft)
         value = QtGui.QStandardItem("0")
         value.setEditable(False)
+        value.setDropEnabled(False)
         color_item = QtGui.QStandardItem("")
+        color_item.setDropEnabled(False)
         return key, value, color_item
 
     def _get_default_class(self, class_name):
         key = QtGui.QStandardItem(class_name)
         key.setCheckable(True)
         key.setCheckState(QtCore.Qt.Checked)
+        key.setDropEnabled(False)
         value = QtGui.QStandardItem("0")
         value.setEditable(False)
+        value.setDropEnabled(False)
         color_item = QtGui.QStandardItem()
+        color_item.setDropEnabled(False)
         icon = QtGui.QPixmap(20, 20)
         icon.fill(self.canvas.colors[class_name])
         color_item.setData(icon, QtCore.Qt.DecorationRole)
@@ -557,7 +580,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             font = item.font()
             font.setBold(False)
             item.setFont(font)
-            # self.update_closest_class_names() to be implemented later
         else:
             self.canvas.set_current_class(None)
         self.class_selection_changed.emit()
@@ -619,41 +641,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.set_grid_color(color)
         self.spinBoxGrid.setValue(ui['grid']['size'])
 
-    def update_closest_class_names(self):
-        from itertools import cycle
-        
-        current_class_name = self.canvas.current_class_name
-        current_category_name = self.canvas.current_category_name
-
-        if len(self.canvas.classes) < 2:
-            previous_name = current_class_name
-            next_name = current_class_name
-            return
-
-        if current_category_name is None:
-            return
-        
-        category_index = self.canvas.categories.index(current_category_name)
-        categories = cycle(self.canvas.categories)
-
-        if current_category_name is None:
-            classes = self.canvas.data[current_category_name]
-            i = category_index
-            while len(classes) == 0:
-                category = categories[i]
-                classes = self.canvas.data[category]
-                i = i + 1
-            next_name = classes[0]
-            i = category_index - 1
-            while len(classes) == 0:
-                category = categories[i]
-                classes = self.canvas.data[category]
-                i = i - 1
-            previous_name = classes[0]
-        else:
-            class_index = self.canvas.classes.index(current_class_name)
-            next_name = self.canvas.classes[(class_index + 1) % len(self.canvas.classes)]
-            previous_name = self.canvas.classes[class_index - 1]
-                
-        self.canvas.previous_class_name = previous_name
-        self.canvas.next_class_name = next_name
+    def update_from_drop(self, new_category, classname, index):
+        category = self.canvas.get_category_from_class(classname)
+        self.canvas.move_class(classname, category, new_category, index)
+        self.display_classes()

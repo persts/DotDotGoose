@@ -67,7 +67,6 @@ class Attributes(dict):
             if self.has_key(k):
                 dict.__delitem__(self, k)
 
-
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
     points_loaded = QtCore.pyqtSignal(str)
@@ -600,7 +599,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self._categories.insert(index, new_category)
         self.current_category_name = new_category
 
-    def move_class(self, classname, old_category, new_category):
+    def move_class(self, classname, old_category, new_category, index=None):
         if new_category not in self.categories or old_category not in self.categories:
             raise ValueError("Category not found {}".format(new_category))
         if classname not in self.classes:
@@ -610,7 +609,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         index  = classes.index(classname)
         to_move = classes.pop(index)
         self.data[old_category] = classes
-        self.data[new_category].append(to_move)
+        if index is None:
+            self.data[new_category].append(to_move)
+        else:
+            self.data[new_category].insert(index, to_move)
         self.display_points()
 
     def rename_class(self, old_class, new_class):
