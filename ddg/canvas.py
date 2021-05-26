@@ -323,6 +323,8 @@ class Canvas(QtWidgets.QGraphicsScene):
                 else:
                     self.reset()
                     self.load(drop_list)
+        elif ".pnt" in peek:
+            self.load_points(peek)
         else:
             base_path = os.path.split(peek)[0]
             for entry in drop_list:
@@ -735,7 +737,6 @@ class Canvas(QtWidgets.QGraphicsScene):
                         self.addEllipse(QtCore.QRectF(point.x() - offset, point.y() - offset, display_radius + 6, display_radius + 6), self.selected_pen)
                         self.selection.append((class_name, point))
         elif self.edit_style == EditStyle.RECTS:
-            drop = []
             color = QtGui.QColor(223, 23, 23)
             brush = QtGui.QBrush(color, QtCore.Qt.SolidPattern)
             pen = QtGui.QPen(brush, 4)
