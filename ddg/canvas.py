@@ -29,12 +29,13 @@ import numpy as np
 from enum import Enum
 import dataclasses
 from dataclasses import dataclass
-from ddg.config import AutoCompleteFile, DDConfig
+from ddg.config import AutoCompleteFile, DDConfig, RecentlyUsed
 
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 completion = AutoCompleteFile()
+recentlyUsed = RecentlyUsed()
 
 class EditStyle(Enum):
     POINTS = 1
@@ -69,7 +70,7 @@ class Attributes(dict):
 
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
-    points_loaded = QtCore.pyqtSignal(str)
+    points_loaded = QtCore.pyqtSignal(str, str)
     directory_set = QtCore.pyqtSignal(str)
     fields_updated = QtCore.pyqtSignal()
     points_updated = QtCore.pyqtSignal()
@@ -296,7 +297,9 @@ class Canvas(QtWidgets.QGraphicsScene):
         return category
 
     def load(self, drop_list):
-        peek = drop_list[0].toLocalFile()
+        peek = drop_list[0]
+        if not isinstance(peek, str):
+            peek = peek.toLocalFile()
         if os.path.isdir(peek):
             if self.directory == '':
                 # strip off trailing sep from path
@@ -324,6 +327,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.load(drop_list)
         elif ".pnt" in peek:
             self.load_points(peek)
+            recentlyUsed.add_file(peek)
         else:
             base_path = os.path.split(peek)[0]
             for entry in drop_list:
@@ -449,14 +453,10 @@ class Canvas(QtWidgets.QGraphicsScene):
                 completion.update(packages=[attributes["Package"]])
             if attributes["Manufacturer"] not in completion.manufacturers:
                 completion.update(manufacturers=[attributes["Manufacturer"]])
-        # Backward compat
-        if 'ui' in data:
-            self.ui = data['ui']
-        else:
-            self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
-        # End Backward compat
 
-        self.coordinates = data["pcb_data"].copy()
+        pcb_info = data["pcb_data"].copy()
+        for k, v in pcb_info.items():
+            self.pcb_info[k].update(v)
         self.colors = data['colors'].copy()
         self.data = data['data'].copy()
         self._categories = list(self.data.keys())
@@ -465,11 +465,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.points = data['points']
         self.class_visibility = data['visibility']
         image_scale = data['image_scale']
-        for k, l in image_scale.items():
-            new_list = []
-            for scale_dict in l:
-                new_list.append(Scale.from_dict(scale_dict))
-            self.image_scale[k] = new_list
+        for k, scale in image_scale.items():
+            self.image_scale[k] = Scale.from_dict(scale)
 
         for image in self.points:
             for class_name in self.points[image]:
@@ -492,12 +489,13 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.measure_rects[image].append(path)
                 self.measure_rects_data[image].append({"x":x, "y":y, "width":w, "height":h})
 
-        self.points_loaded.emit(survey_id)
+        self.points_loaded.emit(survey_id, file_name)
         self.fields_updated.emit()
         path = os.path.split(file_name)[0]
         if self.points.keys():
             path = os.path.join(path, list(self.points.keys())[0])
             self.load_image(path)
+        recentlyUsed.add_file(file_name)
 
     def measure_area(self, rect):
         if self.current_image_name is None or self.edit_style != EditStyle.RECTS:
@@ -541,9 +539,8 @@ class Canvas(QtWidgets.QGraphicsScene):
     def package_points(self, survey_id):
         count = 0
         image_scale = {}
-        for k, l in self.image_scale.items():
-            new_list = [dataclasses.asdict(scale) for scale in l]
-            image_scale[k] = new_list
+        for k, scale in self.image_scale.items():
+            image_scale[k] = dataclasses.asdict(scale)
 
         for class_name, attributes in self.class_attributes.items():
             if attributes["Package"] not in completion.packages:
@@ -551,7 +548,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             if attributes["Manufacturer"] not in completion.manufacturers:
                 completion.update(manufacturers=[attributes["Manufacturer"]])
 
-        package = {'data': {}, 'points': {}, 'colors': {}, 'pcb_data': self.coordinates, 
+        package = {'data': {}, 'points': {}, 'colors': {}, 'pcb_data': self.pcb_info, 
                    'metadata': {'survey_id': survey_id}, 'attributes': self.class_attributes, 'ui': self.ui, 
                    'visibility': self.class_visibility, 'image_scale': image_scale, 'measures': {}}
         package['data'] = self.data.copy()
@@ -678,7 +675,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points = {}
         self.class_visibility = {} # to be implemented
         self.colors = {}
-        self.coordinates = {}
+        self.pcb_info = defaultdict(lambda:{"x":"", "y":"", "position":"", "ecu":""})
 
         self._categories = self.config.categories.copy() 
         self.class_attributes = {}
@@ -708,12 +705,9 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.measure_rects_data = defaultdict(list) # here we store the x, y, w, h of the measured rects. PathItems are destroyed when updating the view therefore we need to store that info seperately
         self.timer = None
 
-    def save_coordinates(self, x, y):
+    def save_pcb_info(self, x, y, ecu, position):
         if self.current_image_name is not None:
-            if self.current_image_name not in self.coordinates:
-                self.coordinates[self.current_image_name] = {'x': '', 'y': ''}
-            self.coordinates[self.current_image_name]['x'] = x
-            self.coordinates[self.current_image_name]['y'] = y
+            self.pcb_info[self.current_image_name].update({"x":x, "y":y, "ecu":ecu, "position":position})
 
     def save_points(self, file_name, survey_id):
         try:

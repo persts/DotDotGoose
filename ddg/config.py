@@ -3,6 +3,47 @@ import configparser
 import os
 
 HOME = os.path.expanduser("~") + "\\AppData\\Local\\DotDotIC\\"
+if not os.path.exists(HOME):
+    os.makedirs(HOME)
+
+class RecentlyUsed:
+    DEFAULTFILE = HOME + "recently_used.ini" 
+    def __init__(self, filename=None):
+        if filename is None:
+            filename = RecentlyUsed.DEFAULTFILE
+        self.filename = filename
+        self.files = []
+        self.load()
+
+    def add_file(self, filename):
+        if filename in self.files:
+            index = self.files.index(filename)
+            self.files.pop(index)
+        self.files.insert(0, filename)
+        self.write()
+
+
+    def load(self):
+        import os
+        if not os.path.exists(self.filename):
+            if not os.path.exists(os.path.dirname(self.filename)):
+                os.makedirs(os.path.dirname(self.filename))
+            self.write()
+
+        with open(self.filename, "r") as f:
+            files = f.readlines()
+        files = [f.strip().replace("\n","") for f in files]
+        files = list(filter(lambda x: x!="", files))
+        if len(files) > 10:
+            files = files[:10]
+        self.files  = files
+
+    def write(self):
+        files = ["\n" + f for f in self.files]
+        if len(files) > 10:
+            files = files[:10]
+        with open(self.filename, "w") as f:
+            f.writelines(files)
 
 class DDConfig:
     DEFAULTFILE = HOME + "config.ini" 

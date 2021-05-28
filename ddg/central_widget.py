@@ -178,8 +178,8 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.canvas.image_loaded.connect(self.display_attributes)
         self.canvas.fields_updated.connect(self.display_attributes)
 
-        self.dataLineEditsNames = ["lineEditX", "lineEditY"]
-        pcbAttr = ["Length", "Width"]
+        self.dataLineEditsNames = ["lineEdit_ecu", "comboBox_position", "lineEditX", "lineEditY"]
+        pcbAttr = ["ECU Name", "Side", "Length", "Width"]
 
         self.attributeLineEditsNames = ["lineEdit_description", "lineEdit_marking", 
                      "lineEdit_partnumber", "lineEdit_manufacturer", "lineEdit_package", 
@@ -191,14 +191,21 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         for i, k in enumerate(self.dataLineEditsNames):
             box = self.groupBoxImageData
             layout = self.gridLayout_2
-            lineEdit = LineEdit(box, available_actions=["Copy", "Paste"])
-            lineEdit.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-            lineEdit.setAcceptDrops(False)
-            lineEdit.setObjectName(k)
-            lineEdit.textEdited.connect(self.update_coordinates)
-            lineEdit.setDisabled(True)
-            lineEdit.returnPressed.connect(self.cycle_edits)
-            layout.addWidget(lineEdit, i, 1, 1, 1)
+            if "lineEdit" in k:
+                widget = LineEdit(box, available_actions=["Copy", "Paste"])
+                widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+                widget.setAcceptDrops(False)
+                widget.setObjectName(k)
+                widget.textEdited.connect(self.update_pcb_info)
+                widget.setDisabled(True)
+                widget.returnPressed.connect(self.cycle_edits)
+            else:
+                widget = QtWidgets.QComboBox(box)
+                widget.addItems(["Top", "Bottom"])
+                widget.setCurrentIndex(0)
+                widget.currentIndexChanged.connect(self.update_pcb_info)
+                widget.setDisabled(True)
+            layout.addWidget(widget, i, 1, 1, 1)
 
             label = QtWidgets.QLabel(box)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
@@ -208,7 +215,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
             label.setSizePolicy(sizePolicy)
             label.setText(_translate("CentralWidget", pcbAttr[i]))
             layout.addWidget(label, i, 0, 1, 1)
-            setattr(self, k, lineEdit)
+            setattr(self, k, widget)
 
         self.lineEdit_attributes = {}
         for i, k in enumerate(self.attributeLineEditsNames):
@@ -325,15 +332,24 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         if self.canvas.current_image_name is None:
             self.lineEditX.setDisabled(True)
             self.lineEditY.setDisabled(True)
+            self.lineEdit_ecu.setDisabled(True)
+            self.comboBox_position.setDisabled(True)
         else:
             self.lineEditX.setDisabled(False)
             self.lineEditY.setDisabled(False)
-        if image in self.canvas.coordinates:
-            self.lineEditX.setText(self.canvas.coordinates[image]['x'])
-            self.lineEditY.setText(self.canvas.coordinates[image]['y'])
+            self.lineEdit_ecu.setDisabled(False)
+            self.comboBox_position.setDisabled(False)
+        if image in self.canvas.pcb_info:
+            self.lineEditX.setText(self.canvas.pcb_info[image]['x'])
+            self.lineEditY.setText(self.canvas.pcb_info[image]['y'])
+            self.lineEdit_ecu.setText(self.canvas.pcb_info[image]['ecu'])
+            i = self.comboBox_position.findText(self.canvas.pcb_info[image]['position'])
+            self.comboBox_position.setCurrentIndex(i)
         else:
             self.lineEditX.setText('')
             self.lineEditY.setText('')
+            self.lineEdit_ecu.setText('')
+            self.comboBox_position.setCurrentIndex(0)
 
     def display_attributes(self):
         if self.canvas.current_class_name is None or self.canvas.current_image_name is None:
@@ -396,10 +412,12 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         if name != '':
             self.canvas.load([QtCore.QUrl('file:{}'.format(name))])
 
-    def update_coordinates(self, text):
+    def update_pcb_info(self, info):
         x = self.lineEditX.text()
         y = self.lineEditY.text()
-        self.canvas.save_coordinates(x, y)
+        position = self.comboBox_position.currentText()
+        ecu = self.lineEdit_ecu.text()
+        self.canvas.save_pcb_info(x, y, ecu, position)
         
     def update_attributes(self, text):
         for k, lineEdit in self.lineEdit_attributes.items():

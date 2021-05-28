@@ -27,7 +27,7 @@ import os
 from PyQt5.QtWidgets import QDialog, QMainWindow, QMenu, QAction, QTextEdit, QVBoxLayout
 from PyQt5 import QtWidgets
 from ddg import CentralWidget
-from ddg.canvas import EditStyle
+from ddg.canvas import EditStyle, recentlyUsed
 from ddg import __version__
 
 # _TITLE_STRING = 'DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://cbc.amnh.org )'.format(__version__)
@@ -47,13 +47,28 @@ class MainWindow(QMainWindow):
         self._createMenuBar()
     
     def _createMenuBar(self):
-        menuBar= self.menuBar()
+        import os
+        menuBar = self.menuBar()
         # --- File menu
         fileMenu = QMenu("&File", self)
         menuBar.addMenu(fileMenu)
         fileMenu.addAction(self.quickSaveAction)
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(self.openAction)
+        recentlyUsedMenu = QMenu("Recently Used", fileMenu)
+
+        if len(recentlyUsed.files) == 0:
+            action = QAction("No files", self)
+            action.setEnabled(False)
+            recentlyUsedMenu.addAction(action)
+        else:
+            for f in recentlyUsed.files:
+                fname = os.path.basename(f)
+                action = QAction(f, self)
+                action.triggered.connect(lambda : self._centralWidget.canvas.load([f]))
+                recentlyUsedMenu.addAction(action)
+
+        fileMenu.addMenu(recentlyUsedMenu)
         fileMenu.addSeparator()
         fileMenu.addAction(self.exportCountsAction)
         fileMenu.addAction(self.exportDetailsAction)

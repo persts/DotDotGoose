@@ -37,6 +37,7 @@ class InputDialog(QDialog, DIALOG):
         self.point_widget = point_widget
         self.pushButtonCancel.clicked.connect(self.close)
         self.pushButtonOk.clicked.connect(self.ok)
+        self.categoryBox.addItems(self.point_widget.canvas.categories)
 
     def setNames(self, index):
         self.index = index
@@ -53,16 +54,11 @@ class InputDialog(QDialog, DIALOG):
         else:
             self.classEdit.setEnabled(True)
             self.classEdit.setText(self.classname)
-        if self.category is None:
-            self.classEdit.setEnabled(False)
-            self.classEdit.setText("")
-        else:
-            self.categoryEdit.setEnabled(True)
-            self.categoryEdit.setText(self.category)
+        self.categoryBox.lineEdit().setText(self.category)
         self.show()
 
     def ok(self):
-        new_category = self.categoryEdit.text()
+        new_category = self.categoryBox.currentText()
         new_classname = self.classEdit.text()
         self.point_widget.rename(self.index, self.category, self.classname, new_category, new_classname)
         self.close()
@@ -76,7 +72,6 @@ class ItemModel(QtGui.QStandardItemModel):
         super().dropMimeData(data, action, row, column, parent)
         d = self.itemFromIndex(self.index(row, column, parent))
         p = self.itemFromIndex(self.index(parent.row(), parent.column()))
-        # print('dropMimeData %s %s %d %d' % (p.data(0), d.data(0), column, row))
         self.update_tree.emit(p.data(0), d.data(0), row)
         return True
 
@@ -372,11 +367,12 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.previous_file_name = file_name[0]
             self.canvas.load_points(file_name[0])
 
-    def points_loaded(self, survey_id):
+    def points_loaded(self, survey_id, filename=None):
         self.lineEditSurveyId.setText(survey_id)
         self.display_classes()
         self.display_count_tree()
         self.update_ui_settings()
+        self.previous_file_name = filename
 
     def rename(self, index, category, classname, new_category, new_classname):
         column = index.column()
@@ -543,6 +539,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 child = category_item.child(i, 0)
                 if child.data(0) == name:
                     self.select_tree_item(child)
+                    self.classTree.setExpanded(category_index, True)
+                    self.tree_expanded[category_item.data(0)] = True
                     return
 
     def select_model_item(self, model_index):
