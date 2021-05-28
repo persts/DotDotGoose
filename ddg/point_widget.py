@@ -30,6 +30,28 @@ from .chip_dialog import ChipDialog
 from .ui.point_widget_ui import Ui_PointWidget as WIDGET
 from .ui.input_dialog_ui import Ui_InputDialog as DIALOG
 
+def traverse_tree(parent, view, expanded={}, parent_index=None, action="get"):
+    if action == "get":
+        for i in range(parent.rowCount()):
+            item = parent.child(i)
+            index = item.index()
+            if parent_index:
+                is_expanded = view.isExpanded(view.model().index(i, 0, parent_index))
+            else:
+                is_expanded = view.isExpanded(view.model().index(i, 0))
+            expanded[item.data(0)] = is_expanded
+            if item.hasChildren():
+                traverse_tree(item, view, expanded, index, action)
+        return expanded
+    elif action == "set":
+        for i in range(parent.rowCount()):
+            item = parent.child(i)
+            index = item.index()
+            is_expanded = expanded.get(item.data(0), False)
+            view.setExpanded(index, is_expanded)
+            if item.hasChildren():
+                traverse_tree(item, view, expanded, index, action)
+
 class InputDialog(QDialog, DIALOG):
     def __init__(self, point_widget):
         QtWidgets.QDialog.__init__(self)
@@ -246,22 +268,35 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
 
     def display_count_tree(self):
+        expanded = traverse_tree(self.model.invisibleRootItem(), self.treeView, expanded={}, parent_index=None, action="get")
         self.reset_model()
-        for image in self.canvas.points:
-            image_item = QtGui.QStandardItem(image)
-            image_item.setEditable(False)
-            count = 0
-            for _, points in self.canvas.points[image].items():
-                count += len(points)
-            count_item = QtGui.QStandardItem(str(count))
-            count_item.setEditable(False)
-            if image == self.canvas.current_image_name:
-                font = image_item.font()
-                font.setBold(True)
-                image_item.setFont(font)
-                self.current_model_index = image_item.index()
-            self.model.appendRow([image_item, count_item])
+        ecus = self.canvas.ecus 
+        for ecu_name, pcbs in ecus.items():
+            ecu_item = QtGui.QStandardItem(ecu_name)
+            ecu_item.setEditable(False)
+            tmp_item = QtGui.QStandardItem("")
+            tmp_item.setEditable(False)
+            for pcb_name, pcb in pcbs.items():
+                pcb_item = QtGui.QStandardItem(pcb_name)
+                pcb_item.setEditable(False)
+                for pos, image in pcb.items():
+                    pos_item = QtGui.QStandardItem(pos)
+                    pos_item.setEditable(False)
+                    count = 0
+                    for _, points in self.canvas.points[image].items():
+                        count += len(points)
+                    count_item = QtGui.QStandardItem(str(count))
+                    count_item.setEditable(False)
+                    if image == self.canvas.current_image_name:
+                        font = pos_item.font()
+                        font.setBold(True)
+                        pos_item.setFont(font)
+                        self.current_model_index = pos_item.index()
+                    pcb_item.appendRow([pos_item, count_item])
+            ecu_item.appendRow([pcb_item, tmp_item])
+            self.model.appendRow([ecu_item, tmp_item])
         self.treeView.scrollTo(self.current_model_index)
+        traverse_tree(self.model.invisibleRootItem(), self.treeView, expanded=expanded, parent_index=None, action="set")
 
     def display_grid(self, display):
         self.canvas.toggle_grid(display=display)
@@ -549,8 +584,13 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             if item.column() != 0:
                 index = self.model.index(item.row(), 0)
                 item = self.model.itemFromIndex(index)
-            path = os.path.join(self.canvas.directory, item.text())
-            self.canvas.load_image(path)
+            text = item.text()
+            if text == "Top" or text == "Bottom":
+                ecu_name = item.parent().parent().text()
+                pcb_name = item.parent().text()
+                image = self.canvas.ecus[ecu_name][pcb_name][text]
+                path = os.path.join(self.canvas.directory, image)
+                self.canvas.load_image(path)
 
     def selection_changed(self, selected, deselected):
         if len(selected.indexes()) > 0:
@@ -601,7 +641,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
     def openContextMenu(self, position):
         indexes = self.sender().selectedIndexes()
         index = self.classTree.indexAt(position)
-        if not index.isValid():
+        if not index.isValid() or index.column() != 0:
             return
         menu = QMenu()
         action_rename = menu.addAction("Rename")
@@ -609,8 +649,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         menu.exec_(self.sender().viewport().mapToGlobal(position))
 
     def update_point_count(self, image_name, class_name, count):
-        img_items = self.model.findItems(image_name)
-        if len(img_items) == 0:
+        if image_name not in self.canvas.points:
             self.display_count_tree()
         else:
             class_item = self.get_item_from_name(class_name)
@@ -626,8 +665,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 index = self.classModel.index(i, 1)
                 item = self.classModel.itemFromIndex(index)
                 total_count += int(item.data(0))
-            img_item = img_items[0]
-            row = img_item.row()
             self.display_count_tree()
 
     def update_ui_settings(self):

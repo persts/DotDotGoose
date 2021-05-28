@@ -1,2 +1,4 @@
-Image;Category;Component;Count;Description;Manufacturer;Partnumber;Marking;Package;Length;Width;Height;IO/Pin Count
-front - Kopie.jpg;Resistor;Resistor #1;7;12;123;3123123;32;120623;12;3123;;123
+ECU;PCB;Category;Component;Top;Bottom;Total;Description;Manufacturer;Partnumber;Marking;Package;Length;Width;Height;IO/Pin Count
+ECU 1;PCB 1;Capacitor;Capacitor #1;32;0;32;;;;;;;;;
+ECU 1;PCB 1;Capacitor;Capacitor #2;12;0;12;;;;;;;;;
+ECU 1;PCB 1;Capacitor;Capacitor #3;0;0;0;;;;;;;;;

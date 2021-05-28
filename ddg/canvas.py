@@ -30,9 +30,11 @@ from enum import Enum
 import dataclasses
 from dataclasses import dataclass
 from ddg.config import AutoCompleteFile, DDConfig, RecentlyUsed
+from .ui.ecu_input_dialog_ui import Ui_ECUInputDialog as ECU_DIALOG
 
 from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QDialog
 
 completion = AutoCompleteFile()
 recentlyUsed = RecentlyUsed()
@@ -68,6 +70,68 @@ class Attributes(dict):
             if self.has_key(k):
                 dict.__delitem__(self, k)
 
+class ECUInputDialog(QDialog, ECU_DIALOG):
+    def __init__(self, canvas):
+        QtWidgets.QDialog.__init__(self)
+        self.setupUi(self)
+        self.canvas = canvas
+        self.pushButtonCancel.clicked.connect(self.cancel)
+        self.pushButtonOk.clicked.connect(self.ok)
+        self.ecu_comboBox.currentTextChanged.connect(self.set_pcb_names)
+        self.ecu_comboBox.currentTextChanged.connect(self.check_ok)
+        self.pcb_comboBox.currentTextChanged.connect(self.check_ok)
+        self.pos_comboBox.currentTextChanged.connect(self.check_ok)
+        self.last_exit = 0
+
+    def check_ok(self, text):
+        ecu_name, pcb_name, pos = self.ecu_comboBox.currentText(), self.pcb_comboBox.currentText(), self.pos_comboBox.currentText()
+        if ecu_name == "" or pcb_name == "":
+            self.pushButtonOk.setEnabled(False)
+            return
+        try:
+            image = self.canvas.ecus[ecu_name][pcb_name][pos]
+        except KeyError:
+            self.pushButtonOk.setEnabled(True)
+            return
+        self.pushButtonOk.setEnabled(False)
+
+    def set_pcb_names(self, ecu_name):
+        self.pcb_comboBox.model().clear()
+        if ecu_name in self.canvas.ecus.keys():
+            for pcb_name in self.canvas.ecus[ecu_name].keys():
+                self.pcb_comboBox.addItem(pcb_name)
+        else:
+            self.pcb_comboBox.addItem("PCB 1")
+        self.pcb_comboBox.setCurrentIndex(0)
+        self.pcb_comboBox.setEditable(True)
+
+    def run(self, image):
+        self.image = image
+        ecu_names  = list(self.canvas.ecus.keys())
+        if len(ecu_names) == 0:
+            self.ecu_comboBox.addItem("ECU 1")
+        else:
+            for ecu_name in ecu_names:
+                self.ecu_comboBox.addItem(ecu_name)
+        self.ecu_comboBox.setCurrentIndex(0)
+        self.ecu_comboBox.setEditable(True)
+        self.check_ok("")
+        self.exec_()
+
+    def cancel(self):
+        self.last_exit = 0
+        self.close()
+
+    def ok(self):
+        ecu_name = self.ecu_comboBox.currentText()
+        pcb_name = self.pcb_comboBox.currentText()
+        position = self.pos_comboBox.currentText()
+        if ecu_name != "" and pcb_name != "":
+            self.canvas.set_ecu_info(ecu_name, pcb_name, position, self.image)
+            self.last_exit = 1
+            self.close()
+
+
 class Canvas(QtWidgets.QGraphicsScene):
     image_loaded = QtCore.pyqtSignal(str, str)
     points_loaded = QtCore.pyqtSignal(str, str)
@@ -83,6 +147,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def __init__(self):
         from collections import defaultdict
         QtWidgets.QGraphicsScene.__init__(self)
+        self.ecu_dialog = ECUInputDialog(self)
         self.reset()
 
     @property
@@ -275,18 +340,23 @@ class Canvas(QtWidgets.QGraphicsScene):
         import csv
         with open(file_name, "w", newline="") as f:
             writer = csv.writer(f, delimiter=";")
-            header = ["Image", "Category", "Component", "Count", "Description", "Manufacturer", "Partnumber", 
+            header = ["ECU", "PCB", "Category", "Component", "Top", "Bottom", "Total", "Description", "Manufacturer", "Partnumber", 
                     "Marking", "Package", "Length", "Width", "Height", "IO/Pin Count"]
             writer.writerow(header)
-            for image in self.points.keys():
-                for category in self.categories:
-                    for class_name in self.data[category]:
-                        count = len(self.points[image].get(class_name, []))
-                        attr = self.class_attributes[class_name]
-                        row = [image, category, class_name, count, attr["Description"], attr['Manufacturer'], 
-                               attr["Partnumber"], attr["Marking"], attr["Package"], attr["Length"], attr["Width"], 
-                               attr["Height"], attr["IO/Pin Count"]]
-                        writer.writerow(row)
+            for ecu_name, pcbs in self.ecus.items():
+                for pcb_name, positions in pcbs.items():
+                    top = positions.get("Top", "")
+                    bottom = positions.get("Bottom", "")
+                    for category in self.categories:
+                        for class_name in self.data[category]:
+                            count_top = len(self.points.get(top, {}).get(class_name, []))
+                            count_bot = len(self.points.get(bottom, {}).get(class_name, []))
+                            count_tot = count_bot + count_top
+                            attr = self.class_attributes[class_name]
+                            row = [ecu_name, pcb_name, category, class_name, count_top, count_bot, count_tot, attr["Description"], attr['Manufacturer'], 
+                                attr["Partnumber"], attr["Marking"], attr["Package"], attr["Length"], attr["Width"], 
+                                attr["Height"], attr["IO/Pin Count"]]
+                            writer.writerow(row)
 
     def get_category_from_class(self, class_name):
         category = None
@@ -364,6 +434,13 @@ class Canvas(QtWidgets.QGraphicsScene):
         file_name = in_file_name
         if type(file_name) == QtCore.QUrl:
             file_name = in_file_name.toLocalFile()
+        
+        image = os.path.basename(file_name)
+        ecu_name, pcb_name, pos = self.get_ecu_info(image)
+        if not ecu_name: 
+            self.ecu_dialog.run(image)
+            if not self.ecu_dialog.last_exit: # cancel
+                return
 
         if self.directory == '':
             self.directory = os.path.split(file_name)[0]
@@ -376,6 +453,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.current_image_name = os.path.split(file_name)[1]
             if self.current_image_name not in self.points.keys():
                 self.points[self.current_image_name] = {}
+            if self.current_image_name not in self.pcb_info.keys():
+                self.pcb_info[self.current_image_name] = {"x":"", "y":""}
             try:
                 img = Image.open(file_name)
                 channels = len(img.getbands())
@@ -459,6 +538,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.pcb_info[k].update(v)
         self.colors = data['colors'].copy()
         self.data = data['data'].copy()
+        self.ecus = data["ecus"].copy()
         self._categories = list(self.data.keys())
         self.points = {}
         if 'points' in data:
@@ -548,7 +628,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             if attributes["Manufacturer"] not in completion.manufacturers:
                 completion.update(manufacturers=[attributes["Manufacturer"]])
 
-        package = {'data': {}, 'points': {}, 'colors': {}, 'pcb_data': self.pcb_info, 
+        package = {'data': {}, 'points': {}, 'colors': {}, 'pcb_data': self.pcb_info, "ecus": self.ecus,
                    'metadata': {'survey_id': survey_id}, 'attributes': self.class_attributes, 'ui': self.ui, 
                    'visibility': self.class_visibility, 'image_scale': image_scale, 'measures': {}}
         package['data'] = self.data.copy()
@@ -596,6 +676,38 @@ class Canvas(QtWidgets.QGraphicsScene):
         self._categories.insert(index, new_category)
         self.current_category_name = new_category
 
+    def rename_ecu(self, new_name, ecu_name, pcb_name, pos):
+        if ecu_name and pcb_name and pos: # switch top / bottom
+            image = self.ecus[ecu_name][pcb_name][pos]
+            if new_name in self.ecus[ecu_name][pcb_name].keys():
+                self.ecus[ecu_name][pcb_name][pos] = self.ecus[ecu_name][pcb_name][new_name] 
+            else:
+                del self.ecus[ecu_name][pcb_name][pos]
+            self.ecus[ecu_name][pcb_name][new_name] = image
+        elif ecu_name and not pcb_name and not pos: # rename only ecu
+            if new_name in self.ecus:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Critical)
+                msg.setText("Error")
+                msg.setInformativeText('ECU Name Already Taken')
+                msg.setWindowTitle("Error")
+                msg.exec_()
+                return 0
+            self.ecus = {new_name if k == ecu_name else k:v for k, v in self.ecus.items()}
+        elif ecu_name and pcb_name and not pos: # rename pcb
+            pcbs = self.ecus[ecu_name]
+            if new_name in pcbs:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Critical)
+                msg.setText("Error")
+                msg.setInformativeText('PCB Name Already Taken')
+                msg.setWindowTitle("Error")
+                msg.exec_()
+                return 0
+            pcbs = {new_name if k == pcb_name else k:v for k, v in pcbs.items()}
+            self.ecus[ecu_name] = pcbs
+        return 1
+        
     def move_class(self, classname, old_category, new_category, index=None):
         if new_category not in self.categories or old_category not in self.categories:
             raise ValueError("Category not found {}".format(new_category))
@@ -675,7 +787,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points = {}
         self.class_visibility = {} # to be implemented
         self.colors = {}
-        self.pcb_info = defaultdict(lambda:{"x":"", "y":"", "position":"", "ecu":""})
+        self.pcb_info = defaultdict(lambda:{"x":"", "y":""})
 
         self._categories = self.config.categories.copy() 
         self.class_attributes = {}
@@ -691,6 +803,8 @@ class Canvas(QtWidgets.QGraphicsScene):
 
         self.directory = ''
         self.current_image_name = None
+        self.ecus = {}
+        self.aliases = {}
         self.current_class_name = None
         self.current_category_name = None
         self.current_selection = None
@@ -707,7 +821,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def save_pcb_info(self, x, y, ecu, position):
         if self.current_image_name is not None:
-            self.pcb_info[self.current_image_name].update({"x":x, "y":y, "ecu":ecu, "position":position})
+            self.pcb_info[self.current_image_name].update({"x":x, "y":y})
 
     def save_points(self, file_name, survey_id):
         try:
@@ -813,3 +927,18 @@ class Canvas(QtWidgets.QGraphicsScene):
     def set_component_attribute(self, attribute, value):
         if self.current_class_name is not None:
             self.class_attributes[self.current_class_name][attribute] = value
+
+    def set_ecu_info(self, ecu_name, pcb_name, position, image):
+        if not ecu_name in self.ecus:
+            self.ecus[ecu_name] = {}
+        if not pcb_name in self.ecus[ecu_name]:
+            self.ecus[ecu_name][pcb_name] = {}
+        self.ecus[ecu_name][pcb_name][position] = image
+
+    def get_ecu_info(self, image_name):
+        for ecu_name, pcbs in self.ecus.items():
+            for pcb_name, positions in pcbs.items():
+                for pos, image in positions.items():
+                    if image_name == image:
+                        return ecu_name, pcb_name, pos
+        return None, None, None

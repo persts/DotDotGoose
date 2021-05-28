@@ -48,6 +48,7 @@ class MainWindow(QMainWindow):
     
     def _createMenuBar(self):
         import os
+        from functools import partial
         menuBar = self.menuBar()
         # --- File menu
         fileMenu = QMenu("&File", self)
@@ -65,7 +66,7 @@ class MainWindow(QMainWindow):
             for f in recentlyUsed.files:
                 fname = os.path.basename(f)
                 action = QAction(f, self)
-                action.triggered.connect(lambda : self._centralWidget.canvas.load([f]))
+                action.triggered.connect(partial(self._centralWidget.canvas.load_points, f))
                 recentlyUsedMenu.addAction(action)
 
         fileMenu.addMenu(recentlyUsedMenu)

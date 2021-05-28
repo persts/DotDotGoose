@@ -32,12 +32,6 @@ from ddg.canvas import Scale, completion
 from ddg import PointWidget
 from .ui.central_widget_ui import Ui_CentralWidget as CLASS_DIALOG
 
-class ListView(QtWidgets.QListView):
-    def event(self, e):
-        print(e)
-        return super().event(e)
-
-
 class LineEdit(QtWidgets.QLineEdit):
     copy_all_signal = QtCore.pyqtSignal()
     paste_all_signal = QtCore.pyqtSignal()
@@ -178,8 +172,8 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.canvas.image_loaded.connect(self.display_attributes)
         self.canvas.fields_updated.connect(self.display_attributes)
 
-        self.dataLineEditsNames = ["lineEdit_ecu", "comboBox_position", "lineEditX", "lineEditY"]
-        pcbAttr = ["ECU Name", "Side", "Length", "Width"]
+        self.dataLineEditsNames = ["lineEdit_ecu", "lineEdit_pcb", "comboBox_pos", "lineEditX", "lineEditY"]
+        pcbAttr = ["ECU Name", "PCB Name", "Side", "Length", "Width"]
 
         self.attributeLineEditsNames = ["lineEdit_description", "lineEdit_marking", 
                      "lineEdit_partnumber", "lineEdit_manufacturer", "lineEdit_package", 
@@ -191,20 +185,23 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         for i, k in enumerate(self.dataLineEditsNames):
             box = self.groupBoxImageData
             layout = self.gridLayout_2
-            if "lineEdit" in k:
+            if "line" in k:
                 widget = LineEdit(box, available_actions=["Copy", "Paste"])
                 widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
                 widget.setAcceptDrops(False)
                 widget.setObjectName(k)
-                widget.textEdited.connect(self.update_pcb_info)
                 widget.setDisabled(True)
                 widget.returnPressed.connect(self.cycle_edits)
+                if "X" in k or "Y" in k:
+                    widget.textEdited.connect(self.update_pcb_info)
+                else:
+                    widget.returnPressed.connect(self.update_ecu_name)
             else:
-                widget = QtWidgets.QComboBox(box)
+                widget = QtWidgets.QComboBox()
                 widget.addItems(["Top", "Bottom"])
-                widget.setCurrentIndex(0)
-                widget.currentIndexChanged.connect(self.update_pcb_info)
                 widget.setDisabled(True)
+                widget.setCurrentIndex(0)
+                widget.currentTextChanged.connect(self.update_ecu_name)
             layout.addWidget(widget, i, 1, 1, 1)
 
             label = QtWidgets.QLabel(box)
@@ -330,26 +327,17 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
 
     def display_coordinates(self, directory, image):
         if self.canvas.current_image_name is None:
-            self.lineEditX.setDisabled(True)
-            self.lineEditY.setDisabled(True)
-            self.lineEdit_ecu.setDisabled(True)
-            self.comboBox_position.setDisabled(True)
+            for i, k in enumerate(self.dataLineEditsNames):
+                getattr(self, k).setDisabled(True)
         else:
-            self.lineEditX.setDisabled(False)
-            self.lineEditY.setDisabled(False)
-            self.lineEdit_ecu.setDisabled(False)
-            self.comboBox_position.setDisabled(False)
-        if image in self.canvas.pcb_info:
-            self.lineEditX.setText(self.canvas.pcb_info[image]['x'])
-            self.lineEditY.setText(self.canvas.pcb_info[image]['y'])
-            self.lineEdit_ecu.setText(self.canvas.pcb_info[image]['ecu'])
-            i = self.comboBox_position.findText(self.canvas.pcb_info[image]['position'])
-            self.comboBox_position.setCurrentIndex(i)
-        else:
-            self.lineEditX.setText('')
-            self.lineEditY.setText('')
-            self.lineEdit_ecu.setText('')
-            self.comboBox_position.setCurrentIndex(0)
+            for i, k in enumerate(self.dataLineEditsNames):
+                getattr(self, k).setDisabled(False)
+        ecu_name, pcb_name, position = self.canvas.get_ecu_info(image)
+        self.lineEditX.setText(self.canvas.pcb_info[image]['x'])
+        self.lineEditY.setText(self.canvas.pcb_info[image]['y'])
+        self.lineEdit_ecu.setText(ecu_name)
+        self.comboBox_pos.setCurrentText(position)
+        self.lineEdit_pcb.setText(pcb_name)
 
     def display_attributes(self):
         if self.canvas.current_class_name is None or self.canvas.current_image_name is None:
@@ -415,9 +403,38 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
     def update_pcb_info(self, info):
         x = self.lineEditX.text()
         y = self.lineEditY.text()
-        position = self.comboBox_position.currentText()
-        ecu = self.lineEdit_ecu.text()
-        self.canvas.save_pcb_info(x, y, ecu, position)
+        self.canvas.save_pcb_info(x, y)
+
+    def update_ecu_name(self, *args, **kwargs):
+        new_name = None
+        ecu_name, pcb_name, position = self.canvas.get_ecu_info(self.canvas.current_image_name)
+        new_ecu = self.lineEdit_ecu.text()
+        if len(ecu_name) == 1:
+            self.lineEdit_ecu.setText(ecu_name)
+            new_ecu = ecu_name
+        new_pcb = self.lineEdit_pcb.text()
+        if len(pcb_name) == 1:
+            self.lineEdit_pcb.setText(pcb_name)
+            new_ecu = pcb_name
+        new_pos = self.comboBox_pos.currentText()
+        if new_ecu != ecu_name:
+            new_name = new_ecu
+            pcb_name = None
+            position = None
+        elif new_pcb != pcb_name:
+            new_name = new_pcb
+            position = None
+        elif new_pos != position:
+            new_name = new_pos
+        
+        if new_name:
+            done = self.canvas.rename_ecu(new_name, ecu_name, pcb_name, position)
+            if not done:
+                self.lineEdit_ecu.setText(ecu_name)
+                self.lineEdit_pcb.setText(pcb_name)
+                self.comboBox_pos.setCurrentText(position)
+            else:
+                self.point_widget.display_count_tree()
         
     def update_attributes(self, text):
         for k, lineEdit in self.lineEdit_attributes.items():
