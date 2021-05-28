@@ -436,6 +436,14 @@ class Canvas(QtWidgets.QGraphicsScene):
             file_name = in_file_name.toLocalFile()
         
         image = os.path.basename(file_name)
+        if image in self.points:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText('Image already loaded!')
+            msg.setWindowTitle("Error")
+            msg.exec_()
+            return
         ecu_name, pcb_name, pos = self.get_ecu_info(image)
         if not ecu_name: 
             self.ecu_dialog.run(image)

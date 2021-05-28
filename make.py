@@ -3,7 +3,7 @@ import os
 from glob import glob
 
 USE_SPEC = True
-ONLY_UI = True
+ONLY_UI = False
 
 NAME = "DotDotIC"
 INSTALLER = "pyinstaller"
