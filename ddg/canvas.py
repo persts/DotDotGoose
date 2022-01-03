@@ -37,6 +37,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     directory_set = QtCore.pyqtSignal(str)
     fields_updated = QtCore.pyqtSignal(list)
     update_point_count = QtCore.pyqtSignal(str, str, int)
+    metadata_imported = QtCore.pyqtSignal()
 
     def __init__(self):
         QtWidgets.QGraphicsScene.__init__(self)
@@ -219,6 +220,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.classes = data['classes']
         self.fields_updated.emit(self.custom_fields['fields'])
         self.points_loaded.emit('')
+        self.metadata_imported.emit()
 
     def load(self, drop_list):
         peek = drop_list[0].toLocalFile()

@@ -67,6 +67,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.canvas.image_loaded.connect(self.image_loaded)
         self.canvas.update_point_count.connect(self.update_point_count)
         self.canvas.points_loaded.connect(self.points_loaded)
+        self.canvas.metadata_imported.connect(self.display_count_tree)
 
         self.model = QtGui.QStandardItemModel()
         self.current_model_index = QtCore.QModelIndex()
