@@ -1,7 +1,3 @@
-If you use this application on data that results in a publication, report, or online analysis, we ask that you include the following reference:
-
-Ersts,P.J.[Internet] DotDotGoose (version 1.5.1). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
-
 .. raw:: latex
 
     \newpage
@@ -22,6 +18,11 @@ Point data collected with DotDotGoose will be very valuable training and validat
 | Website: https://biodiversityinformatics.amnh.org/open_source/dotdotgoose
 |
 | Source: https://github.com/persts/DotDotGoose
+|
+|
+If you use this application on data that results in a publication, report, or online analysis, we ask that you include the following reference:
+
+Ersts,P.J.[Internet] DotDotGoose (version 1.5.3). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
 
 .. raw:: latex
 
@@ -123,7 +124,7 @@ To begin collecting points,
     \section*{Tips and Notes}
 
 * You can use the up arrow or W and the down arrow or S keys on your keyboard to cycles through the images loaded in a project.
-* You can quickly switch between classes using the number keys. **If using the key pad name sure Num Lock is on.
+* You can quickly switch between classes using the number keys. If using the key pad name sure Num Lock is on.
 * While panning or zooming you can press the 'd' key to toggle the points on and off.
 * You can change the size of the points being displayed by adjusting the "Point Radius" value. To change this value, use the up and down arrows on the input field.
 * You can change the default "active" class color from yellow to a color of your choice by clicking on the box next to the "Point Radius" input field.
@@ -310,6 +311,6 @@ I would like to thank the following people for beta testing and the feedback the
     * Richard Casalina Jr., `Values-in-Action Foundation <http://www.viafdn.org/>`_
     * Peter Frost, Freelancer, New Zealand
     * Ido Senesh [ code contributor ], `Bumblebee <https://pollination.ai/>`_
-
+    * Stephanie Braswell, Auburn University
 
 The image used in this documentation is courtesy of the Hudson Bay Project 
