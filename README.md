@@ -10,35 +10,20 @@ DotDotGoose is a free, open source tool to assist with manually counting objects
 ## Installation
 
 ### Dependencies
-DotDotGoose is being developed on Ubuntu 18.04 with the following libraries:
+DotDotGoose is being developed on Ubuntu 20.04 with the following libraries:
 
-* PyQt5 (5.10.1)
-* Pillow (5.4.1)
-* Numpy (1.15.4)
-* TKinter (3.6.7)
-
-Install GUI libraries:
-
-``` bash
-sudo apt install python3-pyqt5 python3-tk
-```
-Install pip3 and install / upgrade dependencies:
-```bash
-sudo apt install python3-pip
-sudo -H pip3 install --upgrade pillow
-sudo -H pip3 install numpy
-```
-
-#### Windows and OSX
-Once Python3 has been installed, you should be able to simply install the three dependencies .
+* PyQt6 (6.3.1)
+* Pillow (9.2.0)
+* Numpy (1.23.1)
 
 ```bash
-pip install pillow
-pip install numpy
-pip install PyQt5
+python3 -m venv ddg-env
+source ddg-env/bin/activate
+python -m pip install --upgrade pip
+python -m pip install pillow
+python -m pip install numpy
+python -m pip install PyQt6
 ```
-
-
 
 ## Launching DotDotGoose
 
