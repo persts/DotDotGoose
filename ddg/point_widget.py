@@ -236,10 +236,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         msgBox.setWindowTitle('Warning')
         msgBox.setText('You are about to clear all data')
         msgBox.setInformativeText('Do you want to continue?')
-        msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
-        msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+        msgBox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)
+        msgBox.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
         response = msgBox.exec()
-        if response == QtWidgets.QMessageBox.Ok:
+        if response == QtWidgets.QMessageBox.StandardButton.Ok:
             self.canvas.reset()
             self.display_classes()
             self.display_count_tree()

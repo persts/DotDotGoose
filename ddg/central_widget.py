@@ -196,7 +196,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         for item in fields:
             widget = build(item)
             custom_fields.layout().addWidget(widget)
-        v = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        v = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
         custom_fields.layout().addItem(v)
         self.get_custom_field_data()
 

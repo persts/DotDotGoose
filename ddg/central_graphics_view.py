@@ -114,18 +114,18 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         if self.ctrl:
             self.add_point.emit(self.mapToScene(event.pos()))
         elif self.shift:
-            self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
+            self.setDragMode(QtWidgets.QGraphicsView.DragMode.RubberBandDrag)
             QtWidgets.QGraphicsView.mousePressEvent(self, event)
         else:
-            self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+            self.setDragMode(QtWidgets.QGraphicsView.DragMode.ScrollHandDrag)
             QtWidgets.QGraphicsView.mousePressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
-        if self.dragMode() == QtWidgets.QGraphicsView.RubberBandDrag:
+        if self.dragMode() == QtWidgets.QGraphicsView.DragMode.RubberBandDrag:
             rect = self.rubberBandRect()
             self.region_selected.emit(self.mapToScene(rect).boundingRect())
             QtWidgets.QGraphicsView.mouseReleaseEvent(self, event)
-        self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
+        self.setDragMode(QtWidgets.QGraphicsView.DragMode.NoDrag)
 
     def resizeEvent(self, event):
         self.resize_image()
