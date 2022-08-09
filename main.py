@@ -24,8 +24,7 @@
 # --------------------------------------------------------------------------
 import sys
 from PyQt6 import QtWidgets, QtCore
-from ddg import CentralWidget
-from ddg import __version__
+from ddg import ExceptionHandler, MainWindow
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
@@ -33,14 +32,15 @@ if __name__ == '__main__':
 
     if 'plastique' in QtWidgets.QStyleFactory().keys():
         app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
+
+    handler = ExceptionHandler()
+    main = MainWindow()
+    handler.exception.connect(main.display_exception)
+    main.show()
     screen = app.primaryScreen()
     for s in app.screens():
         if screen.geometry().width() < s.geometry().width():
             screen = s
-    main = QtWidgets.QMainWindow()
-    main.setWindowTitle('DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://cbc.amnh.org )'.format(__version__))
-    main.setCentralWidget(CentralWidget())
-    main.show()
     main.windowHandle().setScreen(screen)
     main.resize(int(screen.geometry().width()), int(screen.geometry().height() * 0.85))
 

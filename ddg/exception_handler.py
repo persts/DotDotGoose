@@ -22,10 +22,26 @@
 # along with with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------------
-__version__ = '1.6.0'
+import sys
+import traceback
+from PyQt6 import QtCore
+DEBUG = False
 
-from .canvas import Canvas  # noqa: F401
-from .point_widget import PointWidget  # noqa: F401
-from .central_widget import CentralWidget  # noqa: F401
-from .exception_handler import ExceptionHandler  # noqa: F401
-from .main_window import MainWindow  # noqa: F401
+
+class ExceptionHandler(QtCore.QObject):
+    exception = QtCore.pyqtSignal(list)
+
+    def __init__(self):
+        QtCore.QObject.__init__(self)
+        sys.excepthook = self.handle_exception
+
+    def handle_exception(self, ex_type, ex_value, ex_traceback):
+        error = []
+        error.append(ex_type.__name__)
+        for line in traceback.format_tb(ex_traceback):
+            error.append(line)
+        self.exception.emit(error)
+
+        if DEBUG:
+            for line in error:
+                print(line)

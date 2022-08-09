@@ -22,10 +22,24 @@
 # along with with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------------
-__version__ = '1.6.0'
+from ddg import CentralWidget
+from PyQt6 import QtWidgets, QtCore
+from ddg import __version__
 
-from .canvas import Canvas  # noqa: F401
-from .point_widget import PointWidget  # noqa: F401
-from .central_widget import CentralWidget  # noqa: F401
-from .exception_handler import ExceptionHandler  # noqa: F401
-from .main_window import MainWindow  # noqa: F401
+
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        QtWidgets.QMainWindow.__init__(self)
+        self.setWindowTitle('DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://cbc.amnh.org )'.format(__version__))
+        self.setCentralWidget(CentralWidget())
+
+        self.error_widget = QtWidgets.QTextBrowser()
+        self.error_widget.setWindowTitle('EXCEPTION DETECTED')
+        self.error_widget.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+        self.error_widget.resize(900, 500)
+
+    def display_exception(self, error):
+        self.error_widget.clear()
+        for line in error:
+            self.error_widget.append(line)
+        self.error_widget.show()
