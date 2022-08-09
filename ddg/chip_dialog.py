@@ -27,7 +27,7 @@ import sys
 
 from .exporter import Exporter
 
-from PyQt5 import QtCore, QtWidgets, uic
+from PyQt6 import QtCore, QtWidgets, QtGui, uic
 
 if getattr(sys, 'frozen', False):
     bundle_dir = sys._MEIPASS
@@ -58,6 +58,8 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
 
         self.pushButtonCancel.clicked.connect(self.cancel)
         self.pushButtonExport.clicked.connect(self.export)
+        self.pushButtonCancel.setIcon(QtGui.QIcon('icons:cancel.svg'))
+        self.pushButtonExport.setIcon(QtGui.QIcon('icons:export.svg'))
 
         count = 0
         for image in self.points:
@@ -66,7 +68,7 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
         self.progressBar.setRange(0, count)
 
     def cancel(self):
-        if(self.exporter.isRunning()):
+        if self.exporter.isRunning():
             self.exporter.terminate()
         else:
             self.close()
@@ -79,7 +81,7 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
                 QtWidgets.QMessageBox.warning(self, 'Target Directory', 'The target directory contains data, please select an empty directory for exporting.')
             else:
                 file_type = '.png'
-                if(self.radioButtonJpeg.isChecked()):
+                if self.radioButtonJpeg.isChecked():
                     file_type = '.jpg'
                 # TODO: make this constructor parameters cleaner
                 self.exporter = Exporter(self.survey_id, self.classes, self.points, self.directory, directory, self.spinBoxWidth.value(), self.spinBoxHeight.value(), file_type)

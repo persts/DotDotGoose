@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 import os
 import sys
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
+from PyQt6 import QtCore, QtWidgets, QtGui, uic
 
 from ddg import Canvas
 from ddg import PointWidget
@@ -52,27 +52,29 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.point_widget.hide_custom_fields.connect(self.hide_custom_fields)
         self.point_widget.saving.connect(self.display_quick_save)
 
-        self.save_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("Ctrl+S")), self)  # quick save using Ctrl+S
-        self.save_shortcut.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        # Set up keyboard shortcuts
+        self.save_shortcut = QtGui.QShortcut(QtGui.QKeySequence(self.tr("Ctrl+S")), self)  # quick save using Ctrl+S
+        self.save_shortcut.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.save_shortcut.activated.connect(self.point_widget.quick_save)
 
-        self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
-        self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.up_arrow = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Up), self)
+        self.up_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
 
-        self.down_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down), self)
-        self.down_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.down_arrow = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Down), self)
+        self.down_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.down_arrow.activated.connect(self.point_widget.next)
 
         # same as arrows but conventient for right handed people
-        self.up_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("W")), self)
-        self.up_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.up_arrow = QtGui.QShortcut(QtGui.QKeySequence(self.tr("W")), self)
+        self.up_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
 
-        self.down_arrow = QtWidgets.QShortcut(QtGui.QKeySequence(self.tr("S")), self)
-        self.down_arrow.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        self.down_arrow = QtGui.QShortcut(QtGui.QKeySequence(self.tr("S")), self)
+        self.down_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.down_arrow.activated.connect(self.point_widget.next)
 
+        # Make signal slot connections
         self.graphicsView.setScene(self.canvas)
         self.graphicsView.drop_complete.connect(self.canvas.load)
         self.graphicsView.region_selected.connect(self.canvas.select_points)
@@ -81,7 +83,6 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.graphicsView.toggle_points.connect(self.point_widget.checkBoxDisplayPoints.toggle)
         self.graphicsView.toggle_grid.connect(self.point_widget.checkBoxDisplayGrid.toggle)
         self.graphicsView.switch_class.connect(self.point_widget.set_active_class)
-
         self.graphicsView.add_point.connect(self.canvas.add_point)
         self.canvas.image_loaded.connect(self.graphicsView.image_loaded)
         self.canvas.directory_set.connect(self.display_working_directory)
@@ -93,11 +94,19 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.lineEditX.textEdited.connect(self.update_coordinates)
         self.lineEditY.textEdited.connect(self.update_coordinates)
 
+        # Buttons
         self.pushButtonAddField.clicked.connect(self.add_field_dialog)
         self.pushButtonDeleteField.clicked.connect(self.delete_field_dialog)
         self.pushButtonFolder.clicked.connect(self.select_folder)
         self.pushButtonZoomOut.clicked.connect(self.graphicsView.zoom_out)
         self.pushButtonZoomIn.clicked.connect(self.graphicsView.zoom_in)
+
+        # Fix icons since no QRC file integration
+        self.pushButtonFolder.setIcon(QtGui.QIcon('icons:folder.svg'))
+        self.pushButtonZoomIn.setIcon(QtGui.QIcon('icons:zoom_in.svg'))
+        self.pushButtonZoomOut.setIcon(QtGui.QIcon('icons:zoom_out.svg'))
+        self.pushButtonDeleteField.setIcon(QtGui.QIcon('icons:delete.svg'))
+        self.pushButtonAddField.setIcon(QtGui.QIcon('icons:add.svg'))
 
         self.quick_save_frame = QtWidgets.QFrame(self.graphicsView)
         self.quick_save_frame.setStyleSheet("QFrame { background: #4caf50;color: #FFF;font-weight: bold}")

@@ -23,20 +23,25 @@
 #
 # --------------------------------------------------------------------------
 import sys
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets, QtCore
 from ddg import CentralWidget
 from ddg import __version__
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+    QtCore.QDir.addSearchPath('icons', './icons/')
+
     if 'plastique' in QtWidgets.QStyleFactory().keys():
         app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
-    screen = app.desktop().availableGeometry()
+    screen = app.primaryScreen()
+    for s in app.screens():
+        if screen.geometry().width() < s.geometry().width():
+            screen = s
     main = QtWidgets.QMainWindow()
     main.setWindowTitle('DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://cbc.amnh.org )'.format(__version__))
     main.setCentralWidget(CentralWidget())
     main.show()
-    main.resize(int(screen.width() * .90), int(screen.height() * 0.90))
-    main.move(int(screen.width() * .05) // 2, 0)
+    main.windowHandle().setScreen(screen)
+    main.resize(int(screen.geometry().width()), int(screen.geometry().height() * 0.85))
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

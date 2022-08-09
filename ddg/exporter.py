@@ -26,7 +26,7 @@ import os
 import numpy as np
 
 from PIL import Image
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 
 class Exporter(QtCore.QThread):

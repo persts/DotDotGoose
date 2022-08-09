@@ -28,7 +28,7 @@ import glob
 import numpy as np
 
 from PIL import Image
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class Canvas(QtWidgets.QGraphicsScene):
@@ -56,13 +56,13 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.qt_image = None
         self.show_grid = True
 
-        self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.red, QtCore.Qt.SolidPattern), 1)
+        self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.GlobalColor.red, QtCore.Qt.BrushStyle.SolidPattern), 1)
 
     def add_class(self, class_name):
         if class_name not in self.classes:
             self.classes.append(class_name)
             self.classes.sort()
-            self.colors[class_name] = QtGui.QColor(QtCore.Qt.black)
+            self.colors[class_name] = QtGui.QColor(QtCore.Qt.GlobalColor.black)
 
     def add_custom_field(self, field_def):
         self.custom_fields['fields'].append(field_def)
@@ -75,7 +75,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.points[self.current_image_name][self.current_class_name] = []
             display_radius = self.ui['point']['radius']
             active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
-            active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
+            active_brush = QtGui.QBrush(active_color, QtCore.Qt.BrushStyle.SolidPattern)
             active_pen = QtGui.QPen(active_brush, 2)
             self.points[self.current_image_name][self.current_class_name].append(point)
             self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
@@ -117,7 +117,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             grid_color = QtGui.QColor(self.ui['grid']['color'][0], self.ui['grid']['color'][1], self.ui['grid']['color'][2])
             grid_size = self.ui['grid']['size']
             rect = self.itemsBoundingRect()
-            brush = QtGui.QBrush(grid_color, QtCore.Qt.SolidPattern)
+            brush = QtGui.QBrush(grid_color, QtCore.Qt.BrushStyle.SolidPattern)
             pen = QtGui.QPen(brush, 1)
             for x in range(grid_size, int(rect.width()), grid_size):
                 line = QtCore.QLineF(x, 0.0, x, rect.height())
@@ -131,11 +131,11 @@ class Canvas(QtWidgets.QGraphicsScene):
         if self.current_image_name in self.points:
             display_radius = self.ui['point']['radius']
             active_color = QtGui.QColor(self.ui['point']['color'][0], self.ui['point']['color'][1], self.ui['point']['color'][2])
-            active_brush = QtGui.QBrush(active_color, QtCore.Qt.SolidPattern)
+            active_brush = QtGui.QBrush(active_color, QtCore.Qt.BrushStyle.SolidPattern)
             active_pen = QtGui.QPen(active_brush, 2)
             for class_name in self.points[self.current_image_name]:
                 points = self.points[self.current_image_name][class_name]
-                brush = QtGui.QBrush(self.colors[class_name], QtCore.Qt.SolidPattern)
+                brush = QtGui.QBrush(self.colors[class_name], QtCore.Qt.BrushStyle.SolidPattern)
                 pen = QtGui.QPen(brush, 2)
                 for point in points:
                     if class_name == self.current_class_name:
@@ -273,7 +273,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.directory_set.emit(self.directory)
 
         if self.directory == os.path.split(file_name)[0]:
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
             self.selection = []
             self.clear()
             self.current_image_name = os.path.split(file_name)[1]

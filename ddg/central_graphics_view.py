@@ -22,7 +22,7 @@
 # along with with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------------
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 
 
 class CentralGraphicsView(QtWidgets.QGraphicsView):
@@ -43,7 +43,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         self.ctrl = False
         self.alt = False
         self.delay = 0
-        self.setViewportUpdateMode(0)
+        self.setViewportUpdateMode(QtWidgets.QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
 
     def enterEvent(self, event):
         self.setFocus()
@@ -60,51 +60,51 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
 
     def image_loaded(self, directory, file_name):
         self.resetTransform()
-        self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
+        self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
         self.setSceneRect(self.scene().itemsBoundingRect())
 
     def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Alt:
+        if event.key() == QtCore.Qt.Key.Key_Alt:
             self.alt = True
-        elif event.key() == QtCore.Qt.Key_Control:
+        elif event.key() == QtCore.Qt.Key.Key_Control:
             self.ctrl = True
-        elif event.key() == QtCore.Qt.Key_Shift:
+        elif event.key() == QtCore.Qt.Key.Key_Shift:
             self.shift = True
-        elif event.key() == QtCore.Qt.Key_Delete or event.key() == QtCore.Qt.Key_Backspace:
+        elif event.key() == QtCore.Qt.Key.Key_Delete or event.key() == QtCore.Qt.Key.Key_Backspace:
             self.delete_selection.emit()
-        elif event.key() == QtCore.Qt.Key_R:
+        elif event.key() == QtCore.Qt.Key.Key_R:
             self.relabel_selection.emit()
-        elif event.key() == QtCore.Qt.Key_D:
+        elif event.key() == QtCore.Qt.Key.Key_D:
             self.toggle_points.emit()
-        elif event.key() == QtCore.Qt.Key_G:
+        elif event.key() == QtCore.Qt.Key.Key_G:
             self.toggle_grid.emit()
-        elif event.key() == QtCore.Qt.Key_1:
+        elif event.key() == QtCore.Qt.Key.Key_1:
             self.switch_class.emit(0)
-        elif event.key() == QtCore.Qt.Key_2:
+        elif event.key() == QtCore.Qt.Key.Key_2:
             self.switch_class.emit(1)
-        elif event.key() == QtCore.Qt.Key_3:
+        elif event.key() == QtCore.Qt.Key.Key_3:
             self.switch_class.emit(2)
-        elif event.key() == QtCore.Qt.Key_4:
+        elif event.key() == QtCore.Qt.Key.Key_4:
             self.switch_class.emit(3)
-        elif event.key() == QtCore.Qt.Key_5:
+        elif event.key() == QtCore.Qt.Key.Key_5:
             self.switch_class.emit(4)
-        elif event.key() == QtCore.Qt.Key_6:
+        elif event.key() == QtCore.Qt.Key.Key_6:
             self.switch_class.emit(5)
-        elif event.key() == QtCore.Qt.Key_7:
+        elif event.key() == QtCore.Qt.Key.Key_7:
             self.switch_class.emit(6)
-        elif event.key() == QtCore.Qt.Key_8:
+        elif event.key() == QtCore.Qt.Key.Key_8:
             self.switch_class.emit(7)
-        elif event.key() == QtCore.Qt.Key_9:
+        elif event.key() == QtCore.Qt.Key.Key_9:
             self.switch_class.emit(8)
-        elif event.key() == QtCore.Qt.Key_0:
+        elif event.key() == QtCore.Qt.Key.Key_0:
             self.switch_class.emit(9)
 
     def keyReleaseEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Alt:
+        if event.key() == QtCore.Qt.Key.Key_Alt:
             self.alt = False
-        elif event.key() == QtCore.Qt.Key_Control:
+        elif event.key() == QtCore.Qt.Key.Key_Control:
             self.ctrl = False
-        elif event.key() == QtCore.Qt.Key_Shift:
+        elif event.key() == QtCore.Qt.Key.Key_Shift:
             self.shift = False
 
     def mouseMoveEvent(self, event):
@@ -134,7 +134,7 @@ class CentralGraphicsView(QtWidgets.QGraphicsView):
         vsb = self.verticalScrollBar().isVisible()
         hsb = self.horizontalScrollBar().isVisible()
         if not (vsb or hsb):
-            self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
+            self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
             self.setSceneRect(self.scene().itemsBoundingRect())
 
     def wheelEvent(self, event):

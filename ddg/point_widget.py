@@ -24,7 +24,7 @@
 # --------------------------------------------------------------------------
 import os
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
 
 from .chip_dialog import ChipDialog
 
@@ -53,10 +53,18 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.pushButtonReset.clicked.connect(self.reset)
         self.pushButtonExport.clicked.connect(self.export)
 
+        self.pushButtonExport.setIcon(QtGui.QIcon('icons:export.svg'))
+        self.pushButtonReset.setIcon(QtGui.QIcon('icons:reset.svg'))
+        self.pushButtonImport.setIcon(QtGui.QIcon('icons:import.svg'))
+        self.pushButtonSave.setIcon(QtGui.QIcon('icons:save.svg'))
+        self.pushButtonLoadPoints.setIcon(QtGui.QIcon('icons:load.svg'))
+        self.pushButtonRemoveClass.setIcon(QtGui.QIcon('icons:delete.svg'))
+        self.pushButtonAddClass.setIcon(QtGui.QIcon('icons:add.svg'))
+
         self.tableWidgetClasses.verticalHeader().setVisible(False)
         self.tableWidgetClasses.horizontalHeader().setMinimumSectionSize(1)
         self.tableWidgetClasses.horizontalHeader().setStretchLastSection(False)
-        self.tableWidgetClasses.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        self.tableWidgetClasses.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWidgetClasses.setColumnWidth(1, 30)
         self.tableWidgetClasses.cellClicked.connect(self.cell_clicked)
         self.tableWidgetClasses.cellChanged.connect(self.cell_changed)
@@ -81,11 +89,11 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.spinBoxGrid.valueChanged.connect(self.canvas.set_grid_size)
 
         icon = QtGui.QPixmap(20, 20)
-        icon.fill(QtCore.Qt.yellow)
+        icon.fill(QtCore.Qt.GlobalColor.yellow)
         self.labelPointColor.setPixmap(icon)
         self.labelPointColor.mousePressEvent = self.change_active_point_color
         icon = QtGui.QPixmap(20, 20)
-        icon.fill(QtCore.Qt.white)
+        icon.fill(QtCore.Qt.GlobalColor.white)
         self.labelGridColor.setPixmap(icon)
         self.labelGridColor.mousePressEvent = self.change_grid_color
 
@@ -122,7 +130,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 item = QtWidgets.QTableWidgetItem()
                 icon = QtGui.QPixmap(20, 20)
                 icon.fill(color)
-                item.setData(QtCore.Qt.DecorationRole, icon)
+                item.setData(QtCore.Qt.ItemDataRole.DecorationRole, icon)
                 self.tableWidgetClasses.setItem(row, 1, item)
 
     def change_active_point_color(self, event):
@@ -145,7 +153,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             item = QtWidgets.QTableWidgetItem()
             icon = QtGui.QPixmap(20, 20)
             icon.fill(self.canvas.colors[class_name])
-            item.setData(QtCore.Qt.DecorationRole, icon)
+            item.setData(QtCore.Qt.ItemDataRole.DecorationRole, icon)
             self.tableWidgetClasses.setItem(row, 1, item)
             row += 1
         self.tableWidgetClasses.selectionModel().clear()
@@ -178,11 +186,11 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.treeView.scrollTo(self.current_model_index)
 
     def export(self):
-        if(self.radioButtonCounts.isChecked()):
+        if self.radioButtonCounts.isChecked():
             file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Count Summary', os.path.join(self.canvas.directory, 'counts.csv'), 'Text CSV (*.csv)')
             if file_name[0] != '':
                 self.canvas.export_counts(file_name[0], self.lineEditSurveyId.text())
-        elif(self.radioButtonPoints.isChecked()):
+        elif self.radioButtonPoints.isChecked():
             file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Points', os.path.join(self.canvas.directory, 'points.csv'), 'Text CSV (*.csv)')
             if file_name[0] != '':
                 self.canvas.export_points(file_name[0], self.lineEditSurveyId.text())
@@ -241,12 +249,12 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.current_model_index = QtCore.QModelIndex()
         self.model.clear()
         self.model.setColumnCount(2)
-        self.model.setHeaderData(0, QtCore.Qt.Horizontal, 'Image')
-        self.model.setHeaderData(1, QtCore.Qt.Horizontal, 'Count')
+        self.model.setHeaderData(0, QtCore.Qt.Orientation.Horizontal, 'Image')
+        self.model.setHeaderData(1, QtCore.Qt.Orientation.Horizontal, 'Count')
         self.treeView.setExpandsOnDoubleClick(False)
         self.treeView.header().setStretchLastSection(False)
-        self.treeView.header().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        self.treeView.setTextElideMode(QtCore.Qt.ElideMiddle)
+        self.treeView.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.treeView.setTextElideMode(QtCore.Qt.TextElideMode.ElideMiddle)
 
     def remove_class(self):
         indexes = self.tableWidgetClasses.selectedIndexes()

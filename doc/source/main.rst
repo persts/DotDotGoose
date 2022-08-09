@@ -205,10 +205,6 @@ Loading Point Data
     1. Click the [Load] button to open the file dialog.
     2. Select a project file to load.
 
-.. raw:: latex
-
-    \newpage
-
 Exporting Count Data
 ====================
 Clicking the [Export] button will open a file dialog where you will enter a new file name or select and existing file to overwrite.

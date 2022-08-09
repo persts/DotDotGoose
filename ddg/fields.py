@@ -22,7 +22,7 @@
 # along with with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------------
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 
 
 class BoxText(QtWidgets.QTextEdit):
