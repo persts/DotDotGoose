@@ -264,10 +264,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             msgBox.setWindowTitle('Warning')
             msgBox.setText('You are about to remove class [{}] '.format(class_name))
             msgBox.setInformativeText('Do you want to continue?')
-            msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
-            msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+            msgBox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)
+            msgBox.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
             response = msgBox.exec()
-            if response == QtWidgets.QMessageBox.Ok:
+            if response == QtWidgets.QMessageBox.StandardButton.Ok:
                 self.canvas.remove_class(class_name)
                 self.display_classes()
                 self.display_count_tree()
@@ -284,17 +284,17 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         if file_name[0] != '':
             self.previous_file_name = file_name[0]
             if override is False and self.canvas.directory != os.path.split(file_name[0])[0]:
-                QtWidgets.QMessageBox.warning(self.parent(), 'ERROR', 'You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.', QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.warning(self.parent(), 'ERROR', 'You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.', QtWidgets.QMessageBox.StandardButton.Ok)
             else:
                 if self.canvas.save_points(file_name[0], self.lineEditSurveyId.text()) is False:
                     msg_box = QtWidgets.QMessageBox()
                     msg_box.setWindowTitle('ERROR')
                     msg_box.setText('Save Failed!')
                     msg_box.setInformativeText('It appears you cannot save your pnt file in the working directory, possibly due to permissions.\n\nEither change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory. ')
-                    msg_box.setStandardButtons(QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Cancel)
-                    msg_box.setDefaultButton(QtWidgets.QMessageBox.Save)
+                    msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Save | QtWidgets.QMessageBox.StandardButton.Cancel)
+                    msg_box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Save)
                     response = msg_box.exec()
-                    if response == QtWidgets.QMessageBox.Save:
+                    if response == QtWidgets.QMessageBox.StandardButton.Save:
                         self.save(True)
 
     def select_model_item(self, model_index):

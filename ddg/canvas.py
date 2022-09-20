@@ -238,7 +238,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 image_list = sorted(image_list)
                 self.load_images(image_list)
             else:
-                QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Working directory already set. Load canceled.', QtWidgets.QMessageBox.Ok)
+                QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Working directory already set. Load canceled.', QtWidgets.QMessageBox.StandardButton.Ok)
         else:
             base_path = os.path.split(peek)[0]
             for entry in drop_list:
@@ -256,7 +256,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     error = True
                     message = 'Image originated outside current working directory. Load canceled.'
                 if error:
-                    QtWidgets.QMessageBox.warning(self.parent(), 'Warning', message, QtWidgets.QMessageBox.Ok)
+                    QtWidgets.QMessageBox.warning(self.parent(), 'Warning', message, QtWidgets.QMessageBox.StandardButton.Ok)
                     return None
             self.directory = base_path
             self.directory_set.emit(self.directory)
