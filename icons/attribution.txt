@@ -1,0 +1,4 @@
+Icons based on:
+
+Material design icons is the official icon set from Google.
+https://material.io/resources/icons/?style=baseline

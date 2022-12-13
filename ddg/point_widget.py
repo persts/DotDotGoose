@@ -100,7 +100,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.checkBoxImageFields.clicked.connect(self.hide_custom_fields.emit)
 
     def add_class(self):
-        class_name, ok = QtWidgets.QInputDialog.getText(self, 'New Class', 'Class Name')
+        class_name, ok = QtWidgets.QInputDialog.getText(self, self.tr('New Class'), self.tr('Class Name'))
         if ok:
             self.canvas.add_class(class_name)
             self.display_classes()
@@ -187,11 +187,11 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def export(self):
         if self.radioButtonCounts.isChecked():
-            file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Count Summary', os.path.join(self.canvas.directory, 'counts.csv'), 'Text CSV (*.csv)')
+            file_name = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Export Count Summary'), os.path.join(self.canvas.directory, 'counts.csv'), 'Text CSV (*.csv)')
             if file_name[0] != '':
                 self.canvas.export_counts(file_name[0], self.lineEditSurveyId.text())
         elif self.radioButtonPoints.isChecked():
-            file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Export Points', os.path.join(self.canvas.directory, 'points.csv'), 'Text CSV (*.csv)')
+            file_name = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Export Points'), os.path.join(self.canvas.directory, 'points.csv'), 'Text CSV (*.csv)')
             if file_name[0] != '':
                 self.canvas.export_points(file_name[0], self.lineEditSurveyId.text())
         else:
@@ -203,12 +203,12 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.display_count_tree()
 
     def import_metadata(self):
-        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Select Points File', self.canvas.directory, 'Point Files (*.pnt)')
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Select Points File'), self.canvas.directory, 'Point Files (*.pnt)')
         if file_name[0] != '':
             self.canvas.import_metadata(file_name[0])
 
     def load(self):
-        file_name = QtWidgets.QFileDialog.getOpenFileName(self, 'Select Points File', self.canvas.directory, 'Point Files (*.pnt)')
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Select Points File'), self.canvas.directory, 'Point Files (*.pnt)')
         if file_name[0] != '':
             self.previous_file_name = file_name[0]
             self.canvas.load_points(file_name[0])
@@ -233,9 +233,9 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def reset(self):
         msgBox = QtWidgets.QMessageBox()
-        msgBox.setWindowTitle('Warning')
-        msgBox.setText('You are about to clear all data')
-        msgBox.setInformativeText('Do you want to continue?')
+        msgBox.setWindowTitle(self.tr('Warning'))
+        msgBox.setText(self.tr('You are about to clear all data'))
+        msgBox.setInformativeText(self.tr('Do you want to continue?'))
         msgBox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)
         msgBox.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
         response = msgBox.exec()
@@ -249,8 +249,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.current_model_index = QtCore.QModelIndex()
         self.model.clear()
         self.model.setColumnCount(2)
-        self.model.setHeaderData(0, QtCore.Qt.Orientation.Horizontal, 'Image')
-        self.model.setHeaderData(1, QtCore.Qt.Orientation.Horizontal, 'Count')
+        self.model.setHeaderData(0, QtCore.Qt.Orientation.Horizontal, self.tr('Image'))
+        self.model.setHeaderData(1, QtCore.Qt.Orientation.Horizontal, self.tr('Count'))
         self.treeView.setExpandsOnDoubleClick(False)
         self.treeView.header().setStretchLastSection(False)
         self.treeView.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -261,9 +261,9 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         if len(indexes) > 0:
             class_name = self.canvas.classes[indexes[0].row()]
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setWindowTitle('Warning')
-            msgBox.setText('You are about to remove class [{}] '.format(class_name))
-            msgBox.setInformativeText('Do you want to continue?')
+            msgBox.setWindowTitle(self.tr('Warning'))
+            msgBox.setText(self.tr('{} [{}] '.format(self.tr('You are about to remove class'), class_name)))
+            msgBox.setInformativeText(self.tr('Do you want to continue?'))
             msgBox.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ok)
             msgBox.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
             response = msgBox.exec()
@@ -280,17 +280,17 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.canvas.save_points(self.previous_file_name, self.lineEditSurveyId.text())
 
     def save(self, override=False):
-        file_name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Points', os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save Points'), os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
         if file_name[0] != '':
             self.previous_file_name = file_name[0]
             if override is False and self.canvas.directory != os.path.split(file_name[0])[0]:
-                QtWidgets.QMessageBox.warning(self.parent(), 'ERROR', 'You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.', QtWidgets.QMessageBox.StandardButton.Ok)
+                QtWidgets.QMessageBox.warning(self.parent(), self.tr('ERROR'), self.tr('You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.'), QtWidgets.QMessageBox.StandardButton.Ok)
             else:
                 if self.canvas.save_points(file_name[0], self.lineEditSurveyId.text()) is False:
                     msg_box = QtWidgets.QMessageBox()
-                    msg_box.setWindowTitle('ERROR')
-                    msg_box.setText('Save Failed!')
-                    msg_box.setInformativeText('It appears you cannot save your pnt file in the working directory, possibly due to permissions.\n\nEither change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory. ')
+                    msg_box.setWindowTitle(self.tr('ERROR'))
+                    msg_box.setText(self.tr('Save Failed!'))
+                    msg_box.setInformativeText(self.tr('It appears you cannot save your pnt file in the working directory, possibly due to permissions.\n\nEither change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory.'))
                     msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Save | QtWidgets.QMessageBox.StandardButton.Cancel)
                     msg_box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Save)
                     response = msg_box.exec()

@@ -146,7 +146,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def export_counts(self, file_name, survey_id):
         if self.current_image_name is not None:
             file = open(file_name, 'w')
-            output = 'survey id,image'
+            output = self.tr('survey id,image')
             for class_name in self.classes:
                 output += ',' + class_name
             output += ",x,y"
@@ -178,7 +178,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def export_points(self, file_name, survey_id):
         if self.current_image_name is not None:
             file = open(file_name, 'w')
-            output = 'survey id,image,class,x,y'
+            output = self.tr('survey id,image,class,x,y')
             file.write(output)
             for image in self.points:
                 for class_name in self.classes:
@@ -238,7 +238,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 image_list = sorted(image_list)
                 self.load_images(image_list)
             else:
-                QtWidgets.QMessageBox.warning(self.parent(), 'Warning', 'Working directory already set. Load canceled.', QtWidgets.QMessageBox.StandardButton.Ok)
+                QtWidgets.QMessageBox.warning(self.parent(), self.tr('Warning'), self.tr('Working directory already set. Load canceled.'), QtWidgets.QMessageBox.StandardButton.Ok)
         else:
             base_path = os.path.split(peek)[0]
             for entry in drop_list:
@@ -248,15 +248,15 @@ class Canvas(QtWidgets.QGraphicsScene):
                 message = ''
                 if os.path.isdir(file_name):
                     error = True
-                    message = 'Mix of files and directories detected. Load canceled.'
+                    message = self.tr('Mix of files and directories detected. Load canceled.')
                 if base_path != path:
                     error = True
-                    message = 'Files from multiple directories detected. Load canceled.'
+                    message = self.tr('Files from multiple directories detected. Load canceled.')
                 if self.directory != '' and self.directory != path:
                     error = True
-                    message = 'Image originated outside current working directory. Load canceled.'
+                    message = self.tr('Image originated outside current working directory. Load canceled.')
                 if error:
-                    QtWidgets.QMessageBox.warning(self.parent(), 'Warning', message, QtWidgets.QMessageBox.StandardButton.Ok)
+                    QtWidgets.QMessageBox.warning(self.parent(), self.tr('Warning'), message, QtWidgets.QMessageBox.StandardButton.Ok)
                     return None
             self.directory = base_path
             self.directory_set.emit(self.directory)
@@ -319,7 +319,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
                     self.addPixmap(self.pixmap)
             except FileNotFoundError:
-                QtWidgets.QMessageBox.critical(None, 'File Not Found', '{} is not in the same folder as the point file.'.format(self.current_image_name))
+                QtWidgets.QMessageBox.critical(None, self.tr('File Not Found'), '{} {}'.format(self.current_image_name, self.tr('is not in the same folder as the point file.')))
                 self.image_loaded.emit(self.directory, self.current_image_name)
             self.image_loaded.emit(self.directory, self.current_image_name)
             self.display_points()

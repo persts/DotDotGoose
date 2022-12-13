@@ -52,7 +52,7 @@ class Exporter(QtCore.QThread):
             os.makedirs('{}{}{}'.format(self.output_directory, os.path.sep, class_name))
         summary_file_name = '{}{}summary.csv'.format(self.output_directory, os.path.sep)
         summary_file = open(summary_file_name, 'w')
-        output = 'survey id,image,class,x,y,chip name'
+        output = self.tr('survey id,image,class,x,y,chip name')
         summary_file.write(output)
         progress = 2
         for image in self.points:

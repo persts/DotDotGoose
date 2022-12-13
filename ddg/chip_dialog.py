@@ -41,7 +41,7 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
     def __init__(self, classes, points, directory, survey_id):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
-        self.setWindowTitle('Export Image Chips')
+        self.setWindowTitle(self.tr('Export Image Chips'))
         self.setModal(True)
 
         self.classes = classes
@@ -74,11 +74,11 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
             self.close()
 
     def export(self):
-        self.pushButtonCancel.setText('Cancel')
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select Directory', self.directory, QtWidgets.QFileDialog.ShowDirsOnly)
+        self.pushButtonCancel.setText(self.tr('Cancel'))
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, self.tr('Select Directory'), self.directory, QtWidgets.QFileDialog.Option.ShowDirsOnly)
         if directory != '':
             if len(os.listdir(directory)) != 0:
-                QtWidgets.QMessageBox.warning(self, 'Target Directory', 'The target directory contains data, please select an empty directory for exporting.')
+                QtWidgets.QMessageBox.warning(self, self.tr('Target Directory'), self.tr('The target directory contains data, please select an empty directory for exporting.'))
             else:
                 file_type = '.png'
                 if self.radioButtonJpeg.isChecked():
@@ -90,7 +90,7 @@ class ChipDialog(QtWidgets.QDialog, CLASS_DIALOG):
                 self.exporter.start()
 
     def finished(self):
-        self.pushButtonCancel.setText('Close')
+        self.pushButtonCancel.setText(self.tr('Close'))
 
     def set_height(self, value):
         self.height = value

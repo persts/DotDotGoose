@@ -53,7 +53,8 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.point_widget.saving.connect(self.display_quick_save)
 
         # Set up keyboard shortcuts
-        self.save_shortcut = QtGui.QShortcut(QtGui.QKeySequence(self.tr("Ctrl+S")), self)  # quick save using Ctrl+S
+        # quick save using Ctrl+S
+        self.save_shortcut = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.Key.Key_S), self)
         self.save_shortcut.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.save_shortcut.activated.connect(self.point_widget.quick_save)
 
@@ -66,11 +67,11 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.down_arrow.activated.connect(self.point_widget.next)
 
         # same as arrows but conventient for right handed people
-        self.up_arrow = QtGui.QShortcut(QtGui.QKeySequence(self.tr("W")), self)
+        self.up_arrow = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_W), self)
         self.up_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
 
-        self.down_arrow = QtGui.QShortcut(QtGui.QKeySequence(self.tr("S")), self)
+        self.down_arrow = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_S), self)
         self.down_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.down_arrow.activated.connect(self.point_widget.next)
 
@@ -111,7 +112,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.quick_save_frame = QtWidgets.QFrame(self.graphicsView)
         self.quick_save_frame.setStyleSheet("QFrame { background: #4caf50;color: #FFF;font-weight: bold}")
         self.quick_save_frame.setLayout(QtWidgets.QHBoxLayout())
-        self.quick_save_frame.layout().addWidget(QtWidgets.QLabel('Saving...'))
+        self.quick_save_frame.layout().addWidget(QtWidgets.QLabel(self.tr('Saving...')))
         self.quick_save_frame.setGeometry(3, 3, 100, 35)
         self.quick_save_frame.hide()
 
@@ -123,7 +124,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         field_def = (self.field_name.text(), self.field_type.currentText())
         field_names = [x[0] for x in self.canvas.custom_fields['fields']]
         if field_def[0] in field_names:
-            QtWidgets.QMessageBox.warning(self, 'Warning', 'Field name already exists')
+            QtWidgets.QMessageBox.warning(self, self.tr('Warning'), self.tr('Field name already exists'))
         else:
             self.canvas.add_custom_field(field_def)
             self.add_dialog.close()
@@ -132,10 +133,10 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.field_name = QtWidgets.QLineEdit()
         self.field_type = QtWidgets.QComboBox()
         self.field_type.addItems(['line', 'box'])
-        self.add_button = QtWidgets.QPushButton('Save')
+        self.add_button = QtWidgets.QPushButton(self.tr('Save'))
         self.add_button.clicked.connect(self.add_field)
         self.add_dialog = QtWidgets.QDialog(self)
-        self.add_dialog.setWindowTitle('Add Custom Field')
+        self.add_dialog.setWindowTitle(self.tr('Add Custom Field'))
         self.add_dialog.setLayout(QtWidgets.QVBoxLayout())
         self.add_dialog.layout().addWidget(self.field_name)
         self.add_dialog.layout().addWidget(self.field_type)
@@ -150,10 +151,10 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
     def delete_field_dialog(self):
         self.field_list = QtWidgets.QComboBox()
         self.field_list.addItems([x[0] for x in self.canvas.custom_fields['fields']])
-        self.delete_button = QtWidgets.QPushButton('Delete')
+        self.delete_button = QtWidgets.QPushButton(self.tr('Delete'))
         self.delete_button.clicked.connect(self.delete_field)
         self.delete_dialog = QtWidgets.QDialog(self)
-        self.delete_dialog.setWindowTitle('Delete Custom Field')
+        self.delete_dialog.setWindowTitle(self.tr('Delete Custom Field'))
         self.delete_dialog.setLayout(QtWidgets.QVBoxLayout())
         self.delete_dialog.layout().addWidget(self.field_list)
         self.delete_dialog.layout().addWidget(self.delete_button)
@@ -217,7 +218,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
             self.frameCustomField.show()
 
     def select_folder(self):
-        name = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select image folder', self.canvas.directory)
+        name = QtWidgets.QFileDialog.getExistingDirectory(self, self.tr('Select image folder'), self.canvas.directory)
         if name != '':
             self.canvas.load([QtCore.QUrl('file:{}'.format(name))])
 
