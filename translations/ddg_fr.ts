@@ -10,31 +10,31 @@
         <translation>id_etude,image,categorie,x,y</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="259" /><location filename="../ddg/canvas.py" line="241" /><source>Warning</source>
+        <location filename="../ddg/canvas.py" line="267" /><location filename="../ddg/canvas.py" line="249" /><source>Warning</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="241" /><source>Working directory already set. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="249" /><source>Working directory already set. Load canceled.</source>
         <translation>Répertoire de travail déjà défini. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="251" /><source>Mix of files and directories detected. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="259" /><source>Mix of files and directories detected. Load canceled.</source>
         <translation>Mélange de fichiers et dossiers détectés. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="254" /><source>Files from multiple directories detected. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="262" /><source>Files from multiple directories detected. Load canceled.</source>
         <translation>Fichiers de sources multiples détectés. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="257" /><source>Image originated outside current working directory. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="265" /><source>Image originated outside current working directory. Load canceled.</source>
         <translation>Images provenant de l'extérieur du dossier de travail. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="322" /><source>File Not Found</source>
+        <location filename="../ddg/canvas.py" line="330" /><source>File Not Found</source>
         <translation>Fichier introuvable</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="322" /><source>is not in the same folder as the point file.</source>
+        <location filename="../ddg/canvas.py" line="330" /><source>is not in the same folder as the point file.</source>
         <translation>n'est pas dans le même dossier que le fichier de points.</translation>
     </message>
 </context><context><name>CentralWidget</name><message>
@@ -197,52 +197,52 @@
         <location filename="../ddg/point_widget.py" line="194" /><source>Export Points</source>
         <translation>Exporter les points</translation>
     </message>
-    <message>
-        <location filename="../ddg/point_widget.py" line="211" /><location filename="../ddg/point_widget.py" line="206" /><source>Select Points File</source>
+    <message><location filename="../ddg/point_widget.py" line="198" /><source>Export Image With Points</source><translation type="unfinished" /></message><message>
+        <location filename="../ddg/point_widget.py" line="215" /><location filename="../ddg/point_widget.py" line="210" /><source>Select Points File</source>
         <translation>Sélectionner un fichier de points</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="264" /><location filename="../ddg/point_widget.py" line="236" /><source>Warning</source>
+        <location filename="../ddg/point_widget.py" line="268" /><location filename="../ddg/point_widget.py" line="240" /><source>Warning</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="237" /><source>You are about to clear all data</source>
+        <location filename="../ddg/point_widget.py" line="241" /><source>You are about to clear all data</source>
         <translation>Vous allez supprimer toutes les données</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="266" /><location filename="../ddg/point_widget.py" line="238" /><source>Do you want to continue?</source>
+        <location filename="../ddg/point_widget.py" line="270" /><location filename="../ddg/point_widget.py" line="242" /><source>Do you want to continue?</source>
         <translation>Voulez-vous continuer ?</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="252" /><source>Image</source>
+        <location filename="../ddg/point_widget.py" line="256" /><source>Image</source>
         <translation>Image</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="253" /><source>Count</source>
+        <location filename="../ddg/point_widget.py" line="257" /><source>Count</source>
         <translation>Comptage</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="265" /><source>You are about to remove class</source>
+        <location filename="../ddg/point_widget.py" line="269" /><source>You are about to remove class</source>
         <translation>Vous allez supprimer la catégorie</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="283" /><source>Save Points</source>
+        <location filename="../ddg/point_widget.py" line="287" /><source>Save Points</source>
         <translation>Enregistrer les points</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="291" /><location filename="../ddg/point_widget.py" line="287" /><source>ERROR</source>
+        <location filename="../ddg/point_widget.py" line="295" /><location filename="../ddg/point_widget.py" line="291" /><source>ERROR</source>
         <translation>ERREUR</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="287" /><source>You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.</source>
+        <location filename="../ddg/point_widget.py" line="291" /><source>You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.</source>
         <translation>Vous essayez d'enregistrer le fichier pnt en dehors du dossier de travail. Opération annulée. DONNÉES DE POINT NON ENREGISTRÉES.</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="292" /><source>Save Failed!</source>
+        <location filename="../ddg/point_widget.py" line="296" /><source>Save Failed!</source>
         <translation>Enregistrement échoué !</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="293" /><source>It appears you cannot save your pnt file in the working directory, possibly due to permissions.
+        <location filename="../ddg/point_widget.py" line="297" /><source>It appears you cannot save your pnt file in the working directory, possibly due to permissions.
 
 Either change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory.</source>
         <translation>Il semble que vous ne puissiez pas enregistrer votre fichier pnt dans le répertoire de travail, probablement en raison des autorisations.\n\nModifiez les autorisations sur le dossier ou cliquez sur le bouton ENREGISTRER et sélectionnez un autre emplacement en dehors du répertoire de travail. N'oubliez pas de recopier le fichier pnt dans le répertoire de travail actuel.</translation>
@@ -288,6 +288,34 @@ Either change the permissions on the folder or click the SAVE button and select 
         <translation>Résumé</translation>
     </message>
     <message>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Load point file.</source>
+        <translation>Charger un fichier de points.</translation>
+    </message>
+    <message>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Load</source>
+        <translation>Charger</translation>
+    </message>
+    <message>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Counts</source>
+        <translation>Résumé</translation>
+    </message>
+    <message>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Chips</source>
+        <translation>Détails</translation>
+    </message>
+    <message>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Points</source>
+        <translation type="unfinished" />
+    </message>
+    <message><location filename="../ddg/point_widget.ui" line="0" /><source>Overlay</source><translation type="unfinished" /></message><message>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Reset point file.</source>
+        <translation>Remise à zéro du fichier de point.</translation>
+    </message>
+    <message>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Reset</source>
+        <translation>Remise à zéro</translation>
+    </message>
+    <message>
         <location filename="../ddg/point_widget.ui" line="0" /><source>Point Radius</source>
         <translation>Rayon du point</translation>
     </message>
@@ -316,28 +344,16 @@ Either change the permissions on the folder or click the SAVE button and select 
         <translation>Afficher la grille.</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Counts</source>
-        <translation>Résumé</translation>
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Save point file.</source>
+        <translation>Enregistrer le fichier de point.</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Points</source>
-        <translation type="unfinished" />
+        <location filename="../ddg/point_widget.ui" line="0" /><source>Save</source>
+        <translation>Enregistrer</translation>
     </message>
-    <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Chips</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
+<message>
         <location filename="../ddg/point_widget.ui" line="0" /><location filename="../ddg/point_widget.ui" line="0" /><source>Export</source>
         <translation>Exporter</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Load point file.</source>
-        <translation>Charger un fichier de points.</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Load</source>
-        <translation>Charger</translation>
     </message>
     <message>
         <location filename="../ddg/point_widget.ui" line="0" /><source>Import classes and custom field from existing point file.</source>
@@ -347,20 +363,4 @@ Either change the permissions on the folder or click the SAVE button and select 
         <location filename="../ddg/point_widget.ui" line="0" /><source>Import</source>
         <translation>Importer</translation>
     </message>
-    <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Reset point file.</source>
-        <translation>Remise à zéro du fichier de point.</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Reset</source>
-        <translation>Remise à zéro</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Save point file.</source>
-        <translation>Enregistrer le fichier de point.</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.ui" line="0" /><source>Save</source>
-        <translation>Enregistrer</translation>
-    </message>
-</context></TS>
+    </context></TS>

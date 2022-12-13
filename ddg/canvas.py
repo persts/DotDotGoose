@@ -188,6 +188,14 @@ class Canvas(QtWidgets.QGraphicsScene):
                             file.write(output)
             file.close()
 
+    def export_overlay(self, file_name):
+        if self.current_image_name is not None:
+            image = QtGui.QImage(int(self.sceneRect().width()), int(self.sceneRect().height()), QtGui.QImage.Format.Format_RGB32)
+            painter = QtGui.QPainter(image)
+            self.render(painter)
+            image.save(file_name)
+            painter.end()
+
     def get_custom_field_data(self):
         data = {}
         if self.current_image_name is not None:

@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>375</width>
-    <height>880</height>
+    <height>967</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <layout class="QHBoxLayout" name="SurveyId">
      <item>
@@ -76,7 +76,7 @@
             <string>Delete</string>
            </property>
            <property name="icon">
-            <iconset resource="../icons/ddg.qrc">
+            <iconset>
              <normaloff>:/icons/delete.svg</normaloff>:/icons/delete.svg</iconset>
            </property>
            <property name="iconSize">
@@ -115,7 +115,7 @@
             <string>Add</string>
            </property>
            <property name="icon">
-            <iconset resource="../icons/ddg.qrc">
+            <iconset>
              <normaloff>:/icons/add.svg</normaloff>:/icons/add.svg</iconset>
            </property>
            <property name="iconSize">
@@ -144,14 +144,96 @@
    </item>
    <item>
     <widget class="QFrame" name="frameControls">
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <property name="topMargin">
-       <number>9</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="2" column="0">
+       <widget class="QPushButton" name="pushButtonLoadPoints">
+        <property name="toolTip">
+         <string>Load point file.</string>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/icons/load.svg</normaloff>:/icons/load.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" rowspan="2" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="radioButtonCounts">
+          <property name="text">
+           <string>Counts</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="radioButtonChips">
+          <property name="text">
+           <string>Chips</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="radioButtonPoints">
+          <property name="text">
+           <string>Points</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QRadioButton" name="radioButtonOverlay">
+          <property name="text">
+           <string>Overlay</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="1">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>148</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="4" column="2">
+       <widget class="QPushButton" name="pushButtonReset">
+        <property name="toolTip">
+         <string>Reset point file.</string>
+        </property>
+        <property name="text">
+         <string>Reset</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/icons/reset.svg</normaloff>:/icons/reset.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
          <widget class="QSpinBox" name="spinBoxPointRadius">
@@ -276,177 +358,92 @@
         </item>
        </layout>
       </item>
-      <item>
-       <widget class="Line" name="line_2">
+      <item row="2" column="2">
+       <widget class="QPushButton" name="pushButtonSave">
+        <property name="toolTip">
+         <string>Save point file.</string>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/icons/save.svg</normaloff>:/icons/save.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QPushButton" name="pushButtonExport">
+        <property name="toolTip">
+         <string>Export</string>
+        </property>
+        <property name="text">
+         <string>Export</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/icons/export.svg</normaloff>:/icons/export.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <spacer name="horizontalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>148</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="5" column="0" colspan="3">
+       <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="1">
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QRadioButton" name="radioButtonCounts">
-            <property name="text">
-             <string>Counts</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonPoints">
-            <property name="text">
-             <string>Points</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButtonChips">
-            <property name="text">
-             <string>Chips</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="0" column="1">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="3">
-         <widget class="QPushButton" name="pushButtonExport">
-          <property name="toolTip">
-           <string>Export</string>
-          </property>
-          <property name="text">
-           <string>Export</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/export.svg</normaloff>:/icons/export.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QPushButton" name="pushButtonLoadPoints">
-          <property name="toolTip">
-           <string>Load point file.</string>
-          </property>
-          <property name="text">
-           <string>Load</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/load.svg</normaloff>:/icons/load.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="4">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="pushButtonImport">
-          <property name="toolTip">
-           <string>Import classes and custom field from existing point file.</string>
-          </property>
-          <property name="text">
-           <string>Import</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/import.svg</normaloff>:/icons/import.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="pushButtonReset">
-          <property name="toolTip">
-           <string>Reset point file.</string>
-          </property>
-          <property name="text">
-           <string>Reset</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/reset.svg</normaloff>:/icons/reset.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QPushButton" name="pushButtonSave">
-          <property name="toolTip">
-           <string>Save point file.</string>
-          </property>
-          <property name="text">
-           <string>Save</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
-            <normaloff>:/icons/save.svg</normaloff>:/icons/save.svg</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>24</width>
-            <height>24</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="4" column="0">
+       <widget class="QPushButton" name="pushButtonImport">
+        <property name="toolTip">
+         <string>Import classes and custom field from existing point file.</string>
+        </property>
+        <property name="text">
+         <string>Import</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/icons/import.svg</normaloff>:/icons/import.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
