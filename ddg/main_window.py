@@ -48,6 +48,12 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.addAction(self.tr('English'), self.en_US)
         menu.addAction(self.tr('French'), self.fr_FR)
 
+    def closeEvent(self, event):
+        if self.centralWidget().canvas.dirty_data_check():
+            event.accept()
+        else:
+            event.ignore()
+
     def display_exception(self, error):
         self.error_widget.clear()
         for line in error:
@@ -65,7 +71,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.restart_message()
 
     def restart_message(self):
-        QtWidgets.QMessageBox.warning(self.parent(), self.tr('Restart Required'), self.tr('You must restart the application for the language setting to be applied.'), QtWidgets.QMessageBox.StandardButton.Ok)
+        QtWidgets.QMessageBox.warning(self, self.tr('Restart Required'), self.tr('You must restart the application for the language setting to be applied.'), QtWidgets.QMessageBox.StandardButton.Ok)
 
     def quit(self):
         self.close()

@@ -45,18 +45,18 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
-        self.canvas = Canvas()
+        self.canvas = Canvas(self)
 
         self.point_widget = PointWidget(self.canvas, self)
         self.findChild(QtWidgets.QFrame, 'framePointWidget').layout().addWidget(self.point_widget)
         self.point_widget.hide_custom_fields.connect(self.hide_custom_fields)
-        self.point_widget.saving.connect(self.display_quick_save)
+        self.canvas.saving.connect(self.display_quick_save)
 
         # Set up keyboard shortcuts
         # quick save using Ctrl+S
         self.save_shortcut = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.Key.Key_S), self)
         self.save_shortcut.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
-        self.save_shortcut.activated.connect(self.point_widget.quick_save)
+        self.save_shortcut.activated.connect(self.canvas.quick_save)
 
         self.up_arrow = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Up), self)
         self.up_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)

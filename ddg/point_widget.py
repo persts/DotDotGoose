@@ -38,7 +38,6 @@ WIDGET, _ = uic.loadUiType(os.path.join(bundle_dir, 'point_widget.ui'))
 
 class PointWidget(QtWidgets.QWidget, WIDGET):
     hide_custom_fields = QtCore.pyqtSignal(bool)
-    saving = QtCore.pyqtSignal()
 
     def __init__(self, canvas, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -48,7 +47,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.pushButtonAddClass.clicked.connect(self.add_class)
         self.pushButtonRemoveClass.clicked.connect(self.remove_class)
         self.pushButtonImport.clicked.connect(self.import_metadata)
-        self.pushButtonSave.clicked.connect(self.save)
+        self.pushButtonSave.clicked.connect(self.canvas.save)
         self.pushButtonLoadPoints.clicked.connect(self.load)
         self.pushButtonReset.clicked.connect(self.reset)
         self.pushButtonExport.clicked.connect(self.export)
@@ -83,8 +82,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.reset_model()
         self.treeView.doubleClicked.connect(self.select_model_item)
 
-        self.previous_file_name = None  # used for quick save
-
         self.spinBoxPointRadius.valueChanged.connect(self.canvas.set_point_radius)
         self.spinBoxGrid.valueChanged.connect(self.canvas.set_grid_size)
 
@@ -98,6 +95,8 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.labelGridColor.mousePressEvent = self.change_grid_color
 
         self.checkBoxImageFields.clicked.connect(self.hide_custom_fields.emit)
+
+        self.lineEditSurveyId.textChanged.connect(self.canvas.update_survey_id)
 
     def add_class(self):
         class_name, ok = QtWidgets.QInputDialog.getText(self, self.tr('New Class'), self.tr('Class Name'))
@@ -127,6 +126,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             color = QtWidgets.QColorDialog.getColor()
             if color.isValid():
                 self.canvas.colors[self.canvas.classes[row]] = color
+                self.canvas.dirty = True
                 item = QtWidgets.QTableWidgetItem()
                 icon = QtGui.QPixmap(20, 20)
                 icon.fill(color)
@@ -207,15 +207,16 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.display_count_tree()
 
     def import_metadata(self):
-        file_name = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Select Points File'), self.canvas.directory, 'Point Files (*.pnt)')
-        if file_name[0] != '':
-            self.canvas.import_metadata(file_name[0])
+        if self.canvas.dirty_data_check():
+            file_name = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Select Points File'), self.canvas.directory, 'Point Files (*.pnt)')
+            if file_name[0] != '':
+                self.canvas.import_metadata(file_name[0])
 
     def load(self):
-        file_name = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Select Points File'), self.canvas.directory, 'Point Files (*.pnt)')
-        if file_name[0] != '':
-            self.previous_file_name = file_name[0]
-            self.canvas.load_points(file_name[0])
+        if self.canvas.dirty_data_check():
+            file_name = QtWidgets.QFileDialog.getOpenFileName(self, self.tr('Select Points File'), self.canvas.directory, 'Point Files (*.pnt)')
+            if file_name[0] != '':
+                self.canvas.load_points(file_name[0])
 
     def next(self):
         max_index = self.model.rowCount()
@@ -247,7 +248,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.canvas.reset()
             self.display_classes()
             self.display_count_tree()
-            self.previous_file_name = None
 
     def reset_model(self):
         self.current_model_index = QtCore.QModelIndex()
@@ -275,31 +275,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
                 self.canvas.remove_class(class_name)
                 self.display_classes()
                 self.display_count_tree()
-
-    def quick_save(self):
-        if self.previous_file_name is None:
-            self.save()
-        else:
-            self.saving.emit()
-            self.canvas.save_points(self.previous_file_name, self.lineEditSurveyId.text())
-
-    def save(self, override=False):
-        file_name = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Save Points'), os.path.join(self.canvas.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
-        if file_name[0] != '':
-            self.previous_file_name = file_name[0]
-            if override is False and self.canvas.directory != os.path.split(file_name[0])[0]:
-                QtWidgets.QMessageBox.warning(self.parent(), self.tr('ERROR'), self.tr('You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.'), QtWidgets.QMessageBox.StandardButton.Ok)
-            else:
-                if self.canvas.save_points(file_name[0], self.lineEditSurveyId.text()) is False:
-                    msg_box = QtWidgets.QMessageBox()
-                    msg_box.setWindowTitle(self.tr('ERROR'))
-                    msg_box.setText(self.tr('Save Failed!'))
-                    msg_box.setInformativeText(self.tr('It appears you cannot save your pnt file in the working directory, possibly due to permissions.\n\nEither change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory.'))
-                    msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Save | QtWidgets.QMessageBox.StandardButton.Cancel)
-                    msg_box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Save)
-                    response = msg_box.exec()
-                    if response == QtWidgets.QMessageBox.StandardButton.Save:
-                        self.save(True)
 
     def select_model_item(self, model_index):
         item = self.model.itemFromIndex(model_index)

@@ -38,9 +38,11 @@ class Canvas(QtWidgets.QGraphicsScene):
     fields_updated = QtCore.pyqtSignal(list)
     update_point_count = QtCore.pyqtSignal(str, str, int)
     metadata_imported = QtCore.pyqtSignal()
+    saving = QtCore.pyqtSignal()
 
-    def __init__(self):
-        QtWidgets.QGraphicsScene.__init__(self)
+    def __init__(self, parent=None):
+        QtWidgets.QGraphicsScene.__init__(self, parent)
+        self.dirty = False
         self.points = {}
         self.colors = {}
         self.coordinates = {}
@@ -49,7 +51,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.selection = []
         self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
 
+        self.survey_id = ''
+
         self.directory = ''
+        self.previous_file_name = None  # used for quick save
         self.current_image_name = None
         self.current_class_name = None
 
@@ -63,11 +68,13 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.classes.append(class_name)
             self.classes.sort()
             self.colors[class_name] = QtGui.QColor(QtCore.Qt.GlobalColor.black)
+            self.dirty = True
 
     def add_custom_field(self, field_def):
         self.custom_fields['fields'].append(field_def)
         self.custom_fields['data'][field_def[0]] = {}
         self.fields_updated.emit(self.custom_fields['fields'])
+        self.dirty = True
 
     def add_point(self, point):
         if self.current_image_name is not None and self.current_class_name is not None:
@@ -80,6 +87,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.points[self.current_image_name][self.current_class_name].append(point)
             self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
             self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
+            self.dirty = True
 
     def clear_grid(self):
         for graphic in self.items():
@@ -99,6 +107,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
             self.selection = []
             self.display_points()
+            self.dirty = True
 
     def delete_custom_field(self, field):
         if field in self.custom_fields['data']:
@@ -110,6 +119,24 @@ class Canvas(QtWidgets.QGraphicsScene):
             if index >= 0:
                 self.custom_fields['fields'].pop(index)
             self.fields_updated.emit(self.custom_fields['fields'])
+            self.dirty = True
+
+    def dirty_data_check(self):
+        proceed = True
+        if self.dirty:
+            msg_box = QtWidgets.QMessageBox(self.parent())
+            msg_box.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+            msg_box.setWindowTitle(self.tr('Unsaved Changes'))
+            msg_box.setText(self.tr('Point or field data have been modified.'))
+            msg_box.setInformativeText(self.tr('Do you want to save your changes?'))
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Save | QtWidgets.QMessageBox.StandardButton.Cancel | QtWidgets.QMessageBox.StandardButton.Ignore)
+            msg_box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Save)
+            response = msg_box.exec()
+            if response == QtWidgets.QMessageBox.StandardButton.Save:
+                proceed = self.save()
+            elif response == QtWidgets.QMessageBox.StandardButton.Cancel:
+                proceed = False
+        return proceed
 
     def display_grid(self):
         self.clear_grid()
@@ -349,6 +376,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def load_points(self, file_name):
         file = open(file_name, 'r')
         self.directory = os.path.split(file_name)[0]
+        self.previous_file_name = file_name
         self.directory_set.emit(self.directory)
         data = json.load(file)
         file.close()
@@ -413,6 +441,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             for _, point in self.selection:
                 self.add_point(point)
             self.delete_selected_points()
+            self.dirty = True
 
     def rename_class(self, old_class, new_class):
         index = self.classes.index(old_class)
@@ -430,8 +459,10 @@ class Canvas(QtWidgets.QGraphicsScene):
             elif old_class in self.points[image]:
                 self.points[image][new_class] = self.points[image].pop(old_class)
         self.display_points()
+        self.dirty = True
 
     def reset(self, clear_image=False):
+        self.dirty = False
         self.points = {}
         self.colors = {}
         self.classes = []
@@ -442,6 +473,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
         self.clear()
         self.directory = ''
+        self.previous_file_name = None
         self.current_image_name = ''
         self.current_class_name = None
         self.fields_updated.emit([])
@@ -457,6 +489,35 @@ class Canvas(QtWidgets.QGraphicsScene):
             if class_name in self.points[image]:
                 del self.points[image][class_name]
         self.display_points()
+        self.dirty = True
+
+    def quick_save(self):
+        if self.previous_file_name is None:
+            self.save()
+        else:
+            self.saving.emit()
+            self.save_points(self.previous_file_name, self.survey_id)
+
+    def save(self, override=False):
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self.parent(), self.tr('Save Points'), os.path.join(self.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
+        if file_name[0] != '':
+            if override is False and self.directory != os.path.split(file_name[0])[0]:
+                QtWidgets.QMessageBox.warning(self.parent(), self.tr('ERROR'), self.tr('You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.'), QtWidgets.QMessageBox.StandardButton.Ok)
+            else:
+                if self.save_points(file_name[0], self.survey_id) is False:
+                    msg_box = QtWidgets.QMessageBox()
+                    msg_box.setWindowTitle(self.tr('ERROR'))
+                    msg_box.setText(self.tr('Save Failed!'))
+                    msg_box.setInformativeText(self.tr('It appears you cannot save your pnt file in the working directory, possibly due to permissions.\n\nEither change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory.'))
+                    msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Save | QtWidgets.QMessageBox.StandardButton.Cancel)
+                    msg_box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Save)
+                    response = msg_box.exec()
+                    if response == QtWidgets.QMessageBox.StandardButton.Save:
+                        self.save(True)
+                    else:
+                        return False
+                self.previous_file_name = file_name[0]
+                return True
 
     def save_coordinates(self, x, y):
         if self.current_image_name is not None:
@@ -477,6 +538,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             file = open(file_name, 'w')
             json.dump(output, file)
             file.close()
+            self.dirty = False
         except OSError:
             return False
         return True
@@ -530,3 +592,6 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
         else:
             self.clear_points()
+
+    def update_survey_id(self, text):
+        self.survey_id = text

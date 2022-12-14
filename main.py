@@ -31,8 +31,10 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     if getattr(sys, 'frozen', False):
         QtCore.QDir.addSearchPath('icons', os.path.join(sys._MEIPASS, 'icons'))
+        QtCore.QDir.addSearchPath('i18n', os.path.join(sys._MEIPASS, 'i18n'))
     else:
         QtCore.QDir.addSearchPath('icons', './icons/')
+        QtCore.QDir.addSearchPath('i18n', './i18n/')
 
     if 'plastique' in QtWidgets.QStyleFactory().keys():
         app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
@@ -40,10 +42,10 @@ if __name__ == '__main__':
     settings = QtCore.QSettings("AMNH", "DotDotGoose")
     translator = QtCore.QTranslator()
     if settings.value('locale'):
-        if translator.load(QtCore.QLocale(settings.value('locale')), "ddg", "_", "./i18n/"):
+        if translator.load(QtCore.QLocale(settings.value('locale')), "ddg", "_", "i18n:/"):
             QtCore.QCoreApplication.installTranslator(translator)
     else:
-        if translator.load(QtCore.QLocale(), "ddg", "_", "./i18n/"):
+        if translator.load(QtCore.QLocale(), "ddg", "_", "i18n:/"):
             QtCore.QCoreApplication.installTranslator(translator)
 
     handler = ExceptionHandler()
