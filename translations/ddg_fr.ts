@@ -1,43 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR" sourcelanguage="en_US">
-<context><name>Canvas</name><message>
-        <location filename="../ddg/canvas.py" line="149" /><source>survey id,image</source>
+<context><name>Canvas</name><message><location filename="../ddg/canvas.py" line="129" /><source>Unsaved Changes</source><translation type="unfinished" /></message><message><location filename="../ddg/canvas.py" line="130" /><source>Point or field data have been modified.</source><translation type="unfinished" /></message><message><location filename="../ddg/canvas.py" line="131" /><source>Do you want to save your changes?</source><translation type="unfinished" /></message><message>
+        <location filename="../ddg/canvas.py" line="176" /><source>survey id,image</source>
         <translation>id_etude,image</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="181" /><source>survey id,image,class,x,y</source>
+        <location filename="../ddg/canvas.py" line="208" /><source>survey id,image,class,x,y</source>
         <translation>id_etude,image,categorie,x,y</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="267" /><location filename="../ddg/canvas.py" line="249" /><source>Warning</source>
+        <location filename="../ddg/canvas.py" line="294" /><location filename="../ddg/canvas.py" line="276" /><source>Warning</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="249" /><source>Working directory already set. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="276" /><source>Working directory already set. Load canceled.</source>
         <translation>Répertoire de travail déjà défini. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="259" /><source>Mix of files and directories detected. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="286" /><source>Mix of files and directories detected. Load canceled.</source>
         <translation>Mélange de fichiers et dossiers détectés. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="262" /><source>Files from multiple directories detected. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="289" /><source>Files from multiple directories detected. Load canceled.</source>
         <translation>Fichiers de sources multiples détectés. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="265" /><source>Image originated outside current working directory. Load canceled.</source>
+        <location filename="../ddg/canvas.py" line="292" /><source>Image originated outside current working directory. Load canceled.</source>
         <translation>Images provenant de l'extérieur du dossier de travail. Chargement annulé.</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="330" /><source>File Not Found</source>
+        <location filename="../ddg/canvas.py" line="357" /><source>File Not Found</source>
         <translation>Fichier introuvable</translation>
     </message>
     <message>
-        <location filename="../ddg/canvas.py" line="330" /><source>is not in the same folder as the point file.</source>
+        <location filename="../ddg/canvas.py" line="357" /><source>is not in the same folder as the point file.</source>
         <translation>n'est pas dans le même dossier que le fichier de points.</translation>
     </message>
-</context><context><name>CentralWidget</name><message>
+<message><location filename="../ddg/canvas.py" line="502" /><source>Save Points</source><translation type="unfinished">Enregistrer les points</translation></message><message><location filename="../ddg/canvas.py" line="509" /><location filename="../ddg/canvas.py" line="505" /><source>ERROR</source><translation type="unfinished">ERREUR</translation></message><message><location filename="../ddg/canvas.py" line="505" /><source>You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.</source><translation type="unfinished">Vous essayez d'enregistrer le fichier pnt en dehors du dossier de travail. Opération annulée. DONNÉES DE POINT NON ENREGISTRÉES.</translation></message><message><location filename="../ddg/canvas.py" line="510" /><source>Save Failed!</source><translation type="unfinished">Enregistrement échoué !</translation></message><message><location filename="../ddg/canvas.py" line="511" /><source>It appears you cannot save your pnt file in the working directory, possibly due to permissions.
+
+Either change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory.</source><translation type="unfinished">Il semble que vous ne puissiez pas enregistrer votre fichier pnt dans le répertoire de travail, probablement en raison des autorisations.\n\nModifiez les autorisations sur le dossier ou cliquez sur le bouton ENREGISTRER et sélectionnez un autre emplacement en dehors du répertoire de travail. N'oubliez pas de recopier le fichier pnt dans le répertoire de travail actuel.</translation></message></context><context><name>CentralWidget</name><message>
         <location filename="../ddg/central_widget.py" line="115" /><source>Saving...</source>
         <translation>Enregistrement...</translation>
     </message>
@@ -181,12 +183,12 @@
         <location filename="../ddg/main_window.py" line="37" /><source>EXCEPTION DETECTED</source>
         <translation>EXCEPTION DETECTÉE</translation>
     </message>
-<message><location filename="../ddg/main_window.py" line="42" /><source>File</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="44" /><source>Quit</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="46" /><source>Language</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="48" /><source>English</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="49" /><source>French</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="68" /><source>Restart Required</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="68" /><source>You must restart the application for the language setting to be applied.</source><translation type="unfinished" /></message></context><context><name>PointWidget</name><message>
-        <location filename="../ddg/point_widget.py" line="103" /><source>New Class</source>
+<message><location filename="../ddg/main_window.py" line="42" /><source>File</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="44" /><source>Quit</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="46" /><source>Language</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="48" /><source>English</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="49" /><source>French</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="74" /><source>Restart Required</source><translation type="unfinished" /></message><message><location filename="../ddg/main_window.py" line="74" /><source>You must restart the application for the language setting to be applied.</source><translation type="unfinished" /></message></context><context><name>PointWidget</name><message>
+        <location filename="../ddg/point_widget.py" line="102" /><source>New Class</source>
         <translation>Nouvelle catégorie</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="103" /><source>Class Name</source>
+        <location filename="../ddg/point_widget.py" line="102" /><source>Class Name</source>
         <translation>Nom de la catégorie</translation>
     </message>
     <message>
@@ -198,19 +200,19 @@
         <translation>Exporter les points</translation>
     </message>
     <message><location filename="../ddg/point_widget.py" line="198" /><source>Export Image With Points</source><translation type="unfinished" /></message><message>
-        <location filename="../ddg/point_widget.py" line="215" /><location filename="../ddg/point_widget.py" line="210" /><source>Select Points File</source>
+        <location filename="../ddg/point_widget.py" line="217" /><location filename="../ddg/point_widget.py" line="211" /><source>Select Points File</source>
         <translation>Sélectionner un fichier de points</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="268" /><location filename="../ddg/point_widget.py" line="240" /><source>Warning</source>
+        <location filename="../ddg/point_widget.py" line="268" /><location filename="../ddg/point_widget.py" line="241" /><source>Warning</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="241" /><source>You are about to clear all data</source>
+        <location filename="../ddg/point_widget.py" line="242" /><source>You are about to clear all data</source>
         <translation>Vous allez supprimer toutes les données</translation>
     </message>
     <message>
-        <location filename="../ddg/point_widget.py" line="270" /><location filename="../ddg/point_widget.py" line="242" /><source>Do you want to continue?</source>
+        <location filename="../ddg/point_widget.py" line="270" /><location filename="../ddg/point_widget.py" line="243" /><source>Do you want to continue?</source>
         <translation>Voulez-vous continuer ?</translation>
     </message>
     <message>
@@ -224,28 +226,6 @@
     <message>
         <location filename="../ddg/point_widget.py" line="269" /><source>You are about to remove class</source>
         <translation>Vous allez supprimer la catégorie</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.py" line="287" /><source>Save Points</source>
-        <translation>Enregistrer les points</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.py" line="295" /><location filename="../ddg/point_widget.py" line="291" /><source>ERROR</source>
-        <translation>ERREUR</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.py" line="291" /><source>You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.</source>
-        <translation>Vous essayez d'enregistrer le fichier pnt en dehors du dossier de travail. Opération annulée. DONNÉES DE POINT NON ENREGISTRÉES.</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.py" line="296" /><source>Save Failed!</source>
-        <translation>Enregistrement échoué !</translation>
-    </message>
-    <message>
-        <location filename="../ddg/point_widget.py" line="297" /><source>It appears you cannot save your pnt file in the working directory, possibly due to permissions.
-
-Either change the permissions on the folder or click the SAVE button and select another location outside of the working directory. Remember to copy of the pnt file back into the current working directory.</source>
-        <translation>Il semble que vous ne puissiez pas enregistrer votre fichier pnt dans le répertoire de travail, probablement en raison des autorisations.\n\nModifiez les autorisations sur le dossier ou cliquez sur le bouton ENREGISTRER et sélectionnez un autre emplacement en dehors du répertoire de travail. N'oubliez pas de recopier le fichier pnt dans le répertoire de travail actuel.</translation>
     </message>
     <message>
         <location filename="../ddg/point_widget.ui" line="0" /><source>Form</source>
