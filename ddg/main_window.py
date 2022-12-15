@@ -24,14 +24,16 @@
 # --------------------------------------------------------------------------
 from ddg import CentralWidget
 from PyQt6 import QtWidgets, QtCore
+from ddg import AboutDialog
 from ddg import __version__
 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
-        self.setWindowTitle('DotDotGoose [v {}] - Center for Biodiversity and Conservation ( http://amnh.org/cbc )'.format(__version__))
+        self.setWindowTitle('DotDotGoose [v {}]'.format(__version__))
         self.setCentralWidget(CentralWidget())
+        self.about_dialog = AboutDialog()
 
         self.error_widget = QtWidgets.QTextBrowser()
         self.error_widget.setWindowTitle(self.tr('EXCEPTION DETECTED'))
@@ -47,6 +49,12 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.setObjectName('Language')
         menu.addAction(self.tr('English'), self.en_US)
         menu.addAction(self.tr('French'), self.fr_FR)
+        menu.addAction(self.tr('Spanish'), self.es_CO)
+        menu.addAction(self.tr('Vietnamese'), self.vi_VN)
+
+        self.menuBar().addSeparator()
+
+        self.menuBar().addAction(self.tr('About'), self.about_dialog.show)
 
     def closeEvent(self, event):
         if self.centralWidget().canvas.dirty_data_check():
@@ -60,6 +68,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.error_widget.append(line)
         self.error_widget.show()
 
+    def es_CO(self):
+        settings = QtCore.QSettings("AMNH", "DotDotGoose")
+        settings.setValue('locale', 'es_CO')
+        self.restart_message()
+
     def en_US(self):
         settings = QtCore.QSettings("AMNH", "DotDotGoose")
         settings.setValue('locale', 'en_US')
@@ -68,6 +81,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def fr_FR(self):
         settings = QtCore.QSettings("AMNH", "DotDotGoose")
         settings.setValue('locale', 'fr')
+        self.restart_message()
+
+    def vi_VN(self):
+        settings = QtCore.QSettings("AMNH", "DotDotGoose")
+        settings.setValue('locale', 'vi_VN')
         self.restart_message()
 
     def restart_message(self):

@@ -24,6 +24,7 @@
 # --------------------------------------------------------------------------
 __version__ = '1.6.0'
 
+from .about_dialog import AboutDialog  # noqa: F401
 from .canvas import Canvas  # noqa: F401
 from .point_widget import PointWidget  # noqa: F401
 from .central_widget import CentralWidget  # noqa: F401

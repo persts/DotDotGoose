@@ -421,7 +421,7 @@
       <item row="4" column="0">
        <widget class="QPushButton" name="pushButtonImport">
         <property name="toolTip">
-         <string>Import classes and custom field from existing point file.</string>
+         <string>Import classes and custom fields from existing point file.</string>
         </property>
         <property name="text">
          <string>Import</string>
