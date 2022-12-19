@@ -23,7 +23,7 @@
 #
 # --------------------------------------------------------------------------
 from ddg import CentralWidget
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore, QtGui
 from ddg import AboutDialog
 from ddg import __version__
 
@@ -32,6 +32,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.setWindowTitle('DotDotGoose [v {}]'.format(__version__))
+        self.setWindowIcon(QtGui.QIcon("icons:ddg.png"))
         self.setCentralWidget(CentralWidget())
         self.about_dialog = AboutDialog()
 
