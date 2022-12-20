@@ -52,12 +52,22 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.point_widget.hide_custom_fields.connect(self.hide_custom_fields)
         self.canvas.saving.connect(self.display_quick_save)
 
-        # Set up keyboard shortcuts
-        # quick save using Ctrl+S
+        # Keyboard shortcuts
+        # Quick save using Ctrl+S
         self.save_shortcut = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.Key.Key_S), self)
         self.save_shortcut.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.save_shortcut.activated.connect(self.canvas.quick_save)
 
+        # Undo Redo shortcuts
+        self.save_shortcut = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.Key.Key_Z), self)
+        self.save_shortcut.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.save_shortcut.activated.connect(self.canvas.undo)
+
+        self.save_shortcut = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.Key.Key_Y), self)
+        self.save_shortcut.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.save_shortcut.activated.connect(self.canvas.redo)
+
+        # Arrow short cuts to move among images
         self.up_arrow = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Up), self)
         self.up_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)
@@ -66,7 +76,7 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.down_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.down_arrow.activated.connect(self.point_widget.next)
 
-        # same as arrows but conventient for right handed people
+        # Same as arrow keys but conventient for right handed people
         self.up_arrow = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_W), self)
         self.up_arrow.setContext(QtCore.Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.up_arrow.activated.connect(self.point_widget.previous)

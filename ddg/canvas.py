@@ -49,6 +49,8 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.custom_fields = {'fields': [], 'data': {}}
         self.classes = []
         self.selection = []
+        self.redo_queue = []
+        self.undo_queue = []
         self.ui = {'grid': {'size': 200, 'color': [255, 255, 255]}, 'point': {'radius': 25, 'color': [255, 255, 0]}}
 
         self.survey_id = ''
@@ -88,6 +90,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), active_pen, active_brush)
             self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
             self.dirty = True
+            self.undo_queue.append(('add', self.current_class_name, point))
 
     def clear_grid(self):
         for graphic in self.items():
@@ -99,9 +102,14 @@ class Canvas(QtWidgets.QGraphicsScene):
             if type(graphic) == QtWidgets.QGraphicsEllipseItem:
                 self.removeItem(graphic)
 
+    def clear_queues(self):
+        self.redo_queue = []
+        self.undo_queue = []
+
     def delete_selected_points(self):
         if self.current_image_name is not None:
             points = self.points[self.current_image_name]
+            self.undo_queue.append(('delete', None, self.selection))
             for class_name, point in self.selection:
                 points[class_name].remove(point)
                 self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
@@ -357,6 +365,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 QtWidgets.QMessageBox.critical(None, self.tr('File Not Found'), '{} {}'.format(self.current_image_name, self.tr('is not in the same folder as the point file.')))
                 self.image_loaded.emit(self.directory, self.current_image_name)
             self.image_loaded.emit(self.directory, self.current_image_name)
+            self.clear_queues()
             self.display_points()
             self.display_grid()
             QtWidgets.QApplication.restoreOverrideCursor()
@@ -435,12 +444,47 @@ class Canvas(QtWidgets.QGraphicsScene):
                     count += 1
         return (package, count)
 
+    def quick_save(self):
+        if self.previous_file_name is None:
+            self.save()
+        else:
+            self.saving.emit()
+            self.save_points(self.previous_file_name, self.survey_id)
+
+    def redo(self):
+        if len(self.redo_queue) > 0:
+            event = self.redo_queue.pop()
+            if event[0] == 'add':
+                self.points[self.current_image_name][event[1]].append(event[2])
+                self.update_point_count.emit(self.current_image_name, event[1], len(self.points[self.current_image_name][event[1]]))
+                self.display_points()
+                self.undo_queue.append(event)
+            elif event[0] == 'delete':
+                for class_name, point in event[2]:
+                    self.points[self.current_image_name][class_name].remove(point)
+                    self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
+                self.display_points()
+                self.undo_queue.append(event)
+            elif event[0] == 'relabel':
+                for class_name, point in event[2]:
+                    self.points[self.current_image_name][class_name].remove(point)
+                    self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
+                    self.points[self.current_image_name][event[1]].append(point)
+                self.update_point_count.emit(self.current_image_name, event[1], len(self.points[self.current_image_name][event[1]]))
+                self.display_points()
+                self.undo_queue.append(event)
+
     def relabel_selected_points(self):
         if self.current_class_name is not None:
-            # for class_name, point in self.selection:
-            for _, point in self.selection:
-                self.add_point(point)
-            self.delete_selected_points()
+            self.undo_queue.append(('relabel', self.current_class_name, self.selection))
+            for class_name, point in self.selection:
+                # Remove original point
+                self.points[self.current_image_name][class_name].remove(point)
+                self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
+                self.points[self.current_image_name][self.current_class_name].append(point)
+                self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
+            self.selection = []
+            self.display_points()
             self.dirty = True
 
     def rename_class(self, old_class, new_class):
@@ -468,6 +512,8 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.classes = []
         self.classes = []
         self.selection = []
+        self.redo_queue = []
+        self.undo_queue = []
         self.coordinates = {}
         self.custom_fields = {'fields': [], 'data': {}}
 
@@ -491,13 +537,6 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.display_points()
         self.dirty = True
 
-    def quick_save(self):
-        if self.previous_file_name is None:
-            self.save()
-        else:
-            self.saving.emit()
-            self.save_points(self.previous_file_name, self.survey_id)
-
     def save(self, override=False):
         file_name = QtWidgets.QFileDialog.getSaveFileName(self.parent(), self.tr('Save Points'), os.path.join(self.directory, 'untitled.pnt'), 'Point Files (*.pnt)')
         if file_name[0] != '':
@@ -517,6 +556,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     else:
                         return False
                 self.previous_file_name = file_name[0]
+                self.clear_queues()
                 return True
 
     def save_coordinates(self, x, y):
@@ -592,6 +632,29 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
         else:
             self.clear_points()
+
+    def undo(self):
+        if len(self.undo_queue) > 0:
+            event = self.undo_queue.pop()
+            if event[0] == 'add':
+                self.points[self.current_image_name][event[1]].remove(event[2])
+                self.update_point_count.emit(self.current_image_name, event[1], len(self.points[self.current_image_name][event[1]]))
+                self.display_points()
+                self.redo_queue.append(event)
+            elif event[0] == 'delete':
+                for class_name, point in event[2]:
+                    self.points[self.current_image_name][class_name].append(point)
+                    self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
+                self.display_points()
+                self.redo_queue.append(event)
+            elif event[0] == 'relabel':
+                for class_name, point in event[2]:
+                    self.points[self.current_image_name][event[1]].remove(point)
+                    self.update_point_count.emit(self.current_image_name, event[1], len(self.points[self.current_image_name][event[1]]))
+                    self.points[self.current_image_name][class_name].append(point)
+                    self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
+                self.display_points()
+                self.redo_queue.append(event)
 
     def update_survey_id(self, text):
         self.survey_id = text
