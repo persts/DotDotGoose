@@ -22,7 +22,7 @@ Point data collected with DotDotGoose will be very valuable training and validat
 |
 If you use this application on data that results in a publication, report, or online analysis, we ask that you include the following reference:
 
-Ersts,P.J.[Internet] DotDotGoose (version 1.5.3). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
+Ersts,P.J.[Internet] DotDotGoose (version 1.6.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
 
 .. raw:: latex
 
@@ -158,9 +158,9 @@ Merging Classes
 ---------------
 If you originally create two classes and later decide that the two classes should really have been one class, you can simply rename the second class to that of the first and they two classes will be merged.
 
-.. raw:: latex
-
-    \newpage
+Undo & Redo
+-----------
+Ctrl-Z (Comamnd-Z) and Ctrl-Y (Command-Y) will undo and redo point adding, deleting, and relabeling action.
 
 Adding Custom Fields
 ====================
@@ -229,6 +229,10 @@ Chips
 -----
 This option will export a chip or subimage centered on each point with a width and height of your choosing. 
 A directory will be created for each class in your project. The directory selected for exporting image chips must be empty.
+
+Overlay
+-------
+This option will export what is currently displayed in the Image Display area, including grid lines and highlighted points.
 
 .. raw:: latex
 
