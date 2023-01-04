@@ -34,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle('DotDotGoose [v {}]'.format(__version__))
         self.setWindowIcon(QtGui.QIcon("icons:ddg.png"))
         self.setCentralWidget(CentralWidget())
-        self.about_dialog = AboutDialog()
+        self.about_dialog = AboutDialog(self)
 
         self.error_widget = QtWidgets.QTextBrowser()
         self.error_widget.setWindowTitle(self.tr('EXCEPTION DETECTED'))
@@ -48,6 +48,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         menu = self.menuBar().addMenu(self.tr('Language'))
         menu.setObjectName('Language')
+        menu.addAction(self.tr('Chinese (Mandarin)'), self.zh_CN)
         menu.addAction(self.tr('English'), self.en_US)
         menu.addAction(self.tr('French'), self.fr_FR)
         menu.addAction(self.tr('Spanish'), self.es_CO)
@@ -69,14 +70,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.error_widget.append(line)
         self.error_widget.show()
 
-    def es_CO(self):
-        settings = QtCore.QSettings("AMNH", "DotDotGoose")
-        settings.setValue('locale', 'es_CO')
-        self.restart_message()
-
     def en_US(self):
         settings = QtCore.QSettings("AMNH", "DotDotGoose")
         settings.setValue('locale', 'en_US')
+        self.restart_message()
+
+    def es_CO(self):
+        settings = QtCore.QSettings("AMNH", "DotDotGoose")
+        settings.setValue('locale', 'es_CO')
         self.restart_message()
 
     def fr_FR(self):
@@ -87,6 +88,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def vi_VN(self):
         settings = QtCore.QSettings("AMNH", "DotDotGoose")
         settings.setValue('locale', 'vi_VN')
+        self.restart_message()
+
+    def zh_CN(self):
+        settings = QtCore.QSettings("AMNH", "DotDotGoose")
+        settings.setValue('locale', 'zh_CN')
         self.restart_message()
 
     def restart_message(self):

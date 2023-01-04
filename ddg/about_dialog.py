@@ -38,7 +38,7 @@ CLASS_DIALOG, _ = uic.loadUiType(os.path.join(bundle_dir, 'about_dialog.ui'))
 class AboutDialog(QtWidgets.QDialog, CLASS_DIALOG):
 
     def __init__(self, parent=None):
-        QtWidgets.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
 
@@ -48,24 +48,28 @@ class AboutDialog(QtWidgets.QDialog, CLASS_DIALOG):
 
         self.labelVersion.setText(__version__)
 
-        entry = QtWidgets.QLabel('Peter J. Ersts ({})'.format(self.tr('Center for Biodiversity and Conservation')))
+        entry = QtWidgets.QLabel('Peter J. Ersts, {}'.format(self.tr('Center for Biodiversity and Conservation')))
         font = entry.font()
         font.setPointSize(10)
         entry.setFont(font)
         self.groupBoxDevelopers.layout().addWidget(entry)
 
-        entry = QtWidgets.QLabel('Ido Senesh (https://github.com/idoadse)')
+        entry = QtWidgets.QLabel('Ido Senesh, https://github.com/idoadse')
         entry.setFont(font)
         self.groupBoxContributors.layout().addWidget(entry)
 
-        entry = QtWidgets.QLabel('{} : A-d-r-i (https://github.com/A-d-r-i)'.format(self.tr('French')))
+        entry = QtWidgets.QLabel('{} : Julie Young, [{}] {}, https://github.com/julieyoung6'.format(self.tr('Chinese (Mandarin)'), self.tr('Intern'), self.tr('Center for Biodiversity and Conservation')))
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)
 
-        entry = QtWidgets.QLabel('{} : __________'.format(self.tr('Spanish')))
+        entry = QtWidgets.QLabel('{} : A-d-r-i, https://github.com/A-d-r-i'.format(self.tr('French')))
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)
 
-        entry = QtWidgets.QLabel('{} : __________'.format(self.tr('Vietnamese')))
+        entry = QtWidgets.QLabel('{} : Mary Blair, {}'.format(self.tr('Spanish'), self.tr('Center for Biodiversity and Conservation')))
+        entry.setFont(font)
+        self.groupBoxTranslators.layout().addWidget(entry)
+
+        entry = QtWidgets.QLabel('{} : Nguyễn Tuấn Anh, {}'.format(self.tr('Vietnamese'), self.tr('University of Science, Vietnam National University, Hanoi')))
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)

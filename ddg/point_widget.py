@@ -54,9 +54,13 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
         self.pushButtonExport.setIcon(QtGui.QIcon('icons:export.svg'))
         self.pushButtonReset.setIcon(QtGui.QIcon('icons:reset.svg'))
+        self.pushButtonReset.setStyleSheet('text-align: left;')
         self.pushButtonImport.setIcon(QtGui.QIcon('icons:import.svg'))
+        self.pushButtonImport.setStyleSheet('text-align: left;')
         self.pushButtonSave.setIcon(QtGui.QIcon('icons:save.svg'))
+        self.pushButtonSave.setStyleSheet('text-align: left;')
         self.pushButtonLoadPoints.setIcon(QtGui.QIcon('icons:load.svg'))
+        self.pushButtonLoadPoints.setStyleSheet('text-align: left;')
         self.pushButtonRemoveClass.setIcon(QtGui.QIcon('icons:delete.svg'))
         self.pushButtonAddClass.setIcon(QtGui.QIcon('icons:add.svg'))
 
