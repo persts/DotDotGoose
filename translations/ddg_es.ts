@@ -14,12 +14,12 @@
     <message>
         <location filename="../ddg/about_dialog.py" line="61"/>
         <source>Chinese (Mandarin)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chino (Mandarín)</translation>
     </message>
     <message>
         <location filename="../ddg/about_dialog.py" line="61"/>
         <source>Intern</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasante</translation>
     </message>
     <message>
         <location filename="../ddg/about_dialog.py" line="65"/>
@@ -383,7 +383,7 @@ Cambie los permisos en la carpeta o haga clic en el botón GUARDAR y seleccione 
     <message>
         <location filename="../ddg/main_window.py" line="51"/>
         <source>Chinese (Mandarin)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chino (Mandarín)</translation>
     </message>
     <message>
         <location filename="../ddg/main_window.py" line="52"/>

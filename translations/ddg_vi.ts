@@ -19,7 +19,7 @@
     <message>
         <location filename="../ddg/about_dialog.py" line="61"/>
         <source>Intern</source>
-        <translation>Thực tập</translation>
+        <translation type="unfinished">thực tập sinh</translation>
     </message>
     <message>
         <location filename="../ddg/about_dialog.py" line="65"/>
