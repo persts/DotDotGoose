@@ -14,12 +14,12 @@
     <message>
         <location filename="../ddg/about_dialog.py" line="61"/>
         <source>Chinese (Mandarin)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinois (Mandarin)</translation>
     </message>
     <message>
         <location filename="../ddg/about_dialog.py" line="61"/>
         <source>Intern</source>
-        <translation type="unfinished"></translation>
+        <translation>Interne</translation>
     </message>
     <message>
         <location filename="../ddg/about_dialog.py" line="65"/>
@@ -39,7 +39,7 @@
     <message>
         <location filename="../ddg/about_dialog.py" line="73"/>
         <source>University of Science, Vietnam National University, Hanoi</source>
-        <translation type="unfinished"></translation>
+        <translation>Université de la Sience, Université Nationale Vietnamienne, Hanoi</translation>
     </message>
     <message>
         <location filename="../ddg/about_dialog.ui" line="0"/>
@@ -378,7 +378,7 @@ Modifiez les autorisations sur le dossier ou cliquez sur le bouton ENREGISTRER e
     <message>
         <location filename="../ddg/main_window.py" line="51"/>
         <source>Chinese (Mandarin)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chinois (Mandarin)</translation>
     </message>
     <message>
         <location filename="../ddg/main_window.py" line="52"/>
