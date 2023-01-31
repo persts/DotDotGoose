@@ -42,6 +42,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.error_widget.resize(900, 500)
 
         self.setMenuBar(QtWidgets.QMenuBar())
+        self.menuBar().setNativeMenuBar(False)
         menu = self.menuBar().addMenu(self.tr('File'))
         menu.setObjectName('File')
         menu.addAction(self.tr('Quit'), self.quit)

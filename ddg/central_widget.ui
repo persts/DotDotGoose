@@ -24,7 +24,7 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>350</width>
+       <width>425</width>
        <height>0</height>
       </size>
      </property>
@@ -112,7 +112,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
+           <iconset>
             <normaloff>:/icons/folder.svg</normaloff>:/icons/folder.svg</iconset>
           </property>
           <property name="iconSize">
@@ -159,7 +159,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
+           <iconset>
             <normaloff>:/icons/zoom_in.svg</normaloff>:/icons/zoom_in.svg</iconset>
           </property>
           <property name="iconSize">
@@ -179,7 +179,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../icons/ddg.qrc">
+           <iconset>
             <normaloff>:/icons/zoom_out.svg</normaloff>:/icons/zoom_out.svg</iconset>
           </property>
           <property name="iconSize">
@@ -307,7 +307,7 @@
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="../icons/ddg.qrc">
+                 <iconset>
                   <normaloff>:/icons/delete.svg</normaloff>:/icons/delete.svg</iconset>
                 </property>
                 <property name="iconSize">
@@ -340,7 +340,7 @@
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="../icons/ddg.qrc">
+                 <iconset>
                   <normaloff>:/icons/add.svg</normaloff>:/icons/add.svg</iconset>
                 </property>
                 <property name="iconSize">
