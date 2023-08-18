@@ -12,9 +12,9 @@ DotDotGoose is a free, open source tool to assist with manually counting objects
 ### Dependencies
 DotDotGoose is being developed on Ubuntu 20.04 with the following libraries:
 
-* PyQt6 (6.3.1)
-* Pillow (9.2.0)
-* Numpy (1.23.1)
+* PyQt6 (6.5.2)
+* Pillow (10.0.0)
+* Numpy (1.24.3)
 
 ```bash
 python3 -m venv ddg-env
