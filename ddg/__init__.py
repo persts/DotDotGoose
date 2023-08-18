@@ -22,8 +22,9 @@
 # along with with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------------
-__version__ = '1.6.0'
+__version__ = '1.6.1'
 
+from .dark_mode_palette import DarkModePalette  # noqa: F401
 from .about_dialog import AboutDialog  # noqa: F401
 from .canvas import Canvas  # noqa: F401
 from .point_widget import PointWidget  # noqa: F401

@@ -481,6 +481,8 @@ class Canvas(QtWidgets.QGraphicsScene):
                 # Remove original point
                 self.points[self.current_image_name][class_name].remove(point)
                 self.update_point_count.emit(self.current_image_name, class_name, len(self.points[self.current_image_name][class_name]))
+                if self.current_class_name not in self.points[self.current_image_name]:
+                    self.points[self.current_image_name][self.current_class_name] = []
                 self.points[self.current_image_name][self.current_class_name].append(point)
                 self.update_point_count.emit(self.current_image_name, self.current_class_name, len(self.points[self.current_image_name][self.current_class_name]))
             self.selection = []

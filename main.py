@@ -25,7 +25,7 @@
 import os
 import sys
 from PyQt6 import QtWidgets, QtCore
-from ddg import ExceptionHandler, MainWindow
+from ddg import ExceptionHandler, MainWindow, DarkModePalette
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
@@ -38,6 +38,10 @@ if __name__ == '__main__':
 
     if 'plastique' in QtWidgets.QStyleFactory().keys():
         app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
+    if app.styleHints().colorScheme() == QtCore.Qt.ColorScheme.Dark:
+        app.setPalette(DarkModePalette())
+        # Palette colors are not honored by Qt6.5.3
+        app.setStyleSheet("QToolTip { color: #ffffff; background-color: #000000; border: 0px; padding: 2px}")
 
     settings = QtCore.QSettings("AMNH", "DotDotGoose")
     translator = QtCore.QTranslator()
