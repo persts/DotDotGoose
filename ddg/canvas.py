@@ -578,7 +578,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         try:
             output, _ = self.package_points(survey_id)
             file = open(file_name, 'w')
-            json.dump(output, file)
+            json.dump(output, file, indent=2)
             file.close()
             self.dirty = False
         except OSError:
