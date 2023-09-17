@@ -99,6 +99,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.labelGridColor.mousePressEvent = self.change_grid_color
 
         self.checkBoxImageFields.clicked.connect(self.hide_custom_fields.emit)
+        self.checkBoxEnhanceImage.clicked.connect(self.canvas.reload_image)
 
         self.lineEditSurveyId.textChanged.connect(self.canvas.update_survey_id)
 

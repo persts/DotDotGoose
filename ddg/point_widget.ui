@@ -29,11 +29,22 @@
     </layout>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBoxImageFields">
-     <property name="text">
-      <string>Hide Image Data / Custom Fields</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QCheckBox" name="checkBoxImageFields">
+       <property name="text">
+        <string>Hide Image Data / Custom Fields</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxEnhanceImage">
+       <property name="text">
+        <string>Enhance Image</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QSplitter" name="splitter">

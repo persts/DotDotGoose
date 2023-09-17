@@ -43,6 +43,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def __init__(self, parent=None):
         QtWidgets.QGraphicsScene.__init__(self, parent)
         self.dirty = False
+        self.enhance = False
         self.points = {}
         self.colors = {}
         self.coordinates = {}
@@ -352,8 +353,9 @@ class Canvas(QtWidgets.QGraphicsScene):
                         self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_Grayscale8)
                     else:
                         # Apply basic min max stretch to the image
-                        for chan in range(channels):
-                            array[:, :, chan] = np.interp(array[:, :, chan], (array[:, :, chan].min(), array[:, :, chan].max()), (0, 255))
+                        if self.enhance:
+                            for chan in range(channels):
+                                array[:, :, chan] = np.interp(array[:, :, chan], (array[:, :, chan].min(), array[:, :, chan].max()), (0, 255))
                         bpl = int(array.nbytes / array.shape[0])
                         if array.shape[2] == 4:
                             self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_RGBA8888)
@@ -488,6 +490,11 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
             self.display_points()
             self.dirty = True
+
+    def reload_image(self, enhance):
+        self.enhance = enhance
+        if self.directory != '':
+            self.load_image(self.directory + "/" + self.current_image_name)
 
     def rename_class(self, old_class, new_class):
         index = self.classes.index(old_class)
