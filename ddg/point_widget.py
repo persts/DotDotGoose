@@ -101,8 +101,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.checkBoxImageFields.clicked.connect(self.hide_custom_fields.emit)
         self.checkBoxEnhanceImage.clicked.connect(self.canvas.reload_image)
 
-        self.lineEditSurveyId.textChanged.connect(self.canvas.update_survey_id)
-
     def add_class(self):
         class_name, ok = QtWidgets.QInputDialog.getText(self, self.tr('New Class'), self.tr('Class Name'))
         if ok:
@@ -200,17 +198,17 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         if self.radioButtonCounts.isChecked():
             file_name = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Export Count Summary'), os.path.join(self.canvas.directory, 'counts.csv'), 'Text CSV (*.csv)')
             if file_name[0] != '':
-                self.canvas.export_counts(file_name[0], self.lineEditSurveyId.text())
+                self.canvas.export_counts(file_name[0])
         elif self.radioButtonPoints.isChecked():
             file_name = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Export Points'), os.path.join(self.canvas.directory, 'points.csv'), 'Text CSV (*.csv)')
             if file_name[0] != '':
-                self.canvas.export_points(file_name[0], self.lineEditSurveyId.text())
+                self.canvas.export_points(file_name[0])
         elif self.radioButtonOverlay.isChecked():
             file_name = QtWidgets.QFileDialog.getSaveFileName(self, self.tr('Export Image With Points'), os.path.join(self.canvas.directory, 'overlay.png'), 'PNG (*.png)')
             if file_name[0] != '':
                 self.canvas.export_overlay(file_name[0])
         else:
-            self.chip_dialog = ChipDialog(self.canvas.classes, self.canvas.points, self.canvas.directory, self.lineEditSurveyId.text())
+            self.chip_dialog = ChipDialog(self.canvas.classes, self.canvas.points, self.canvas.directory, self.canvas.survey_id)
             self.chip_dialog.show()
 
     def image_loaded(self, directory, file_name):
@@ -236,8 +234,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             item = self.model.item(next_index)
             self.select_model_item(item.index())
 
-    def points_loaded(self, survey_id):
-        self.lineEditSurveyId.setText(survey_id)
+    def points_loaded(self):
         self.display_classes()
         self.update_ui_settings()
 

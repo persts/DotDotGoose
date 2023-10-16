@@ -58,6 +58,14 @@ class AboutDialog(QtWidgets.QDialog, CLASS_DIALOG):
         entry.setFont(font)
         self.groupBoxContributors.layout().addWidget(entry)
 
+        entry = QtWidgets.QLabel('Julie Young, https://github.com/julieyoung6')
+        entry.setFont(font)
+        self.groupBoxContributors.layout().addWidget(entry)
+
+        entry = QtWidgets.QLabel('Ștefan Istrate, https://github.com/stefanistrate')
+        entry.setFont(font)
+        self.groupBoxContributors.layout().addWidget(entry)
+
         entry = QtWidgets.QLabel('{} : Julie Young, [{}] {}, https://github.com/julieyoung6'.format(self.tr('Chinese (Mandarin)'), self.tr('Intern'), self.tr('Center for Biodiversity and Conservation')))
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)

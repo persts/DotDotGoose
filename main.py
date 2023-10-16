@@ -52,8 +52,8 @@ if __name__ == '__main__':
         if translator.load(QtCore.QLocale(), "ddg", "_", "i18n:/"):
             QtCore.QCoreApplication.installTranslator(translator)
 
-    handler = ExceptionHandler()
     main = MainWindow()
+    handler = ExceptionHandler()
     handler.exception.connect(main.display_exception)
     main.show()
     screen = app.primaryScreen()

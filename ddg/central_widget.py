@@ -126,6 +126,9 @@ class CentralWidget(QtWidgets.QDialog, CLASS_DIALOG):
         self.quick_save_frame.setGeometry(3, 3, 100, 35)
         self.quick_save_frame.hide()
 
+        self.lineEditSurveyId.textChanged.connect(self.canvas.update_survey_id)
+        self.canvas.points_loaded.connect(self.lineEditSurveyId.setText)
+
     def resizeEvent(self, theEvent):
         self.graphicsView.resize_image()
 

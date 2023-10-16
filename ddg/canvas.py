@@ -179,7 +179,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                     else:
                         self.addEllipse(QtCore.QRectF(point.x() - ((display_radius - 1) / 2), point.y() - ((display_radius - 1) / 2), display_radius, display_radius), pen, brush)
 
-    def export_counts(self, file_name, survey_id):
+    def export_counts(self, file_name):
         if self.current_image_name is not None:
             file = open(file_name, 'w')
             output = self.tr('survey id,image')
@@ -191,7 +191,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             output += '\n'
             file.write(output)
             for image in self.points:
-                output = survey_id + ',' + image
+                output = self.survey_id + ',' + image
                 for class_name in self.classes:
                     if class_name in self.points[image]:
                         output += ',' + str(len(self.points[image][class_name]))
@@ -211,7 +211,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 file.write(output)
             file.close()
 
-    def export_points(self, file_name, survey_id):
+    def export_points(self, file_name):
         if self.current_image_name is not None:
             file = open(file_name, 'w')
             output = self.tr('survey id,image,class,x,y')
@@ -220,7 +220,7 @@ class Canvas(QtWidgets.QGraphicsScene):
                 for class_name in self.classes:
                     if class_name in self.points[image]:
                         for point in self.points[image][class_name]:
-                            output = '\n{},{},{},{},{}'.format(survey_id, image, class_name, point.x(), point.y())
+                            output = '\n{},{},{},{},{}'.format(self.survey_id, image, class_name, point.x(), point.y())
                             file.write(output)
             file.close()
 
@@ -389,7 +389,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.previous_file_name = file_name
         data = json.load(file)
         file.close()
-        survey_id = data['metadata']['survey_id']
+        self.survey_id = data['metadata']['survey_id']
 
         # Backward compat
         if 'custom_fields' in data:
@@ -416,15 +416,15 @@ class Canvas(QtWidgets.QGraphicsScene):
                     self.points[image][class_name][p] = QtCore.QPointF(point['x'], point['y'])
         for class_name in data['colors']:
             self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
-        self.points_loaded.emit(survey_id)
+        self.points_loaded.emit(self.survey_id)
         self.fields_updated.emit(self.custom_fields['fields'])
         # Force rescan of working folder for new images
         path = os.path.split(file_name)[0]
         self.load([QtCore.QUrl('file:{}'.format(path))])
 
-    def package_points(self, survey_id):
+    def package_points(self):
         count = 0
-        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': survey_id, 'coordinates': self.coordinates}, 'custom_fields': self.custom_fields, 'ui': self.ui}
+        package = {'classes': [], 'points': {}, 'colors': {}, 'metadata': {'survey_id': self.survey_id, 'coordinates': self.coordinates}, 'custom_fields': self.custom_fields, 'ui': self.ui}
         package['classes'] = self.classes
         for class_name in self.colors:
             r = self.colors[class_name].red()
@@ -448,7 +448,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.save()
         else:
             self.saving.emit()
-            self.save_points(self.previous_file_name, self.survey_id)
+            self.save_points(self.previous_file_name)
 
     def redo(self):
         if len(self.redo_queue) > 0:
@@ -549,7 +549,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             if override is False and self.directory != os.path.split(file_name[0])[0]:
                 QtWidgets.QMessageBox.warning(self.parent(), self.tr('ERROR'), self.tr('You are attempting to save the pnt file outside of the working directory. Operation canceled. POINT DATA NOT SAVED.'), QtWidgets.QMessageBox.StandardButton.Ok)
             else:
-                if self.save_points(file_name[0], self.survey_id) is False:
+                if self.save_points(file_name[0]) is False:
                     msg_box = QtWidgets.QMessageBox()
                     msg_box.setWindowTitle(self.tr('ERROR'))
                     msg_box.setText(self.tr('Save Failed!'))
@@ -578,9 +578,9 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.custom_fields['data'][field][self.current_image_name] = ''
             self.custom_fields['data'][field][self.current_image_name] = data
 
-    def save_points(self, file_name, survey_id):
+    def save_points(self, file_name):
         try:
-            output, _ = self.package_points(survey_id)
+            output, _ = self.package_points()
             file = open(file_name, 'w')
             json.dump(output, file, indent=2)
             file.close()

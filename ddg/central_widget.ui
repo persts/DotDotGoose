@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1143</width>
+    <width>1248</width>
     <height>526</height>
    </rect>
   </property>
@@ -210,21 +210,20 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
+      <item>
+       <layout class="QHBoxLayout" name="SurveyId">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Survey Id </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditSurveyId"/>
+        </item>
+       </layout>
+      </item>
       <item>
        <widget class="QGroupBox" name="groupBoxImageData">
         <property name="minimumSize">
