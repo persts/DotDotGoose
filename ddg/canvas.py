@@ -386,9 +386,7 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def load_points(self, file_name):
         file = open(file_name, 'r')
-        # self.directory = os.path.split(file_name)[0]
         self.previous_file_name = file_name
-        # self.directory_set.emit(self.directory)
         data = json.load(file)
         file.close()
         survey_id = data['metadata']['survey_id']
@@ -420,11 +418,9 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.colors[class_name] = QtGui.QColor(self.colors[class_name][0], self.colors[class_name][1], self.colors[class_name][2])
         self.points_loaded.emit(survey_id)
         self.fields_updated.emit(self.custom_fields['fields'])
+        # Force rescan of working folder for new images
         path = os.path.split(file_name)[0]
         self.load([QtCore.QUrl('file:{}'.format(path))])
-        # if self.points.keys():
-        #    path = os.path.join(path, list(self.points.keys())[0])
-        #    self.load_image(path)
 
     def package_points(self, survey_id):
         count = 0
