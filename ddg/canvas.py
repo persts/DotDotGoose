@@ -363,13 +363,13 @@ class Canvas(QtWidgets.QGraphicsScene):
                             self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], bpl, QtGui.QImage.Format.Format_RGB888)
                     self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
                     self.addPixmap(self.pixmap)
+                self.display_points()
+                self.display_grid()
             except FileNotFoundError:
                 QtWidgets.QMessageBox.critical(None, self.tr('File Not Found'), '{} {}'.format(self.current_image_name, self.tr('is not in the same folder as the point file.')))
                 self.image_loaded.emit(self.directory, self.current_image_name)
             self.image_loaded.emit(self.directory, self.current_image_name)
             self.clear_queues()
-            self.display_points()
-            self.display_grid()
             QtWidgets.QApplication.restoreOverrideCursor()
 
     def load_images(self, images):
@@ -386,9 +386,9 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def load_points(self, file_name):
         file = open(file_name, 'r')
-        self.directory = os.path.split(file_name)[0]
+        # self.directory = os.path.split(file_name)[0]
         self.previous_file_name = file_name
-        self.directory_set.emit(self.directory)
+        # self.directory_set.emit(self.directory)
         data = json.load(file)
         file.close()
         survey_id = data['metadata']['survey_id']
@@ -421,9 +421,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points_loaded.emit(survey_id)
         self.fields_updated.emit(self.custom_fields['fields'])
         path = os.path.split(file_name)[0]
-        if self.points.keys():
-            path = os.path.join(path, list(self.points.keys())[0])
-            self.load_image(path)
+        self.load([QtCore.QUrl('file:{}'.format(path))])
+        # if self.points.keys():
+        #    path = os.path.join(path, list(self.points.keys())[0])
+        #    self.load_image(path)
 
     def package_points(self, survey_id):
         count = 0

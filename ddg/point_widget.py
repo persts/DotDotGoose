@@ -165,12 +165,18 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
     def display_count_tree(self):
         self.reset_model()
-        for image in self.canvas.points:
+        for image in sorted(self.canvas.points):
             image_item = QtGui.QStandardItem(image)
             image_item.setEditable(False)
             class_item = QtGui.QStandardItem('')
             class_item.setEditable(False)
             self.model.appendRow([image_item, class_item])
+            file_name = os.path.join(self.canvas.directory, image)
+            if not os.path.exists(file_name):
+                font = image_item.font()
+                font.setStrikeOut(True)
+                image_item.setFont(font)
+                image_item.setForeground(QtGui.QBrush(QtCore.Qt.GlobalColor.red))
             if image == self.canvas.current_image_name:
                 font = image_item.font()
                 font.setBold(True)
