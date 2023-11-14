@@ -36,8 +36,7 @@ if __name__ == '__main__':
         QtCore.QDir.addSearchPath('icons', './icons/')
         QtCore.QDir.addSearchPath('i18n', './i18n/')
 
-    if 'plastique' in QtWidgets.QStyleFactory().keys():
-        app.setStyle(QtWidgets.QStyleFactory.create('plastique'))
+    app.setStyle('fusion')
     if app.styleHints().colorScheme() == QtCore.Qt.ColorScheme.Dark:
         app.setPalette(DarkModePalette())
         # Palette colors are not honored by Qt6.5.3

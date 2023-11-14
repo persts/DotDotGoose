@@ -95,12 +95,12 @@ class Canvas(QtWidgets.QGraphicsScene):
 
     def clear_grid(self):
         for graphic in self.items():
-            if type(graphic) == QtWidgets.QGraphicsLineItem:
+            if isinstance(graphic, QtWidgets.QGraphicsLineItem):
                 self.removeItem(graphic)
 
     def clear_points(self):
         for graphic in self.items():
-            if type(graphic) == QtWidgets.QGraphicsEllipseItem:
+            if isinstance(graphic, QtWidgets.QGraphicsEllipseItem):
                 self.removeItem(graphic)
 
     def clear_queues(self):
@@ -146,6 +146,31 @@ class Canvas(QtWidgets.QGraphicsScene):
             elif response == QtWidgets.QMessageBox.StandardButton.Cancel:
                 proceed = False
         return proceed
+
+    def display_external_annotations(self, file_name):
+        file_name = '{}.json'.format(os.path.splitext(file_name)[0])
+        try:
+            file = open(file_name, 'r')
+            annotations = json.load(file)
+            file.close()
+            # Hard code for now, really needs to come from UI settings
+            brush = QtGui.QBrush(QtCore.Qt.GlobalColor.magenta, QtCore.Qt.BrushStyle.SolidPattern)
+            pen = QtGui.QPen(brush, 4)
+            if 'shapes' in annotations and 'imageData' in annotations:
+                # Labelme format
+                for shape in annotations['shapes']:
+                    if shape['shape_type'] == 'polygon':
+                        points = []
+                        for point in shape['points']:
+                            points.append(QtCore.QPointF(point[0], point[1]))
+                        # Consider saving in object for redisplay improvement
+                        self.addPolygon(QtGui.QPolygonF(points), pen)
+            else:
+                # Future formats can be added
+                pass
+        except Exception as e:
+            print(e)
+            pass
 
     def display_grid(self):
         self.clear_grid()
@@ -309,7 +334,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def load_image(self, in_file_name):
         Image.MAX_IMAGE_PIXELS = 1000000000
         file_name = in_file_name
-        if type(file_name) == QtCore.QUrl:
+        if isinstance(file_name, QtCore.QUrl):
             file_name = in_file_name.toLocalFile()
 
         if self.directory == '':
@@ -363,8 +388,9 @@ class Canvas(QtWidgets.QGraphicsScene):
                             self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], bpl, QtGui.QImage.Format.Format_RGB888)
                     self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
                     self.addPixmap(self.pixmap)
-                self.display_points()
+                self.display_external_annotations(file_name)
                 self.display_grid()
+                self.display_points()
             except FileNotFoundError:
                 QtWidgets.QMessageBox.critical(None, self.tr('File Not Found'), '{} {}'.format(self.current_image_name, self.tr('is not in the same folder as the point file.')))
                 self.image_loaded.emit(self.directory, self.current_image_name)
@@ -375,7 +401,7 @@ class Canvas(QtWidgets.QGraphicsScene):
     def load_images(self, images):
         for file in images:
             file_name = file
-            if type(file) == QtCore.QUrl:
+            if isinstance(file, QtCore.QUrl):
                 file_name = file.toLocalFile()
 
             image_name = os.path.split(file_name)[1]
