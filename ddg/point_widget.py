@@ -75,6 +75,7 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
 
         self.checkBoxDisplayPoints.toggled.connect(self.display_points)
         self.checkBoxDisplayGrid.toggled.connect(self.display_grid)
+        self.canvas.image_loading.connect(self.set_sliders)
         self.canvas.image_loaded.connect(self.image_loaded)
         self.canvas.update_point_count.connect(self.update_point_count)
         self.canvas.points_loaded.connect(self.points_loaded)
@@ -99,7 +100,10 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.labelGridColor.mousePressEvent = self.change_grid_color
 
         self.checkBoxImageFields.clicked.connect(self.hide_custom_fields.emit)
-        self.checkBoxEnhanceImage.clicked.connect(self.canvas.reload_image)
+
+        self.checkBoxEnhanceImage.clicked.connect(self.toggle_enhancement_mode)
+        self.horizontalSliderBrightness.valueChanged.connect(self.set_brightness)
+        self.horizontalSliderContrast.valueChanged.connect(self.set_contrast)
 
     def add_class(self):
         class_name, ok = QtWidgets.QInputDialog.getText(self, self.tr('New Class'), self.tr('Class Name'))
@@ -309,11 +313,37 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         if row < self.tableWidgetClasses.rowCount():
             self.tableWidgetClasses.selectRow(row)
 
+    def set_brightness(self, value):
+        self.canvas.generate_lookup_table(value, self.horizontalSliderContrast.value())
+        self.canvas.redraw_image()
+
+    def set_contrast(self, value):
+        self.canvas.generate_lookup_table(self.horizontalSliderBrightness.value(), value)
+        self.canvas.redraw_image()
+
     def set_grid_color(self, color):
         icon = QtGui.QPixmap(20, 20)
         icon.fill(color)
         self.labelGridColor.setPixmap(icon)
         self.canvas.set_grid_color(color)
+
+    def set_sliders(self, large_image, redraw):
+        self.horizontalSliderBrightness.setTracking(not large_image)
+        self.horizontalSliderContrast.setTracking(not large_image)
+        if not redraw:
+            self.horizontalSliderBrightness.blockSignals(True)
+            self.horizontalSliderContrast.blockSignals(True)
+            self.horizontalSliderBrightness.setValue(0)
+            self.horizontalSliderContrast.setValue(0)
+            self.horizontalSliderBrightness.blockSignals(False)
+            self.horizontalSliderContrast.blockSignals(False)
+
+    def toggle_enhancement_mode(self, checked):
+        if checked:
+            self.frameEnhanceImage.setEnabled(True)
+        else:
+            self.frameEnhanceImage.setDisabled(True)
+        self.canvas.set_enhancement_mode(checked)
 
     def update_point_count(self, image_name, class_name, class_count):
         items = self.model.findItems(image_name)

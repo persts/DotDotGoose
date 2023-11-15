@@ -52,8 +52,8 @@ if __name__ == '__main__':
             QtCore.QCoreApplication.installTranslator(translator)
 
     main = MainWindow()
-    handler = ExceptionHandler()
-    handler.exception.connect(main.display_exception)
+    # handler = ExceptionHandler()
+    # handler.exception.connect(main.display_exception)
     main.show()
     screen = app.primaryScreen()
     for s in app.screens():

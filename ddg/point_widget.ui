@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>410</width>
-    <height>967</height>
+    <height>1061</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -123,8 +123,120 @@
    </item>
    <item>
     <widget class="QFrame" name="frameControls">
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="0">
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0" colspan="7">
+       <widget class="QCheckBox" name="checkBoxImageFields">
+        <property name="text">
+         <string>Hide Image Data / Custom Fields</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="7">
+       <widget class="QCheckBox" name="checkBoxEnhanceImage">
+        <property name="text">
+         <string>Enhance Image</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="7">
+       <widget class="QFrame" name="frameEnhanceImage">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Brightness</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="horizontalSliderBrightness">
+           <property name="maximum">
+            <number>128</number>
+           </property>
+           <property name="tracking">
+            <bool>true</bool>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksAbove</enum>
+           </property>
+           <property name="tickInterval">
+            <number>10</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Contrast</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="horizontalSliderContrast">
+           <property name="minimum">
+            <number>-100</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+           <property name="pageStep">
+            <number>5</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="tracking">
+            <bool>true</bool>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+           </property>
+           <property name="tickInterval">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="7">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
        <widget class="QSpinBox" name="spinBoxPointRadius">
         <property name="minimum">
          <number>1</number>
@@ -140,7 +252,96 @@
         </property>
        </widget>
       </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Point Radius</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>107</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="4" column="4" colspan="2">
+       <widget class="QLabel" name="labelPointColor">
+        <property name="toolTip">
+         <string>Active class point color. Click to change.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
       <item row="4" column="6">
+       <widget class="QCheckBox" name="checkBoxDisplayPoints">
+        <property name="toolTip">
+         <string>Display points.</string>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>Display</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QSpinBox" name="spinBoxGrid">
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+        <property name="singleStep">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>200</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Grid Size</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>107</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="5" column="4" colspan="2">
+       <widget class="QLabel" name="labelGridColor">
+        <property name="toolTip">
+         <string>Grid color. Click to change.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="6">
        <widget class="QCheckBox" name="checkBoxDisplayGrid">
         <property name="toolTip">
          <string>Display grid.</string>
@@ -156,7 +357,34 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="5" rowspan="2" colspan="2">
+      <item row="6" column="0" colspan="7">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" rowspan="2" colspan="2">
+       <widget class="QPushButton" name="pushButtonLoadPoints">
+        <property name="toolTip">
+         <string>Load point file.</string>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/icons/load.svg</normaloff>:/icons/load.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="5" rowspan="2" colspan="2">
        <widget class="QPushButton" name="pushButtonSave">
         <property name="toolTip">
          <string>Save point file.</string>
@@ -177,98 +405,6 @@
        </widget>
       </item>
       <item row="8" column="2" colspan="2">
-       <spacer name="horizontalSpacer_7">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>148</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="3" column="6">
-       <widget class="QCheckBox" name="checkBoxDisplayPoints">
-        <property name="toolTip">
-         <string>Display points.</string>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::RightToLeft</enum>
-        </property>
-        <property name="text">
-         <string>Display</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="5" colspan="2">
-       <widget class="QPushButton" name="pushButtonReset">
-        <property name="toolTip">
-         <string>Reset point file.</string>
-        </property>
-        <property name="text">
-         <string>Reset</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>:/icons/reset.svg</normaloff>:/icons/reset.svg</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>107</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="11" column="5" colspan="2">
-       <widget class="QPushButton" name="pushButtonExport">
-        <property name="toolTip">
-         <string>Export</string>
-        </property>
-        <property name="text">
-         <string>Export</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>:/icons/export.svg</normaloff>:/icons/export.svg</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4" colspan="2">
-       <widget class="QLabel" name="labelPointColor">
-        <property name="toolTip">
-         <string>Active class point color. Click to change.</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="2" colspan="2">
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -281,54 +417,7 @@
         </property>
        </spacer>
       </item>
-      <item row="5" column="0" colspan="7">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1" colspan="2">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Grid Size</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Point Radius</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QSpinBox" name="spinBoxGrid">
-        <property name="maximum">
-         <number>1000</number>
-        </property>
-        <property name="singleStep">
-         <number>50</number>
-        </property>
-        <property name="value">
-         <number>200</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>107</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="8" column="0" colspan="2">
+      <item row="9" column="0" colspan="2">
        <widget class="QPushButton" name="pushButtonImport">
         <property name="toolTip">
          <string>Import classes and custom fields from existing point file.</string>
@@ -348,24 +437,47 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="0" colspan="7">
+      <item row="9" column="2" colspan="2">
+       <spacer name="horizontalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>148</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="9" column="5" colspan="2">
+       <widget class="QPushButton" name="pushButtonReset">
+        <property name="toolTip">
+         <string>Reset point file.</string>
+        </property>
+        <property name="text">
+         <string>Reset</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/icons/reset.svg</normaloff>:/icons/reset.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0" colspan="7">
        <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="4" column="4" colspan="2">
-       <widget class="QLabel" name="labelGridColor">
-        <property name="toolTip">
-         <string>Grid color. Click to change.</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0" rowspan="2" colspan="4">
+      <item row="11" column="0" rowspan="2" colspan="4">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QRadioButton" name="radioButtonCounts">
@@ -400,31 +512,17 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="0" colspan="7">
-       <widget class="QCheckBox" name="checkBoxImageFields">
-        <property name="text">
-         <string>Hide Image Data / Custom Fields</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="3">
-       <widget class="QCheckBox" name="checkBoxEnhanceImage">
-        <property name="text">
-         <string>Enhance Image</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" rowspan="2" colspan="2">
-       <widget class="QPushButton" name="pushButtonLoadPoints">
+      <item row="12" column="5" colspan="2">
+       <widget class="QPushButton" name="pushButtonExport">
         <property name="toolTip">
-         <string>Load point file.</string>
+         <string>Export</string>
         </property>
         <property name="text">
-         <string>Load</string>
+         <string>Export</string>
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>:/icons/load.svg</normaloff>:/icons/load.svg</iconset>
+          <normaloff>:/icons/export.svg</normaloff>:/icons/export.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -434,20 +532,11 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="7">
-       <widget class="Line" name="line_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../icons/ddg.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -32,6 +32,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class Canvas(QtWidgets.QGraphicsScene):
+    image_loading = QtCore.pyqtSignal(bool, bool)
     image_loaded = QtCore.pyqtSignal(str, str)
     points_loaded = QtCore.pyqtSignal(str)
     directory_set = QtCore.pyqtSignal(str)
@@ -61,7 +62,8 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.current_image_name = None
         self.current_class_name = None
 
-        self.qt_image = None
+        self.image_cache = {'file_name': '', 'channels': 0, 'data': None}
+        self.LUT = np.array([x for x in range(0, 256)], dtype=np.uint8)
         self.show_grid = True
 
         self.selected_pen = QtGui.QPen(QtGui.QBrush(QtCore.Qt.GlobalColor.red, QtCore.Qt.BrushStyle.SolidPattern), 1)
@@ -168,8 +170,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             else:
                 # Future formats can be added
                 pass
-        except Exception as e:
-            print(e)
+        except Exception:
             pass
 
     def display_grid(self):
@@ -257,6 +258,22 @@ class Canvas(QtWidgets.QGraphicsScene):
             image.save(file_name)
             painter.end()
 
+    def generate_lookup_table(self, brightness, contrast):
+        LUT = [i for i in range(0, 256)]
+        # Brighten image
+        base_min = brightness
+        base_max = 255
+        for i in range(0, 256):
+            LUT[i] = min(255, LUT[i] + brightness)
+
+        # Apply contrast
+        new_min = base_min - contrast
+        new_max = 255 + contrast
+        for i in range(0, 256):
+            value = ((LUT[i] - base_min) / (base_max - base_min)) * (new_max - new_min) + new_min
+            LUT[i] = min(255, max(0, value))
+        self.LUT = np.array(LUT, dtype=np.uint8)
+
     def get_custom_field_data(self):
         data = {}
         if self.current_image_name is not None:
@@ -331,7 +348,7 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.directory_set.emit(self.directory)
             self.load_images(drop_list)
 
-    def load_image(self, in_file_name):
+    def load_image(self, in_file_name, redraw=False):
         Image.MAX_IMAGE_PIXELS = 1000000000
         file_name = in_file_name
         if isinstance(file_name, QtCore.QUrl):
@@ -349,53 +366,63 @@ class Canvas(QtWidgets.QGraphicsScene):
             if self.current_image_name not in self.points:
                 self.points[self.current_image_name] = {}
             try:
-                img = Image.open(file_name)
-                channels = len(img.getbands())
-                array = np.array(img)
-                img.close()
+                if self.image_cache['file_name'] != file_name:
+                    self.image_cache['file_name'] = file_name
+                    img = Image.open(file_name)
+                    self.image_cache['channels'] = len(img.getbands())
+                    self.image_cache['data'] = np.array(img)
+                    img.close()
+                channels = self.image_cache['channels']
+                array = self.image_cache['data']
                 if array.shape[0] > 10000 or array.shape[1] > 10000:
+                    self.image_loading.emit(True, redraw)
+                    if not redraw:
+                        self.generate_lookup_table(0, 0)
                     # Make smaller tiles to save memory
                     stride = 100
                     max_stride = (array.shape[1] // stride) * stride
                     tail = array.shape[1] - max_stride
                     tile = np.zeros((array.shape[0], stride, array.shape[2]), dtype=np.uint8)
                     for s in range(0, max_stride, stride):
-                        tile[:, :] = array[:, s:s + stride]
+                        tile[:, :] = self.LUT[array[:, s:s + stride]]
                         qt_image = QtGui.QImage(tile.data, tile.shape[1], tile.shape[0], QtGui.QImage.Format.Format_RGB888)
                         pixmap = QtGui.QPixmap.fromImage(qt_image)
                         item = self.addPixmap(pixmap)
                         item.moveBy(s, 0)
                     # Fix for windows, thin slivers at the end cause the app to hang. QImage bug?
                     if tail > 0:
-                        tile2 = np.ones((array.shape[0], stride, array.shape[2]), dtype=np.uint8) * 255
-                        tile2[:, 0:tail] = array[:, max_stride:array.shape[1]]
-                        qt_image = QtGui.QImage(tile2.data, tile2.shape[1], tile2.shape[0], QtGui.QImage.Format.Format_RGB888)
+                        tile = np.ones((array.shape[0], stride, array.shape[2]), dtype=np.uint8) * 255
+                        tile[:, 0:tail] = array[:, max_stride:array.shape[1]]
+                        qt_image = QtGui.QImage(tile.data, tile.shape[1], tile.shape[0], QtGui.QImage.Format.Format_RGB888)
                         pixmap = QtGui.QPixmap.fromImage(qt_image)
                         item = self.addPixmap(pixmap)
                         item.moveBy(max_stride, 0)
                 else:
+                    self.image_loading.emit(False, redraw)
+                    if not redraw:
+                        self.generate_lookup_table(0, 0)
                     if channels == 1:
-                        self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_Grayscale8)
+                        qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_Grayscale8)
                     else:
-                        # Apply basic min max stretch to the image
                         if self.enhance:
-                            for chan in range(channels):
-                                array[:, :, chan] = np.interp(array[:, :, chan], (array[:, :, chan].min(), array[:, :, chan].max()), (0, 255))
+                            array = self.LUT[array]
                         bpl = int(array.nbytes / array.shape[0])
                         if array.shape[2] == 4:
-                            self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_RGBA8888)
+                            qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_RGBA8888)
                         else:
-                            self.qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], bpl, QtGui.QImage.Format.Format_RGB888)
-                    self.pixmap = QtGui.QPixmap.fromImage(self.qt_image)
+                            qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], bpl, QtGui.QImage.Format.Format_RGB888)
+                    self.pixmap = QtGui.QPixmap.fromImage(qt_image)
                     self.addPixmap(self.pixmap)
                 self.display_external_annotations(file_name)
                 self.display_grid()
                 self.display_points()
             except FileNotFoundError:
                 QtWidgets.QMessageBox.critical(None, self.tr('File Not Found'), '{} {}'.format(self.current_image_name, self.tr('is not in the same folder as the point file.')))
+                if not redraw:
+                    self.image_loaded.emit(self.directory, self.current_image_name)
+            if not redraw:
                 self.image_loaded.emit(self.directory, self.current_image_name)
-            self.image_loaded.emit(self.directory, self.current_image_name)
-            self.clear_queues()
+                self.clear_queues()
             QtWidgets.QApplication.restoreOverrideCursor()
 
     def load_images(self, images):
@@ -499,6 +526,10 @@ class Canvas(QtWidgets.QGraphicsScene):
                 self.display_points()
                 self.undo_queue.append(event)
 
+    def redraw_image(self):
+        if self.directory != '':
+            self.load_image(self.directory + "/" + self.current_image_name, redraw=True)
+
     def relabel_selected_points(self):
         if self.current_class_name is not None:
             self.undo_queue.append(('relabel', self.current_class_name, self.selection))
@@ -513,11 +544,6 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.selection = []
             self.display_points()
             self.dirty = True
-
-    def reload_image(self, enhance):
-        self.enhance = enhance
-        if self.directory != '':
-            self.load_image(self.directory + "/" + self.current_image_name)
 
     def rename_class(self, old_class, new_class):
         index = self.classes.index(old_class)
@@ -633,6 +659,10 @@ class Canvas(QtWidgets.QGraphicsScene):
         else:
             self.current_class_name = self.classes[class_index]
         self.display_points()
+
+    def set_enhancement_mode(self, enhance):
+        self.enhance = enhance
+        self.redraw_image()
 
     def set_grid_color(self, color):
         self.ui['grid']['color'] = [color.red(), color.green(), color.blue()]

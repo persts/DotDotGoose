@@ -56,32 +56,44 @@ class Exporter(QtCore.QThread):
         summary_file.write(output)
         progress = 2
         for image in self.points:
-            file = Image.open('{}{}{}'.format(self.working_directory, os.path.sep, image))
-            img = np.array(file)
-            file.close()
-            for class_name in self.classes:
-                if class_name in self.points[image]:
-                    directory = '{}{}{}{}'.format(self.output_directory, os.path.sep, class_name, os.path.sep)
-                    for point in self.points[image][class_name]:
-                        progress += 1
-                        # set up file name and summary entry
-                        self.totals[class_name] += 1
-                        file_name = '{:010d}{}'.format(self.totals[class_name], self.file_type)
-                        chip_name = '{}{}'.format(directory, file_name)
-                        output = '\n{},{},{},{},{},{}'.format(self.survey_id, image, class_name, point.x(), point.y(), chip_name)
-                        summary_file.write(output)
-                        # caculate the clip window
-                        x = max(0, int(point.x()) - self.x_offset)
-                        y = max(0, int(point.y()) - self.y_offset)
-                        x2 = min((int(point.x()) - self.x_offset) + (self.x_offset * 2), img.shape[1])
-                        y2 = min((int(point.y()) - self.y_offset) + (self.y_offset * 2), img.shape[0])
-                        window = img[y:y2, x:x2]
-                        # fill the chip with data and save
-                        chip = np.zeros((self.y_offset * 2, self.x_offset * 2, img.shape[2]), img.dtype)
-                        chip[0:window.shape[0], 0:window.shape[1]] = window
-                        out_image = Image.fromarray(chip)
-                        out_image.save(chip_name)
-                        out_image.close()
+            try:
+                file = Image.open('{}{}{}'.format(self.working_directory, os.path.sep, image))
+                img = np.array(file)
+                file.close()
+                for class_name in self.classes:
+                    if class_name in self.points[image]:
+                        directory = '{}{}{}{}'.format(self.output_directory, os.path.sep, class_name, os.path.sep)
+                        for point in self.points[image][class_name]:
+                            progress += 1
+                            # set up file name and summary entry
+                            self.totals[class_name] += 1
+                            file_name = '{:010d}{}'.format(self.totals[class_name], self.file_type)
+                            chip_name = '{}{}'.format(directory, file_name)
+                            output = '\n{},{},{},{},{},{}'.format(self.survey_id, image, class_name, point.x(), point.y(), chip_name)
+                            summary_file.write(output)
+                            # caculate the clip window
+                            x = max(0, int(point.x()) - self.x_offset)
+                            y = max(0, int(point.y()) - self.y_offset)
+                            x2 = min((int(point.x()) - self.x_offset) + (self.x_offset * 2), img.shape[1])
+                            y2 = min((int(point.y()) - self.y_offset) + (self.y_offset * 2), img.shape[0])
+                            window = img[y:y2, x:x2]
+                            # fill the chip with data and save
+                            chip = np.zeros((self.y_offset * 2, self.x_offset * 2, img.shape[2]), img.dtype)
+                            chip[0:window.shape[0], 0:window.shape[1]] = window
+                            out_image = Image.fromarray(chip)
+                            out_image.save(chip_name)
+                            out_image.close()
 
-                        self.progress.emit(progress)
+                            self.progress.emit(progress)
+            except FileNotFoundError:
+                # Update progress regardless of missing file
+                # TODO: Write a summary document with missing images
+                for class_name in self.classes:
+                    if class_name in self.points[image]:
+                        for point in self.points[image][class_name]:
+                            progress += 1
+                            output = '\n{},{},{},{},{},{}'.format(self.survey_id, image, class_name, 0.0, 0.0, 'Image Not Found')
+                            summary_file.write(output)
+                            self.progress.emit(progress)
+
         summary_file.close()

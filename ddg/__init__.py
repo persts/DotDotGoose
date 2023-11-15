@@ -22,7 +22,7 @@
 # along with with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------------
-__version__ = '1.7.0'
+__version__ = '1.7.0 FWS Branch'
 
 from .dark_mode_palette import DarkModePalette  # noqa: F401
 from .about_dialog import AboutDialog  # noqa: F401
