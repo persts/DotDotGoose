@@ -32,19 +32,18 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class Canvas(QtWidgets.QGraphicsScene):
-    image_loading = QtCore.pyqtSignal(bool, bool)
-    image_loaded = QtCore.pyqtSignal(str, str)
-    points_loaded = QtCore.pyqtSignal(str)
-    directory_set = QtCore.pyqtSignal(str)
+    image_loading = QtCore.pyqtSignal(bool, bool)  # Params (Large image, redraw)
+    image_loaded = QtCore.pyqtSignal(str, str)  # Params (directory, image_name)
+    points_loaded = QtCore.pyqtSignal(str)  # Params(survey_id)
+    directory_set = QtCore.pyqtSignal(str)  # Params (directory)
     fields_updated = QtCore.pyqtSignal(list)
-    update_point_count = QtCore.pyqtSignal(str, str, int)
+    update_point_count = QtCore.pyqtSignal(str, str, int)  # Params (image_name, class, count)
     metadata_imported = QtCore.pyqtSignal()
     saving = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         QtWidgets.QGraphicsScene.__init__(self, parent)
         self.dirty = False
-        self.enhance = False
         self.points = {}
         self.colors = {}
         self.coordinates = {}
@@ -374,10 +373,10 @@ class Canvas(QtWidgets.QGraphicsScene):
                     img.close()
                 channels = self.image_cache['channels']
                 array = self.image_cache['data']
+                if not redraw:
+                    self.generate_lookup_table(0, 0)
                 if array.shape[0] > 10000 or array.shape[1] > 10000:
                     self.image_loading.emit(True, redraw)
-                    if not redraw:
-                        self.generate_lookup_table(0, 0)
                     # Make smaller tiles to save memory
                     stride = 100
                     max_stride = (array.shape[1] // stride) * stride
@@ -399,13 +398,10 @@ class Canvas(QtWidgets.QGraphicsScene):
                         item.moveBy(max_stride, 0)
                 else:
                     self.image_loading.emit(False, redraw)
-                    if not redraw:
-                        self.generate_lookup_table(0, 0)
                     if channels == 1:
                         qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_Grayscale8)
                     else:
-                        if self.enhance:
-                            array = self.LUT[array]
+                        array = self.LUT[array]
                         bpl = int(array.nbytes / array.shape[0])
                         if array.shape[2] == 4:
                             qt_image = QtGui.QImage(array.data, array.shape[1], array.shape[0], QtGui.QImage.Format.Format_RGBA8888)
@@ -659,10 +655,6 @@ class Canvas(QtWidgets.QGraphicsScene):
         else:
             self.current_class_name = self.classes[class_index]
         self.display_points()
-
-    def set_enhancement_mode(self, enhance):
-        self.enhance = enhance
-        self.redraw_image()
 
     def set_grid_color(self, color):
         self.ui['grid']['color'] = [color.red(), color.green(), color.blue()]

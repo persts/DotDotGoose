@@ -100,8 +100,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
         self.labelGridColor.mousePressEvent = self.change_grid_color
 
         self.checkBoxImageFields.clicked.connect(self.hide_custom_fields.emit)
-
-        self.checkBoxEnhanceImage.clicked.connect(self.toggle_enhancement_mode)
         self.horizontalSliderBrightness.valueChanged.connect(self.set_brightness)
         self.horizontalSliderContrast.valueChanged.connect(self.set_contrast)
 
@@ -337,13 +335,6 @@ class PointWidget(QtWidgets.QWidget, WIDGET):
             self.horizontalSliderContrast.setValue(0)
             self.horizontalSliderBrightness.blockSignals(False)
             self.horizontalSliderContrast.blockSignals(False)
-
-    def toggle_enhancement_mode(self, checked):
-        if checked:
-            self.frameEnhanceImage.setEnabled(True)
-        else:
-            self.frameEnhanceImage.setDisabled(True)
-        self.canvas.set_enhancement_mode(checked)
 
     def update_point_count(self, image_name, class_name, class_count):
         items = self.model.findItems(image_name)
