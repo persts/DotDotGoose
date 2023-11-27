@@ -310,11 +310,12 @@ class Canvas(QtWidgets.QGraphicsScene):
     def load(self, drop_list):
         peek = drop_list[0].toLocalFile()
         if os.path.isdir(peek):
-            if self.directory == '':
-                # strip off trailing sep from path
-                osx_hack = os.path.join(peek, 'OSX')
-                self.directory = os.path.split(osx_hack)[0]
-                # end
+            # strip off trailing sep from path
+            osx_hack = os.path.join(peek, 'OSX')
+            directory = os.path.split(osx_hack)[0]
+            # end
+            if self.directory == '' or self.directory == directory:
+                self.directory = directory
                 self.directory_set.emit(self.directory)
                 files = glob.glob(os.path.join(self.directory, '*'))
                 image_format = [".jpg", ".jpeg", ".png", ".tif"]
@@ -434,6 +435,8 @@ class Canvas(QtWidgets.QGraphicsScene):
             self.load_image(images[0])
 
     def load_points(self, file_name):
+        self.reset()
+        self.directory = os.path.split(file_name)[0]
         file = open(file_name, 'r')
         self.previous_file_name = file_name
         data = json.load(file)
@@ -468,8 +471,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.points_loaded.emit(self.survey_id)
         self.fields_updated.emit(self.custom_fields['fields'])
         # Force rescan of working folder for new images
-        path = os.path.split(file_name)[0]
-        self.load([QtCore.QUrl('file:{}'.format(path))])
+        self.load([QtCore.QUrl('file:{}'.format(self.directory))])
 
     def package_points(self):
         count = 0
@@ -559,7 +561,7 @@ class Canvas(QtWidgets.QGraphicsScene):
         self.display_points()
         self.dirty = True
 
-    def reset(self, clear_image=False):
+    def reset(self):
         self.dirty = False
         self.points = {}
         self.colors = {}
