@@ -70,11 +70,11 @@ class AboutDialog(QtWidgets.QDialog, CLASS_DIALOG):
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)
 
-        entry = QtWidgets.QLabel('{} : A-d-r-i, https://github.com/A-d-r-i'.format(self.tr('French')))
+        entry = QtWidgets.QLabel('{} : Adrien Charbonneau, https://github.com/Adri-Charbonneau '.format(self.tr('French')))
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)
 
-        entry = QtWidgets.QLabel('{} : Mary Blair, {}'.format(self.tr('Spanish'), self.tr('Center for Biodiversity and Conservation')))
+        entry = QtWidgets.QLabel('{} : Mary Blair & Daniel López Lozano, {}'.format(self.tr('Spanish'), self.tr('Center for Biodiversity and Conservation')))
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)
 
