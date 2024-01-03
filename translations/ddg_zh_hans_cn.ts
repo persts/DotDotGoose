@@ -529,7 +529,7 @@ Either change the permissions on the folder or click the SAVE button and select 
     <message>
         <location filename="../ddg/point_widget.ui" line="0"/>
         <source>Enhance Image</source>
-        <translation type="unfinished">增强图像</translation>
+        <translation>增强图像</translation>
     </message>
     <message>
         <location filename="../ddg/point_widget.ui" line="0"/>

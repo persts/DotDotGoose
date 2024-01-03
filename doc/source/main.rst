@@ -22,7 +22,7 @@ Point data collected with DotDotGoose will be very valuable training and validat
 |
 If you use this application on data that results in a publication, report, or online analysis, we ask that you include the following reference:
 
-Ersts,P.J.[Internet] DotDotGoose (version 1.6.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
+Ersts,P.J.[Internet] DotDotGoose (version 1.7.0). American Museum of Natural History, Center for Biodiversity and Conservation. Available from http://biodiversityinformatics.amnh.org/open_source/dotdotgoose. Accessed on [DOWNLOAD DATE].
 
 .. raw:: latex
 
@@ -312,5 +312,7 @@ I would like to thank the following people for beta testing and the feedback the
     * Peter Frost, Freelancer, New Zealand
     * Ido Senesh [ code contributor ], `Bumblebee <https://pollination.ai/>`_
     * Stephanie Braswell, Auburn University
+    * Khem So, U.S. Fish and Wildlife Service
+    * Rebecca Scully, U.s. Fish and Wildlife Service
 
 The image used in this documentation is courtesy of the Hudson Bay Project 
