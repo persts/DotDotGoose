@@ -1,0 +1,14 @@
+* text=auto
+* eol=lf
+
+
+.github export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+/translations/* export-ignore
+
+/doc/*.md export-ignore
+/doc/Makefile export-ignore
+/doc/build export-ignore
+/doc/source export-ignore
+/doc/images export-ignore
