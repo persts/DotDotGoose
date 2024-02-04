@@ -6,7 +6,6 @@ DotDotGoose is a free, open source tool to assist with manually counting objects
 *Point data collected with DotDotGoose will be very valuable training and validation data for any future efforts with computer assisted counting*
 
 
-
 ### Dependencies
 DotDotGoose is being developed on Ubuntu 22.04 with the following libraries:
 
@@ -36,3 +35,7 @@ Don't want to build from scratch? [Download DotDotGoose and start counting!](htt
 cd DotDotGoose
 python3 main.py
 ```
+
+### Demonstration
+
+<video src="https://github.com/mavaddat/DotDotGoose/assets/5055400/40d79ca9-8b5c-4cdf-a64e-8bc68205f054" />
