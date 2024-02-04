@@ -1,12 +1,17 @@
 # DotDotGoose
+
 DotDotGoose is a free, open source tool to assist with manually counting objects in images.
 
 ![Screen Shot](doc/source/example.png)
 
-*Point data collected with DotDotGoose will be very valuable training and validation data for any future efforts with computer assisted counting*
+> [!TIP] Point data collected with DotDotGoose will be very valuable training and validation data for any future efforts with computer assisted counting
 
+## Manual
 
-### Dependencies
+The [complete user manual](./MANUAL.md) can be read here: [📖](./MANUAL.md)
+
+## Dependencies
+
 DotDotGoose is being developed on Ubuntu 22.04 with the following libraries:
 
 * PyQt6 (6.5.2)

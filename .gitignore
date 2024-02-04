@@ -8,3 +8,4 @@ doc/source/_build/
 .vscode/
 __pycache__/
 setup.cfg
+ddg-env/*
