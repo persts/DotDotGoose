@@ -4,7 +4,10 @@ DotDotGoose is a free, open source tool to assist with manually counting objects
 
 ![Screen Shot](doc/source/example.png)
 
-> [!TIP] Point data collected with DotDotGoose will be very valuable training and validation data for any future efforts with computer assisted counting
+> [!TIP]
+> Point data collected with DotDotGoose will be very
+> valuable training and validation data for any future
+> efforts with computer assisted counting
 
 ## Manual
 

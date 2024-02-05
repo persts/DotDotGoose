@@ -8,7 +8,7 @@
 - [Preparing Data](#preparing-data)
 - [Image Formats](#image-formats)
 - [Collecting Points](#collecting-points)
-  - [Tips and Notes\*\*](#tips-and-notes)
+  - [Tips and Notes](#tips-and-notes)
 - [Editing Points and Classes](#editing-points-and-classes)
   - [Deleting Points](#deleting-points)
   - [Relabeling Points](#relabeling-points)
@@ -34,7 +34,7 @@
 
 #### Jan 03, 2024
 
-<img src="./CBClogo.svg" width="100vw" /><br /><img src="https://www.amnh.org/extension/amnh/design/amnh_redesign/images/logos/amnh-logo-white.svg?2023" width="80vw" />
+<img src="./CBClogo.svg" width="100%" /><br /><img src="https://www.amnh.org/extension/amnh/design/amnh_redesign/images/logos/amnh-logo-white.svg?2023" width="80%" />
 
 DotDotGoose is a free, open source tool to assist with manually
 counting objects in images. DotDotGoose was purpose- built since most
@@ -67,7 +67,7 @@ from
 
 ##### License
 
-[See LICENSE](./LICENSE)
+For licensing information and usage rights, please see the [LICENSE](./LICENSE).
 
 # User Interface
 
@@ -160,7 +160,7 @@ To begin collecting points,
 | <a id="fig3"></a><img src="media/image4.jpeg" style="width:6.46875in;height:3.57187in" /> |
 | **Fig. 3**: Example counting project. |
 
-## Tips and Notes**
+## Tips and Notes
 
 - You can use the up arrow or <kbd>W</kbd> and the down arrow or <kbd>S</kbd> keys on your
   keyboard to cycles through the images loaded in a project.
@@ -263,7 +263,7 @@ and then later merging the count data with the this extra information.
 
 1. Click the \[Delete Field\] button to open the Delete Custom Field dialog.
 2. Select the field you would like to remove from the pull down menu.
-3. Click the \[Delete\] button.
+3. Click the \[Delete\] button.  
    > [!NOTE]  
    > This will remove the custom
    > field and existing data in it for the active project
@@ -278,7 +278,7 @@ images. Save frequently!
 ## Saving Point Data
 
 1. Click the \[Save\] button to open the save file dialog.
-2. Enter a new file name or select and existing file to overwrite.
+2. Enter a new file name or select and existing file to overwrite.  
     > [!NOTE]
     > You must save your project file in the same directory as your images
 
