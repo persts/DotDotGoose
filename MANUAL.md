@@ -34,7 +34,7 @@
 
 #### Jan 03, 2024
 
-<img src="./CBClogo.svg" width="100%" /><br /><img src="https://www.amnh.org/extension/amnh/design/amnh_redesign/images/logos/amnh-logo-white.svg?2023" width="80%" />
+<img src="./CBClogo.svg" width="100%" /><br /><img src="https://www.amnh.org/extension/amnh/design/amnh_redesign/images/logos/amnh-logo-white.svg?2023" width="60%" />
 
 DotDotGoose is a free, open source tool to assist with manually
 counting objects in images. DotDotGoose was purpose- built since most
