@@ -52,6 +52,7 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.addAction(self.tr('Chinese (Mandarin)'), self.zh_Hans_CN)
         menu.addAction(self.tr('English'), self.en_US)
         menu.addAction(self.tr('French'), self.fr_FR)
+        menu.addAction(self.tr('Hungarian'), self.hu_HU)
         menu.addAction(self.tr('Spanish'), self.es_CO)
         menu.addAction(self.tr('Vietnamese'), self.vi_VN)
 
@@ -84,6 +85,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def fr_FR(self):
         settings = QtCore.QSettings("AMNH", "DotDotGoose")
         settings.setValue('locale', 'fr')
+        self.restart_message()
+
+    def hu_HU(self):
+        settings = QtCore.QSettings("AMNH", "DotDotGoose")
+        settings.setValue('locale', 'hu')
         self.restart_message()
 
     def vi_VN(self):

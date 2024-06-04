@@ -74,6 +74,10 @@ class AboutDialog(QtWidgets.QDialog, CLASS_DIALOG):
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)
 
+        entry = QtWidgets.QLabel('{} : Charles K Barcza, https://github.com/blackPantherOS '.format(self.tr('Hungarian')))
+        entry.setFont(font)
+        self.groupBoxTranslators.layout().addWidget(entry)
+
         entry = QtWidgets.QLabel('{} : Mary Blair & Daniel López Lozano, {}'.format(self.tr('Spanish'), self.tr('Center for Biodiversity and Conservation')))
         entry.setFont(font)
         self.groupBoxTranslators.layout().addWidget(entry)
