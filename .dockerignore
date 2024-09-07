@@ -1,0 +1,12 @@
+ui_*
+build/
+dist/
+package/
+data/
+icons/DDG_icon
+doc/
+extra_tools/
+translations/*.sh
+.vscode/
+__pycache__/
+setup.cfg
