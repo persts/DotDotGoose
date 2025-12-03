@@ -1,6 +1,6 @@
-# CellCounter Biomarker Detection Pipeline
+=# CellCounter Biomarker Detection Pipeline
 
-CellCounter is a computer-vision + deep-learning pipeline for detecting microscopic biomarkers in tissue-stained microscopy images.  
+CellCounter is a computer-vision + deep-learning pipeline for detecting microscopic biomarkers in tissue-stained microscopy images.
 It uses color-space gating, candidate generation, CNN classification, geometric postprocessing, and exports DDG-compatible `.pnt` annotation files for use inside DotDotGoose.
 
 ---
@@ -40,13 +40,10 @@ This enables:
 
 Given `sample.png`, the pipeline produces:
 
-- sample_overlay.png # detections drawn
-
-- sample_detections.csv # x,y,score
-
-- sample_artifacts.csv # debug outputs
-
-- sample.pnt # DotDotGoose annotation file
+- sample_overlay.png      # detections drawn
+- sample_detections.csv   # x,y,score
+- sample_artifacts.csv    # debug outputs
+- sample.pnt              # DotDotGoose annotation file
 
 ---
 
@@ -60,63 +57,42 @@ Given `sample.png`, the pipeline produces:
 - PyTorch
 - torchvision
 - Pillow
----
 
 ### Model Weights
 
-The trained model file used by the AI:
+The trained model file used by the AI is located at:
+CellCounter499/ai_model/cell_classifier_best.pth
 
-***CellCounter499/ai_model/cell_classifier_best.pth***
+This file is bundled into the executable at build time and automatically loaded inside the DotDotGoose UI. Users do not need to manually interact with it.
 
-This file is bundled into the executable at build time and automatically loaded inside the DotDotGoose UI.  
-Users do **not** need to manually interact with it.
+---
 
-## Installation
+## Installation & Setup
+
+### 1. Clone and Environment Setup
+
 ```bash
-git clone https://github.com/.../CellCounter499
+git clone [https://github.com/.../CellCounter499](https://github.com/.../CellCounter499)
+cd CellCounter499
+
+# Create virtual environment
 python3 -m venv cc-env
-source cc-env/bin/activate       # macOS / Linux
-# OR on Windows:
+
+# Activate Environment
+# macOS / Linux:
+source cc-env/bin/activate
+# Windows:
 cc-env\Scripts\activate
-pip install -r requirements.txt
-```
 
-## Building the Executable
-
-This builds the DotDotGoose GUI annotation tool used for manual point labeling and reviewing AI-generated outputs.
-
-```bash
-venv\Scripts\activate #if using environment
+# Install Dependencies
 pip install -r requirements.txt
 pip install pyinstaller
+
+# Remove previous builds to prevent caching issues then build app
+# macOs/Linux:
+ cd package
+rm -rf build dist
+pyinstaller --clean --noconfirm ddg_mac.spec
+# Windows:
 cd package
-#OR 'ddg_mac.spec' for MacOS
-python pyinstaller --clean --noconfirm ddg.spec #OMIT 'python' if error
-```
-
-## Executable Directory: 
-
-CellCounter499/package/dist/ddg
-
-## Running Automated Detection (AI Inside DotDotGoose)
-
-CellCounter inference is integrated directly into the DotDotGoose UI.
-
-There is **no need to run any Python scripts manually**.
-
-Steps:
-
-1. Launch the DotDotGoose executable
-2. Open your microscopy image
-3. Click:  
-   **Automatically Detect Cells**
-4. The AI model will run internally and produce detections
-5. The detections appear in real-time as cell markers
-6. You may delete/add/edit detections manually afterward
-
-This enables a GUI-based human-in-the-loop workflow with no command-line usage.
-
-
-## Original DotDotGoose:
-
-https://github.com/persts/DotDotGoose
+pyinstaller --clean --noconfirm ddg.spec
