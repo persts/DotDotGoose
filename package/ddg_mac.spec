@@ -41,8 +41,6 @@ a = Analysis(
         (os.path.join(root_path, "icons/zoom_in.svg"), "icons/"),
         (os.path.join(root_path, "icons/zoom_out.svg"), "icons/"),
         # IMPORTANT: Mac apps need an .icns file for the Dock icon. 
-        # If you don't have one, comment the next line out.
-        (os.path.join(root_path, "icons/logo.icns"), "icons/"), 
 
         # --- Translations ---
         (os.path.join(root_path, "i18n/ddg_es.qm"), "i18n/"),
@@ -101,6 +99,5 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='DotDotGoose.app',
-    icon=os.path.join(root_path, 'icons', 'logo.icns'), # Ensure this file exists or comment out
     bundle_identifier='com.uab.cellcounter',
 )
