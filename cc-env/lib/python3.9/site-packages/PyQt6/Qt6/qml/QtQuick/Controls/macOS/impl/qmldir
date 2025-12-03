@@ -1,0 +1,12 @@
+module QtQuick.Controls.macOS.impl
+linktarget Qt6::qtquickcontrols2macosstyleimplplugin
+optional plugin qtquickcontrols2macosstyleimplplugin
+classname QtQuickControls2macOSStyleImplPlugin
+typeinfo QuickControls2MacOSStyleImpl.qmltypes
+depends QtQuick auto
+prefer :/qt-project.org/imports/QtQuick/Controls/macOS/impl/
+SwitchHandle 6.0 SwitchHandle.qml
+SwitchHandle 6.0 SwitchHandle.qml
+SwitchIndicator 6.0 SwitchIndicator.qml
+SwitchIndicator 6.0 SwitchIndicator.qml
+

@@ -1,0 +1,10 @@
+module QtQml.Base
+linktarget Qt6::qmlplugin
+optional plugin qmlplugin
+classname QtQmlPlugin
+designersupported
+system
+typeinfo plugins.qmltypes
+import QML 1.0
+prefer :/qt-project.org/imports/QtQml/Base/
+

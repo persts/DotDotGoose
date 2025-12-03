@@ -1,0 +1,53 @@
+{
+    "Material": {
+        "Base":           ["lightProbe", "cullMode", "depthDrawMode"]
+    },
+    "DefaultMaterial": {
+        "Base":           ["lighting", "blendMode", "vertexColorsEnabled", "pointSize", "lineWidth"],
+        "Diffuse":        ["diffuseColor", "diffuseMap"],
+        "Emissive":       ["emissiveFactor.x", "emissiveFactor.y", "emissiveFactor.z", "emissiveMap"],
+        "Specular":       ["specularTint", "specularAmount", "specularMap", "specularModel", "specularReflectionMap", "indexOfRefraction", "fresnelPower", "specularRoughness", "roughnessMap", "roughnessChannel"],
+        "Opacity":        ["opacity", "opacityMap", "opacityChannel"],
+        "Bump / Normal":  ["bumpAmount", "bumpMap", "normalMap"],
+        "Translucency":   ["translucentFalloff", "diffuseLightWrap", "translucencyMap", "translucencyChannel"]
+    },
+    "PrincipledMaterial": {
+        "Base":           ["alphaMode", "alphaCutoff", "blendMode", "lighting", "pointSize", "lineWidth", "indexOfRefraction"],
+        "Base Color":     ["baseColor", "baseColorMap"],
+        "Metalness":      ["metalness", "metalnessMap", "metalnessChannel"],
+        "Attenuation":    ["attenuationColor", "attenuationDistance"],
+        "Normal":         ["normalMap", "normalStrength"],
+        "Occlusion":      ["occlusionAmount", "occlusionMap", "occlusionChannel"],
+        "Opacity":        ["opacity", "opacityMap", "opacityChannel"],
+        "Roughness":      ["roughness", "roughnessMap", "roughnessChannel"],
+        "Height":         ["heightMap", "heightChannel", "heightAmount", "minHeightMapSamples", "maxHeightMapSamples"],
+        "Clearcoat":      ["clearcoatAmount", "clearcoatMap", "clearcoatChannel", "clearcoatRoughnessAmount", "clearcoatRoughnessMap", "clearcoatRoughnessChannel", "clearcoatNormalMap"],
+        "Transmission":   ["transmissionFactor", "transmissionMap", "transmissionChannel"],
+        "Specular":       ["specularAmount", "specularMap", "specularReflectionMap", "specularTint"],
+        "Thickness":      ["thicknessFactor", "thicknessMap", "thicknessChannel"],
+        "Emissive":       ["emissiveMap", "emissiveFactor.x", "emissiveFactor.y", "emissiveFactor.z"]
+    },
+    "SpecularGlossyMaterial": {
+        "Base":           ["alphaMode", "alphaCutoff", "blendMode", "lighting", "pointSize", "lineWidth"],
+        "Albedo":         ["albedoColor", "albedoMap"],
+        "Specular":       ["specularColor", "specularMap"],
+        "Glossiness":     ["glossiness", "glossinessMap", "glossinessChannel"],
+        "Attenuation":    ["attenuationColor", "attenuationDistance"],
+        "Normal":         ["normalMap", "normalStrength"],
+        "Occlusion":      ["occlusionAmount", "occlusionMap", "occlusionChannel"],
+        "Opacity":        ["opacity", "opacityMap", "opacityChannel"],
+        "Height":         ["heightMap", "heightChannel", "heightAmount", "minHeightMapSamples", "maxHeightMapSamples"],
+        "Clearcoat":      ["clearcoatAmount", "clearcoatMap", "clearcoatChannel", "clearcoatRoughnessAmount", "clearcoatRoughnessMap", "clearcoatRoughnessChannel", "clearcoatNormalMap"],
+        "Transmission":   ["transmissionFactor", "transmissionMap", "transmissionChannel"],
+        "Thickness":      ["thicknessFactor", "thicknessMap", "thicknessChannel"],
+        "Emissive":       ["emissiveMap", "emissiveFactor.x", "emissiveFactor.y", "emissiveFactor.z"]
+    },
+    "CustomMaterial": {
+        "Base":           ["shadingMode", "vertexShader", "fragmentShader", "sourceBlend", "destinationBlend", "alwaysDirty", "lineWidth"]
+    },
+    "Model": {
+        "Base":           ["source", "geometry", "materials", "castsShadows", "receivesShadows", "castsReflections", "receivesReflections", "pickable", "depthBias", "levelOfDetailBias"],
+        "Instancing":     ["instancing", "instanceRoot"],
+        "Animation":      ["skeleton", "morphTargets"]
+    }
+}

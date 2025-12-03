@@ -18,3 +18,15 @@ venv/
 venv*/
 
 .idea/
+
+# 🔹 Mac System Files
+.DS_Store
+*.app/
+*.dmg
+
+# 🔹 Spec File Safety
+# Ignore all auto-generated spec files...
+*.spec
+# ...but FORCE track your custom ones:
+!package/ddg.spec
+!package/ddg_mac.spec
