@@ -13,7 +13,7 @@ root_path = os.path.abspath('..')
 # We explicitly collect PyQt6. 
 # We also ensure torch and cv2 are found since we are now IMPORTING them.
 hidden_imports = collect_submodules("PyQt6")
-hidden_imports += ['torch', 'torchvision', 'cv2', 'numpy', 'PIL']
+hidden_imports += ['torch', 'torchvision', 'cv2', 'numpy', 'PIL', 'cell_detector_wrapper']
 
 a = Analysis(
     [os.path.join(root_path, 'main.py')],
